@@ -353,6 +353,34 @@ If using this software in your research, please cite:
 | Cohen's κ | 0.457 |
 | Mean per-subject accuracy | 68.3% ± 21.2% |
 
+### Controlled CNN-LSTM Hyperparameter Tuning Study (Strict 2-Phase Protocol)
+
+> Phase 1 ranks 7 configurations on Validation Macro F1 ($S078-S093$) without loading test data.
+> Phase 2 evaluates only the single winning configuration on Test ($S094-S109$) exactly once.
+
+#### Phase 1 Validation Ranking ($S078-S093$)
+
+| Config | Change | Params | Best Epoch | Val Macro F1 | Val Accuracy |
+|---|---|---|---|---|---|
+| 0 (`config_0_original`) | Reference (defaults) | 457,570 | 17 | 0.5291 | 53.02% |
+| 1 (`config_1_hidden64`) | `lstm_hidden_size`: 128 → 64 | 272,226 | 6 | 0.5139 | 52.06% |
+| **2 (`config_2_dropout03`) ★** | **`dropout`: 0.5 → 0.3** | **457,570** | **29** | **0.5885** | **59.05%** |
+| 3 (`config_3_lr0003`) | `lr`: 0.001 → 0.0003 | 457,570 | 3 | 0.4999 | 51.59% |
+| 4 (`config_4_gradclip1`) | `grad_clip`: None → 1.0 | 457,570 | 29 | 0.5411 | 55.71% |
+| 5 (`config_5_lstm1layer`) | `lstm_layers`: 2 → 1 | 325,474 | 8 | 0.5148 | 51.59% |
+| 6 (`config_6_patience20`) | `es_patience`: 10 → 20, max_epochs: 30 → 50 | 457,570 | 17 | 0.5291 | 53.65% |
+
+#### Phase 2 Test Evaluation on Selected Winner (`config_2_dropout03`)
+
+| Metric | Selected Winner (`config_2_dropout03`) | Frozen CNN Baseline |
+|---|---|---|
+| **Test Accuracy** | **53.49%** | **72.81%** |
+| Macro F1 | 0.5325 | 0.7270 |
+| Cohen's κ | 0.0713 | 0.4569 |
+
+> **Conclusion**: While reducing dropout ($0.5 \to 0.3$) improved validation macro F1 ($0.5291 \to 0.5885$), the tuned CNN-LSTM architecture (**53.49% test acc**) remains substantially below the frozen 1D-CNN Baseline (**72.81% test acc**).
+
+
 > CNN Baseline significantly outperforms all classical ML methods. CNN-LSTM did not converge on this dataset size/configuration within 30 epochs on CPU.
 
 ---
