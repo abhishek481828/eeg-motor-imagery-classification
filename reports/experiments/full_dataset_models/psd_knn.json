@@ -1,0 +1,44 @@
+{
+  "model_name": "PSD + KNN",
+  "dataset_version": "1.0.0",
+  "num_subjects_total": 109,
+  "validation_metrics": {
+    "accuracy": 0.5063492063492063,
+    "balanced_accuracy": 0.5061880190276546,
+    "cohens_kappa": 0.012379905840129823,
+    "macro_precision": 0.5062524821539496,
+    "macro_recall": 0.5061880190276546,
+    "macro_f1": 0.5049910184406194,
+    "weighted_precision": 0.5062555047850514,
+    "weighted_recall": 0.5063492063492063,
+    "weighted_f1": 0.5050733328593217,
+    "per_class": {
+      "Left Fist": {
+        "precision": 0.5072046109510087,
+        "recall": 0.5569620253164557,
+        "f1_score": 0.530920060331825
+      },
+      "Right Fist": {
+        "precision": 0.5053003533568905,
+        "recall": 0.4554140127388535,
+        "f1_score": 0.47906197654941374
+      }
+    },
+    "confusion_matrix": [
+      [
+        176,
+        140
+      ],
+      [
+        171,
+        143
+      ]
+    ]
+  },
+  "validation_prediction_distribution": {
+    "Left Fist": 347,
+    "Right Fist": 283
+  },
+  "training_time_sec": 8.948,
+  "inference_time_sec": 0.1467
+}

@@ -1,0 +1,43 @@
+{
+  "model_name": "Majority Baseline",
+  "dataset_version": "1.0.0",
+  "num_subjects_total": 109,
+  "validation_metrics": {
+    "accuracy": 0.5015873015873016,
+    "balanced_accuracy": 0.5,
+    "cohens_kappa": 0.0,
+    "macro_precision": 0.2507936507936508,
+    "macro_recall": 0.5,
+    "macro_f1": 0.33403805496828753,
+    "weighted_precision": 0.25158982111363065,
+    "weighted_recall": 0.5015873015873016,
+    "weighted_f1": 0.3350984932380281,
+    "per_class": {
+      "Left Fist": {
+        "precision": 0.5015873015873016,
+        "recall": 1.0,
+        "f1_score": 0.6680761099365751
+      },
+      "Right Fist": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        316,
+        0
+      ],
+      [
+        314,
+        0
+      ]
+    ]
+  },
+  "validation_prediction_distribution": {
+    "Left Fist": 630
+  },
+  "training_time_sec": 0.0321,
+  "inference_time_sec": 0.0001
+}

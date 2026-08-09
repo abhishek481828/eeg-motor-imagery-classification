@@ -1,0 +1,44 @@
+{
+  "model_name": "CNN Baseline",
+  "dataset_version": "1.0.0",
+  "num_subjects_total": 109,
+  "validation_metrics": {
+    "accuracy": 0.7857142857142857,
+    "balanced_accuracy": 0.7858078690639362,
+    "cohens_kappa": 0.5715063027115264,
+    "macro_precision": 0.7867412867412867,
+    "macro_recall": 0.7858078690639362,
+    "macro_f1": 0.78555814135261,
+    "weighted_precision": 0.7867983423538979,
+    "weighted_recall": 0.7857142857142857,
+    "weighted_f1": 0.785539771427707,
+    "per_class": {
+      "Left Fist": {
+        "precision": 0.8047138047138047,
+        "recall": 0.7563291139240507,
+        "f1_score": 0.7797716150081566
+      },
+      "Right Fist": {
+        "precision": 0.7687687687687688,
+        "recall": 0.8152866242038217,
+        "f1_score": 0.7913446676970634
+      }
+    },
+    "confusion_matrix": [
+      [
+        239,
+        77
+      ],
+      [
+        58,
+        256
+      ]
+    ]
+  },
+  "validation_prediction_distribution": {
+    "Left Fist": 297,
+    "Right Fist": 333
+  },
+  "training_time_sec": 81.4293,
+  "inference_time_sec": 0.2129
+}

@@ -1,0 +1,191 @@
+{
+  "selected_best_model": "CNN Baseline",
+  "selection_metric": "validation_macro_f1",
+  "validation_macro_f1": 0.7856,
+  "test_subjects": [
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109
+  ],
+  "num_test_subjects": 16,
+  "test_metrics": {
+    "accuracy": 0.7280832095096582,
+    "balanced_accuracy": 0.7288111641052817,
+    "cohens_kappa": 0.45693019318026484,
+    "macro_precision": 0.7330472643529264,
+    "macro_recall": 0.7288111641052817,
+    "macro_f1": 0.7270200480977027,
+    "weighted_precision": 0.7334291147254856,
+    "weighted_recall": 0.7280832095096582,
+    "weighted_f1": 0.7268428545290434,
+    "per_class": {
+      "Left Fist": {
+        "precision": 0.7697594501718213,
+        "recall": 0.6588235294117647,
+        "f1_score": 0.7099841521394612
+      },
+      "Right Fist": {
+        "precision": 0.6963350785340314,
+        "recall": 0.7987987987987988,
+        "f1_score": 0.7440559440559441
+      }
+    },
+    "confusion_matrix": [
+      [
+        224,
+        116
+      ],
+      [
+        67,
+        266
+      ]
+    ]
+  },
+  "per_subject_accuracy_mean": 0.682625,
+  "per_subject_accuracy_std": 0.2124169322935439,
+  "test_prediction_distribution": {
+    "Left Fist": 291,
+    "Right Fist": 382
+  },
+  "test_inference_time_sec": 0.2111,
+  "per_subject_breakdown": {
+    "S094": {
+      "num_epochs": 45,
+      "accuracy": 0.7333,
+      "class_distribution": {
+        "0": 22,
+        "1": 23
+      }
+    },
+    "S095": {
+      "num_epochs": 45,
+      "accuracy": 0.6889,
+      "class_distribution": {
+        "0": 23,
+        "1": 22
+      }
+    },
+    "S096": {
+      "num_epochs": 45,
+      "accuracy": 0.8667,
+      "class_distribution": {
+        "0": 23,
+        "1": 22
+      }
+    },
+    "S097": {
+      "num_epochs": 45,
+      "accuracy": 0.8222,
+      "class_distribution": {
+        "0": 23,
+        "1": 22
+      }
+    },
+    "S098": {
+      "num_epochs": 45,
+      "accuracy": 0.6889,
+      "class_distribution": {
+        "0": 23,
+        "1": 22
+      }
+    },
+    "S099": {
+      "num_epochs": 45,
+      "accuracy": 0.5111,
+      "class_distribution": {
+        "0": 22,
+        "1": 23
+      }
+    },
+    "S100": {
+      "num_epochs": 0,
+      "accuracy": 0.0,
+      "class_distribution": {}
+    },
+    "S101": {
+      "num_epochs": 45,
+      "accuracy": 0.8444,
+      "class_distribution": {
+        "0": 22,
+        "1": 23
+      }
+    },
+    "S102": {
+      "num_epochs": 45,
+      "accuracy": 0.6889,
+      "class_distribution": {
+        "0": 22,
+        "1": 23
+      }
+    },
+    "S103": {
+      "num_epochs": 45,
+      "accuracy": 0.8667,
+      "class_distribution": {
+        "0": 22,
+        "1": 23
+      }
+    },
+    "S104": {
+      "num_epochs": 43,
+      "accuracy": 0.7442,
+      "class_distribution": {
+        "0": 22,
+        "1": 21
+      }
+    },
+    "S105": {
+      "num_epochs": 45,
+      "accuracy": 0.8889,
+      "class_distribution": {
+        "0": 23,
+        "1": 22
+      }
+    },
+    "S106": {
+      "num_epochs": 45,
+      "accuracy": 0.6,
+      "class_distribution": {
+        "0": 24,
+        "1": 21
+      }
+    },
+    "S107": {
+      "num_epochs": 45,
+      "accuracy": 0.6667,
+      "class_distribution": {
+        "0": 24,
+        "1": 21
+      }
+    },
+    "S108": {
+      "num_epochs": 45,
+      "accuracy": 0.8222,
+      "class_distribution": {
+        "0": 22,
+        "1": 23
+      }
+    },
+    "S109": {
+      "num_epochs": 45,
+      "accuracy": 0.4889,
+      "class_distribution": {
+        "0": 23,
+        "1": 22
+      }
+    }
+  }
+}

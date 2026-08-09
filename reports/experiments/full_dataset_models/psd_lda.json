@@ -1,0 +1,44 @@
+{
+  "model_name": "PSD + LDA",
+  "dataset_version": "1.0.0",
+  "num_subjects_total": 109,
+  "validation_metrics": {
+    "accuracy": 0.5650793650793651,
+    "balanced_accuracy": 0.5653370152382489,
+    "cohens_kappa": 0.13060558443128245,
+    "macro_precision": 0.567095131644312,
+    "macro_recall": 0.5653370152382489,
+    "macro_f1": 0.5623225152129818,
+    "weighted_precision": 0.5671346564789188,
+    "weighted_recall": 0.5650793650793651,
+    "weighted_f1": 0.5622122412183265,
+    "per_class": {
+      "Left Fist": {
+        "precision": 0.5795454545454546,
+        "recall": 0.48417721518987344,
+        "f1_score": 0.5275862068965518
+      },
+      "Right Fist": {
+        "precision": 0.5546448087431693,
+        "recall": 0.6464968152866242,
+        "f1_score": 0.5970588235294118
+      }
+    },
+    "confusion_matrix": [
+      [
+        153,
+        163
+      ],
+      [
+        111,
+        203
+      ]
+    ]
+  },
+  "validation_prediction_distribution": {
+    "Left Fist": 264,
+    "Right Fist": 366
+  },
+  "training_time_sec": 8.9682,
+  "inference_time_sec": 0.0008
+}
