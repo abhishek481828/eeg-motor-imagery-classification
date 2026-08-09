@@ -1,0 +1,29 @@
+model_type: "cnn_lstm"
+use_gan_augmentation: true
+
+gan:
+  latent_dim: 100
+  generator_filters: [128, 64, 32]
+  discriminator_filters: [32, 64, 128]
+  epochs: 200
+  batch_size: 64
+  lr_g: 0.0002
+  lr_d: 0.0002
+  synthetic_ratio: 0.5 # ratio of synthetic samples added per real sample
+
+architecture:
+  cnn_filters: [32, 64, 128]
+  kernel_size: 15
+  pool_size: 2
+  lstm_hidden_size: 128
+  lstm_layers: 2
+  dropout: 0.5
+
+training:
+  batch_size: 32
+  epochs: 100
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  scheduler: "reduce_on_plateau"
+  patience: 10
+  early_stopping_patience: 15

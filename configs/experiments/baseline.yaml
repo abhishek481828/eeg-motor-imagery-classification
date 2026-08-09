@@ -1,0 +1,10 @@
+model_type: "lda" # or "logistic_regression"
+feature_type: "power_spectral_density"
+
+bandpass_bands:
+  mu: [8, 12]
+  beta: [13, 30]
+
+hyperparameters:
+  solver: "lsqr"
+  shrinkage: "auto"

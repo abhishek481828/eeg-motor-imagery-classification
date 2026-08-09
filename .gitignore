@@ -1,0 +1,78 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+
+# Caches and tooling outputs
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.build/
+dist/
+build/
+*.egg-info/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# EEG Dataset Binaries & Raw Files (NEVER COMMIT DATASETS)
+data/raw/*
+!data/raw/README.md
+data/processed/*
+!data/processed/README.md
+data/interim/*
+!data/interim/README.md
+*.edf
+*.EDF
+*.edf.gz
+*.zip
+*.tar
+*.tar.gz
+*.h5
+*.hdf5
+*.npy
+*.npz
+
+# Models, Checkpoints & Outputs (NEVER COMMIT BINARY WEIGHTS)
+models/checkpoints/*
+!models/checkpoints/.gitkeep
+models/*.pt
+models/*.pth
+models/*.ckpt
+*.pt
+*.pth
+*.ckpt
+
+# Experiment Tracking & Logs
+mlruns/
+mlruns.db
+reports/experiments/*
+!reports/experiments/.gitkeep
+logs/
+*.log
+
+# Secrets, Environment & SSH Keys
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+token.json
+token.txt
+
+# Operating System & IDE Specific
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~

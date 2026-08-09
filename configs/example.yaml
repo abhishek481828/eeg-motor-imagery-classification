@@ -1,0 +1,28 @@
+# Example Hydra Experiment Configuration Template
+# Demonstrates safe placeholder parameters for local experiment customization.
+
+seed: 42
+device: "cpu"
+batch_size: 8
+num_workers: 0
+
+data:
+  dataset_name: "physionet_example"
+  raw_data_dir: "data/raw/physionet"
+  sampling_rate: 160
+  num_channels: 64
+  l_freq: 7.0
+  h_freq: 30.0
+  notch_freq: 60.0
+  window_duration: 3.0
+  relevant_runs: [4, 8, 12]
+
+experiments:
+  model_type: "cnn_lstm"
+  training:
+    epochs: 10
+    learning_rate: 0.001
+
+mlflow:
+  tracking_uri: "sqlite:///mlruns.db"
+  experiment_name: "eeg_motor_imagery_example"

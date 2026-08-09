@@ -1,0 +1,19 @@
+dataset_name: "physionet_eegmmidb_2class"
+raw_data_dir: "./data/raw/physionet"
+processed_data_dir: "./data/processed"
+
+sampling_rate: 160
+num_channels: 64
+l_freq: 7.0
+h_freq: 30.0
+notch_freq: 60.0
+
+window_duration: 3.0 # seconds per epoch/window starting at event onset
+window_overlap: 0.0  # event onset segmentation
+
+classes:
+  - "left_fist"
+  - "right_fist"
+
+num_classes: 2 # Two-class motor imagery (Left Fist vs Right Fist)
+relevant_runs: [4, 8, 12] # Motor imagery Left vs Right Fist runs only

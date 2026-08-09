@@ -1,0 +1,24 @@
+defaults:
+  - data: physionet
+  - experiments: cnn_lstm
+  - splits: subject_independent
+  - _self_
+
+seed: 42
+device: auto # auto selects CPU if CUDA is unavailable
+
+# CPU-safe hardware execution defaults
+batch_size: 8
+num_workers: 0
+pin_memory: false
+mixed_precision: false
+
+use_gan_augmentation: false # Disabled by default
+
+experiment_name: "eeg_motor_imagery_default"
+output_dir: "./reports/experiments"
+checkpoint_dir: "./models/checkpoints"
+
+mlflow:
+  tracking_uri: "sqlite:///mlruns.db"
+  experiment_name: "eeg_motor_imagery_research"

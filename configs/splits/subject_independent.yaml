@@ -1,0 +1,8 @@
+split_type: "subject_independent"
+seed: 42
+train_ratio: 0.70
+val_ratio: 0.15
+test_ratio: 0.15
+total_subjects: 109
+exclude_subjects: [88, 92, 100] # corrupt / defective PhysioNet recordings if any
+manifest_path: "./data/splits/subject_split.json"

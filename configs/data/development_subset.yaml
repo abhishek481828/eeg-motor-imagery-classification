@@ -1,0 +1,17 @@
+# Development config using a small subset of subjects for rapid CPU testing
+dataset_name: "physionet_dev_subset"
+raw_data_dir: "./data/raw/physionet"
+processed_data_dir: "./data/processed_dev"
+
+sampling_rate: 160
+num_channels: 64
+l_freq: 7.0
+h_freq: 30.0
+notch_freq: 60.0
+
+window_duration: 3.0
+window_overlap: 0.0
+
+subject_subset: [1, 2, 3, 4, 5] # Small 5-subject development subset for rapid CPU testing
+num_classes: 2
+relevant_runs: [4, 8, 12] # 2-class Motor Imagery (Left Fist vs Right Fist)
