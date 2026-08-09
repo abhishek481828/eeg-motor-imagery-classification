@@ -1,0 +1,49 @@
+{
+  "winning_config_key": "2",
+  "name": "config_2_dropout03",
+  "description": "Dropout reduced: 0.5 \u2192 0.3.",
+  "change": "dropout: 0.5 \u2192 0.3",
+  "timestamp": "2026-08-09T21:07:20.653180+00:00",
+  "selection_rule": "Highest Validation Macro F1 among all 7 configs",
+  "validation_macro_f1": 0.588469,
+  "test_metrics": {
+    "accuracy": 0.5349182763744428,
+    "balanced_accuracy": 0.5357180710121886,
+    "cohens_kappa": 0.07131489033395799,
+    "macro_precision": 0.5365708084644601,
+    "macro_recall": 0.5357180710121886,
+    "macro_f1": 0.5325403606102634,
+    "weighted_precision": 0.5366831164705778,
+    "weighted_recall": 0.5349182763744428,
+    "weighted_f1": 0.5321935812279874,
+    "per_class": {
+      "Left Fist": {
+        "precision": 0.5473684210526316,
+        "recall": 0.4588235294117647,
+        "f1_score": 0.4992
+      },
+      "Right Fist": {
+        "precision": 0.5257731958762887,
+        "recall": 0.6126126126126126,
+        "f1_score": 0.565880721220527
+      }
+    },
+    "confusion_matrix": [
+      [
+        156,
+        184
+      ],
+      [
+        129,
+        204
+      ]
+    ]
+  },
+  "per_subject_accuracy_mean": 0.534987,
+  "per_subject_accuracy_std": 0.074627,
+  "cnn_baseline_val_f1_threshold": 0.7856,
+  "cnn_baseline_test_acc_threshold": 0.7281,
+  "verdict": "NO IMPROVEMENT \u2014 tuned CNN-LSTM remains below frozen CNN baseline",
+  "test_evaluated_once": true,
+  "gan_augmentation": false
+}

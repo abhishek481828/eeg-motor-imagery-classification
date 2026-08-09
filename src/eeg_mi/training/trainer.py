@@ -27,6 +27,7 @@ class Trainer:
         scheduler: Any = None,
         patience: int = 15,
         config_dict: dict[str, Any] | None = None,
+        grad_clip: float | None = None,
     ):
         self.model = model.to(device)
         self.optimizer = optimizer
@@ -36,6 +37,7 @@ class Trainer:
         self.scheduler = scheduler
         self.early_stopping = EarlyStopping(patience=patience, mode="max")
         self.config_dict = config_dict or {}
+        self.grad_clip = grad_clip  # optional gradient norm clipping (e.g. 1.0)
 
     def train_epoch(self, dataloader: DataLoader) -> float:
         """Run single training epoch with automatic memory error handling."""
@@ -48,6 +50,8 @@ class Trainer:
                 outputs = self.model(x_batch)
                 loss = self.criterion(outputs, y_batch)
                 loss.backward()
+                if self.grad_clip is not None:
+                    nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clip)
                 self.optimizer.step()
                 total_loss += loss.item() * len(y_batch)
         except (MemoryError, RuntimeError) as err:

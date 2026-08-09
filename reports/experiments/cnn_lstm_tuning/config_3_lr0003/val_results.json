@@ -1,0 +1,43 @@
+{
+  "config_key": "3",
+  "name": "config_3_lr0003",
+  "description": "Learning rate reduced: 0.001 \u2192 0.0003.",
+  "change": "lr: 0.001 \u2192 0.0003",
+  "timestamp": "2026-08-09T20:55:54.260519+00:00",
+  "fixed_parameters": {
+    "dataset": "/home/nixos/Projects/UROP/eeg-motor-imagery/data/processed/full_dataset.npz",
+    "split": "S001-S077 train / S078-S093 val / S094-S109 test",
+    "input_shape": [
+      64,
+      481
+    ],
+    "num_channels": 64,
+    "num_classes": 2,
+    "labels": "T1=class0 (Left Fist), T2=class1 (Right Fist)",
+    "optimizer": "Adam",
+    "weight_decay": 0.0001,
+    "lr_scheduler": "ReduceLROnPlateau(mode=min, patience=5)",
+    "criterion": "CrossEntropyLoss",
+    "batch_size": 32,
+    "seed": 42,
+    "gan_aug": false,
+    "model_type": "cnn_lstm"
+  },
+  "tuned_parameters": {
+    "lstm_hidden_size": 128,
+    "lstm_layers": 2,
+    "dropout": 0.5,
+    "lr": 0.0003,
+    "grad_clip": null,
+    "es_patience": 10,
+    "max_epochs": 30
+  },
+  "total_parameters": 457570,
+  "best_checkpoint_epoch": 3,
+  "best_val_macro_f1": 0.499919,
+  "best_val_acc": 0.515873,
+  "best_val_loss": 0.692991,
+  "train_time_sec": 109.32,
+  "test_evaluated": false,
+  "model_selection": "validation_macro_f1_only"
+}

@@ -1,0 +1,8 @@
+Config Key,Config Name,Change,Params,Best Epoch,Val Macro F1,Val Accuracy (%),Train Time (s)
+0,config_0_original,none,457570,17,0.5291,53.02,227.24
+1,config_1_hidden64,lstm_hidden_size: 128 → 64,272226,6,0.5139,52.06,112.23
+2,config_2_dropout03,dropout: 0.5 → 0.3,457570,29,0.5885,59.05,242.34
+3,config_3_lr0003,lr: 0.001 → 0.0003,457570,3,0.4999,51.59,109.32
+4,config_4_gradclip1,grad_clip: None → 1.0,457570,29,0.5411,55.71,252.01
+5,config_5_lstm1layer,lstm_layers: 2 → 1,325474,8,0.5148,51.59,120.02
+6,config_6_patience20,"es_patience: 10 → 20, max_epochs: 30 → 50",457570,17,0.5291,53.65,313.27
