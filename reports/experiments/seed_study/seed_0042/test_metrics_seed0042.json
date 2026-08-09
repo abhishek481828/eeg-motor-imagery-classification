@@ -1,0 +1,51 @@
+{
+  "seed": 42,
+  "best_epoch": 26,
+  "best_val_macro_f1": 0.785558,
+  "best_val_acc": 0.785714,
+  "train_time_sec": 73.85,
+  "infer_time_sec": 0.1957,
+  "test_metrics": {
+    "accuracy": 0.7280832095096582,
+    "balanced_accuracy": 0.7288111641052817,
+    "cohens_kappa": 0.45693019318026484,
+    "macro_precision": 0.7330472643529264,
+    "macro_recall": 0.7288111641052817,
+    "macro_f1": 0.7270200480977027,
+    "weighted_precision": 0.7334291147254856,
+    "weighted_recall": 0.7280832095096582,
+    "weighted_f1": 0.7268428545290434,
+    "per_class": {
+      "Left Fist": {
+        "precision": 0.7697594501718213,
+        "recall": 0.6588235294117647,
+        "f1_score": 0.7099841521394612
+      },
+      "Right Fist": {
+        "precision": 0.6963350785340314,
+        "recall": 0.7987987987987988,
+        "f1_score": 0.7440559440559441
+      }
+    },
+    "confusion_matrix": [
+      [
+        224,
+        116
+      ],
+      [
+        67,
+        266
+      ]
+    ]
+  },
+  "prediction_distribution": {
+    "Left Fist": 291,
+    "Right Fist": 382
+  },
+  "per_subject_accuracy_mean": 0.728131,
+  "per_subject_accuracy_std": 0.122446,
+  "model_selection_criterion": "validation_macro_f1_only",
+  "test_evaluated_once": true,
+  "frozen_architecture": true,
+  "gan_augmentation": false
+}

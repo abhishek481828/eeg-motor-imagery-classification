@@ -1,0 +1,127 @@
+{
+  "S094": {
+    "num_epochs": 45,
+    "accuracy": 0.777778,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S095": {
+    "num_epochs": 45,
+    "accuracy": 0.755556,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  },
+  "S096": {
+    "num_epochs": 45,
+    "accuracy": 0.888889,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  },
+  "S097": {
+    "num_epochs": 45,
+    "accuracy": 0.8,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  },
+  "S098": {
+    "num_epochs": 45,
+    "accuracy": 0.733333,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  },
+  "S099": {
+    "num_epochs": 45,
+    "accuracy": 0.622222,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S100": {
+    "num_epochs": 0,
+    "accuracy": 0.0,
+    "class_distribution": {}
+  },
+  "S101": {
+    "num_epochs": 45,
+    "accuracy": 0.8,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S102": {
+    "num_epochs": 45,
+    "accuracy": 0.711111,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S103": {
+    "num_epochs": 45,
+    "accuracy": 0.822222,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S104": {
+    "num_epochs": 43,
+    "accuracy": 0.744186,
+    "class_distribution": {
+      "0": 22,
+      "1": 21
+    }
+  },
+  "S105": {
+    "num_epochs": 45,
+    "accuracy": 0.866667,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  },
+  "S106": {
+    "num_epochs": 45,
+    "accuracy": 0.688889,
+    "class_distribution": {
+      "0": 24,
+      "1": 21
+    }
+  },
+  "S107": {
+    "num_epochs": 45,
+    "accuracy": 0.6,
+    "class_distribution": {
+      "0": 24,
+      "1": 21
+    }
+  },
+  "S108": {
+    "num_epochs": 45,
+    "accuracy": 0.8,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S109": {
+    "num_epochs": 45,
+    "accuracy": 0.488889,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  }
+}

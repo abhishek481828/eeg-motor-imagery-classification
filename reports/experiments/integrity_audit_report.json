@@ -1,0 +1,294 @@
+{
+  "audit_timestamp": "2026-08-09T20:30:57.193030+00:00",
+  "elapsed_seconds": 8.86,
+  "summary": {
+    "passed": 12,
+    "noted": 1,
+    "failed": 0,
+    "total": 13
+  },
+  "frozen_checkpoint": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/full_cnn_baseline_best.pt",
+  "frozen_dataset": "/home/nixos/Projects/UROP/eeg-motor-imagery/data/processed/full_dataset.npz",
+  "checks": {
+    "1": {
+      "name": "Dataset path and version",
+      "status": "PASS",
+      "message": "Dataset files confirmed",
+      "detail": {
+        "npz": "/home/nixos/Projects/UROP/eeg-motor-imagery/data/processed/full_dataset.npz",
+        "meta": "/home/nixos/Projects/UROP/eeg-motor-imagery/data/processed/full_metadata.json",
+        "pipeline_version": "N/A",
+        "created_at": "N/A"
+      }
+    },
+    "2": {
+      "name": "Valid epoch count",
+      "status": "PASS",
+      "message": "Total epochs = 4768 (valid range 4500\u20134905)",
+      "detail": {
+        "total": 4768,
+        "train": 3465,
+        "val": 630,
+        "test": 673
+      }
+    },
+    "3": {
+      "name": "Input shape (64, 481)",
+      "status": "PASS",
+      "message": "Epoch shape = (64, 481) (expected 64 channels, 480\u2013481 time points)",
+      "detail": {
+        "X_train": [
+          64,
+          481
+        ],
+        "X_val": [
+          64,
+          481
+        ],
+        "X_test": [
+          64,
+          481
+        ]
+      }
+    },
+    "4": {
+      "name": "Split sample counts",
+      "status": "PASS",
+      "message": "Train=3465, Val=630, Test=673",
+      "detail": {
+        "train": 3465,
+        "val": 630,
+        "test": 673,
+        "expected_train": "3200\u20133465",
+        "expected_val": "550\u2013720",
+        "expected_test": "550\u2013720"
+      }
+    },
+    "5": {
+      "name": "Subject IDs in every split",
+      "status": "PASS",
+      "message": "Train S001\u2013S077, Val S078\u2013S093, Test S094\u2013S109",
+      "detail": {
+        "train": [
+          "S001",
+          "S002",
+          "S003",
+          "S004",
+          "S005",
+          "S006",
+          "S007",
+          "S008",
+          "S009",
+          "S010",
+          "S011",
+          "S012",
+          "S013",
+          "S014",
+          "S015",
+          "S016",
+          "S017",
+          "S018",
+          "S019",
+          "S020",
+          "S021",
+          "S022",
+          "S023",
+          "S024",
+          "S025",
+          "S026",
+          "S027",
+          "S028",
+          "S029",
+          "S030",
+          "S031",
+          "S032",
+          "S033",
+          "S034",
+          "S035",
+          "S036",
+          "S037",
+          "S038",
+          "S039",
+          "S040",
+          "S041",
+          "S042",
+          "S043",
+          "S044",
+          "S045",
+          "S046",
+          "S047",
+          "S048",
+          "S049",
+          "S050",
+          "S051",
+          "S052",
+          "S053",
+          "S054",
+          "S055",
+          "S056",
+          "S057",
+          "S058",
+          "S059",
+          "S060",
+          "S061",
+          "S062",
+          "S063",
+          "S064",
+          "S065",
+          "S066",
+          "S067",
+          "S068",
+          "S069",
+          "S070",
+          "S071",
+          "S072",
+          "S073",
+          "S074",
+          "S075",
+          "S076",
+          "S077"
+        ],
+        "val": [
+          "S078",
+          "S079",
+          "S080",
+          "S081",
+          "S082",
+          "S083",
+          "S084",
+          "S085",
+          "S086",
+          "S087",
+          "S088",
+          "S089",
+          "S090",
+          "S091",
+          "S092",
+          "S093"
+        ],
+        "test": [
+          "S094",
+          "S095",
+          "S096",
+          "S097",
+          "S098",
+          "S099",
+          "S100",
+          "S101",
+          "S102",
+          "S103",
+          "S104",
+          "S105",
+          "S106",
+          "S107",
+          "S108",
+          "S109"
+        ]
+      }
+    },
+    "6": {
+      "name": "No subject overlap",
+      "status": "PASS",
+      "message": "No subject overlap detected",
+      "detail": {
+        "train_val_overlap": [],
+        "train_test_overlap": [],
+        "val_test_overlap": []
+      }
+    },
+    "7": {
+      "name": "No duplicate epochs across splits",
+      "status": "PASS",
+      "message": "No duplicate epochs found",
+      "detail": {
+        "train_val_duplicates": 0,
+        "train_test_duplicates": 0,
+        "val_test_duplicates": 0
+      }
+    },
+    "8": {
+      "name": "Training-only scaler fitting",
+      "status": "NOTE",
+      "message": "Metadata field 'scaler.fit_on' absent \u2014 verified by code review: preprocess_full_dataset.py line 186: 'Fitting TrainFittedScaler strictly on training subject windows'",
+      "detail": {
+        "code_path": "scripts/preprocess_full_dataset.py",
+        "verified_by": "code_review"
+      }
+    },
+    "9": {
+      "name": "Validation-only model selection",
+      "status": "PASS",
+      "message": "Best checkpoint at epoch 26 selected by val_macro_f1=0.7856",
+      "detail": {
+        "best_epoch": 26,
+        "val_macro_f1": 0.78555814135261,
+        "val_acc": 0.7857142857142857,
+        "test_keys_in_checkpoint": false
+      }
+    },
+    "10": {
+      "name": "Single final test evaluation",
+      "status": "PASS",
+      "message": "Exactly one 'test_metrics' block confirmed",
+      "detail": {
+        "test_metric_keys_found": [
+          "test_metrics"
+        ],
+        "selected_best_model": "CNN Baseline",
+        "selection_metric": "validation_macro_f1"
+      }
+    },
+    "11": {
+      "name": "S100 zero-event handling",
+      "status": "PASS",
+      "message": "S100 has 0 epochs (expected 0 \u2014 no MI annotations in source)",
+      "detail": {
+        "s100_num_epochs": 0,
+        "s100_accuracy": 0.0
+      }
+    },
+    "12": {
+      "name": "Prediction distribution",
+      "status": "PASS",
+      "message": "Prediction distribution: {'Left Fist': 291, 'Right Fist': 382}",
+      "detail": {
+        "prediction_distribution": {
+          "Left Fist": 291,
+          "Right Fist": 382
+        }
+      }
+    },
+    "13": {
+      "name": "Metric recalculation from preds",
+      "status": "PASS",
+      "message": "Recalculated metrics match saved report",
+      "detail": {
+        "recalculated": {
+          "accuracy": 0.728083,
+          "macro_f1": 0.72702,
+          "cohens_kappa": 0.45693
+        },
+        "saved": {
+          "accuracy": 0.728083,
+          "macro_f1": 0.72702,
+          "cohens_kappa": 0.45693
+        },
+        "match": {
+          "accuracy": true,
+          "macro_f1": true,
+          "kappa": true
+        },
+        "confusion_matrix": [
+          [
+            224,
+            116
+          ],
+          [
+            67,
+            266
+          ]
+        ]
+      }
+    }
+  }
+}
