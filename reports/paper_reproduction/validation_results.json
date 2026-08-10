@@ -1,0 +1,533 @@
+[
+  {
+    "phase": "Val Ensemble Reference",
+    "model_name": "Val-Weighted Ensemble (Tuned CNN + EEGNet, w=0.45/0.55)",
+    "preprocessing": "Standard Normalization (Train Fitted)",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "Ensemble Logit Soft Voting",
+    "total_parameters": 191700,
+    "best_epoch": 1,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.8302,
+      "balanced_accuracy": 0.8302,
+      "macro_f1": 0.8302,
+      "cohens_kappa": 0.6603
+    },
+    "train_time_sec": 0.5,
+    "checkpoint_path": "Reference Checkpoints (cnn_tuned_cfg_02 & eegnet_cfg_03)"
+  },
+  {
+    "phase": "Phase 2: Epoch Length",
+    "model_name": "Val Ensemble (3.0s Window, 481 samples)",
+    "preprocessing": "Standard 3.0s windowing",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "Raw EEG Tensor",
+    "total_parameters": 191700,
+    "best_epoch": 1,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.8302,
+      "balanced_accuracy": 0.8302,
+      "macro_f1": 0.8302,
+      "cohens_kappa": 0.6603
+    },
+    "train_time_sec": 0.5,
+    "checkpoint_path": "N/A (Ensemble Reference)"
+  },
+  {
+    "phase": "Phase 7: Augmentation",
+    "model_name": "Real-Only Training Baseline",
+    "preprocessing": "Standard Real Signals Only",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "Raw EEG Tensor",
+    "total_parameters": 189090,
+    "best_epoch": 20,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.8031746031746032,
+      "balanced_accuracy": 0.8032532451826171,
+      "cohens_kappa": 0.6064087061668681,
+      "macro_precision": 0.803939393939394,
+      "macro_recall": 0.8032532451826171,
+      "macro_f1": 0.8030773574251835,
+      "weighted_precision": 0.8039903799903799,
+      "weighted_recall": 0.8031746031746032,
+      "weighted_f1": 0.8030634651752664,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.82,
+          "recall": 0.7784810126582279,
+          "f1_score": 0.7987012987012987
+        },
+        "Right Fist": {
+          "precision": 0.7878787878787878,
+          "recall": 0.8280254777070064,
+          "f1_score": 0.8074534161490683
+        }
+      },
+      "confusion_matrix": [
+        [
+          246,
+          70
+        ],
+        [
+          54,
+          260
+        ]
+      ]
+    },
+    "train_time_sec": 116.65,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/paper_reproduction/real_only_cnn_best.pt"
+  },
+  {
+    "phase": "Phase 3: Preprocessing",
+    "model_name": "1D-CNN (bandpass_4_38Hz)",
+    "preprocessing": "Bandpass 4.0-38.0Hz + Notch=False + Baseline Correction",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "Filtered EEG Tensor",
+    "total_parameters": 189090,
+    "best_epoch": 25,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.7952380952380952,
+      "balanced_accuracy": 0.7952410707086995,
+      "cohens_kappa": 0.5904761904761905,
+      "macro_precision": 0.7952380952380952,
+      "macro_recall": 0.7952410707086995,
+      "macro_f1": 0.7952375793337851,
+      "weighted_precision": 0.7952431342907532,
+      "weighted_recall": 0.7952380952380952,
+      "weighted_f1": 0.7952386111424053,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.7968253968253968,
+          "recall": 0.7943037974683544,
+          "f1_score": 0.7955625990491284
+        },
+        "Right Fist": {
+          "precision": 0.7936507936507936,
+          "recall": 0.7961783439490446,
+          "f1_score": 0.794912559618442
+        }
+      },
+      "confusion_matrix": [
+        [
+          251,
+          65
+        ],
+        [
+          64,
+          250
+        ]
+      ]
+    },
+    "train_time_sec": 118.12,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/paper_reproduction/prep_bandpass_4_38Hz_best.pt"
+  },
+  {
+    "phase": "Phase 3: Preprocessing",
+    "model_name": "1D-CNN (bandpass_0_5_40_notch)",
+    "preprocessing": "Bandpass 0.5-40.0Hz + Notch=True + Baseline Correction",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "Filtered EEG Tensor",
+    "total_parameters": 189090,
+    "best_epoch": 22,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.7873015873015873,
+      "balanced_accuracy": 0.787369991131178,
+      "cohens_kappa": 0.5746589008242811,
+      "macro_precision": 0.7878573736068486,
+      "macro_recall": 0.787369991131178,
+      "macro_f1": 0.7872243898012885,
+      "weighted_precision": 0.7879001263995611,
+      "weighted_recall": 0.7873015873015873,
+      "weighted_f1": 0.7872115235512386,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8013245033112583,
+          "recall": 0.7658227848101266,
+          "f1_score": 0.7831715210355987
+        },
+        "Right Fist": {
+          "precision": 0.774390243902439,
+          "recall": 0.8089171974522293,
+          "f1_score": 0.7912772585669782
+        }
+      },
+      "confusion_matrix": [
+        [
+          242,
+          74
+        ],
+        [
+          60,
+          254
+        ]
+      ]
+    },
+    "train_time_sec": 117.88,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/paper_reproduction/prep_bandpass_0_5_40_notch_best.pt"
+  },
+  {
+    "phase": "Phase 7: Augmentation",
+    "model_name": "Real + WGAN-GP Synthetic Augmentation",
+    "preprocessing": "WGAN-GP 500 Synthetic Trials",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "Real + Synthetic EEG Tensors",
+    "total_parameters": 189090,
+    "best_epoch": 14,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.7761904761904762,
+      "balanced_accuracy": 0.7764250584535999,
+      "cohens_kappa": 0.5525883692115522,
+      "macro_precision": 0.7824454993872865,
+      "macro_recall": 0.7764250584535999,
+      "macro_f1": 0.775042735042735,
+      "weighted_precision": 0.7825814781524344,
+      "weighted_recall": 0.7761904761904762,
+      "weighted_f1": 0.7749917243250577,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8252788104089219,
+          "recall": 0.7025316455696202,
+          "f1_score": 0.7589743589743589
+        },
+        "Right Fist": {
+          "precision": 0.739612188365651,
+          "recall": 0.8503184713375797,
+          "f1_score": 0.7911111111111111
+        }
+      },
+      "confusion_matrix": [
+        [
+          222,
+          94
+        ],
+        [
+          47,
+          267
+        ]
+      ]
+    },
+    "train_time_sec": 128.02,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/paper_reproduction/real_plus_gan_cnn_best.pt"
+  },
+  {
+    "phase": "Phase 3: Preprocessing",
+    "model_name": "1D-CNN (bandpass_0_5_40Hz)",
+    "preprocessing": "Bandpass 0.5-40.0Hz + Notch=False + Baseline Correction",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "Filtered EEG Tensor",
+    "total_parameters": 189090,
+    "best_epoch": 25,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.7698412698412699,
+      "balanced_accuracy": 0.7700052406675805,
+      "cohens_kappa": 0.5398309439132756,
+      "macro_precision": 0.7728179957434242,
+      "macro_recall": 0.7700052406675805,
+      "macro_f1": 0.7692826420231399,
+      "weighted_precision": 0.7729110184278666,
+      "weighted_recall": 0.7698412698412699,
+      "weighted_f1": 0.7692466015187445,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8021201413427562,
+          "recall": 0.7183544303797469,
+          "f1_score": 0.7579298831385642
+        },
+        "Right Fist": {
+          "precision": 0.7435158501440923,
+          "recall": 0.821656050955414,
+          "f1_score": 0.7806354009077155
+        }
+      },
+      "confusion_matrix": [
+        [
+          227,
+          89
+        ],
+        [
+          56,
+          258
+        ]
+      ]
+    },
+    "train_time_sec": 118.12,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/paper_reproduction/prep_bandpass_0_5_40Hz_best.pt"
+  },
+  {
+    "phase": "Phase 2: Epoch Length",
+    "model_name": "1D-CNN (5.0s Window, 800 samples)",
+    "preprocessing": "5.0s extended windowing",
+    "epoch_duration_sec": 5.0,
+    "feature_type": "Raw EEG Tensor",
+    "total_parameters": 189090,
+    "best_epoch": 23,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.7682539682539683,
+      "balanced_accuracy": 0.7682919454970571,
+      "cohens_kappa": 0.5365406320541761,
+      "macro_precision": 0.7684217955957087,
+      "macro_recall": 0.7682919454970571,
+      "macro_f1": 0.7682329462989841,
+      "weighted_precision": 0.7684457709302429,
+      "weighted_recall": 0.7682539682539683,
+      "weighted_f1": 0.7682259389806559,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.775974025974026,
+          "recall": 0.7563291139240507,
+          "f1_score": 0.7660256410256411
+        },
+        "Right Fist": {
+          "precision": 0.7608695652173914,
+          "recall": 0.7802547770700637,
+          "f1_score": 0.7704402515723271
+        }
+      },
+      "confusion_matrix": [
+        [
+          239,
+          77
+        ],
+        [
+          69,
+          245
+        ]
+      ]
+    },
+    "train_time_sec": 206.09,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/paper_reproduction/epoch_5s_cnn_best.pt"
+  },
+  {
+    "phase": "Phase 6: CNN-LSTM",
+    "model_name": "True Sequence Temporal CNN-LSTM",
+    "preprocessing": "5 Sub-window Temporal Progression",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "Sequence Spatial-Temporal Embeddings",
+    "total_parameters": 179074,
+    "best_epoch": 29,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.6634920634920635,
+      "balanced_accuracy": 0.6635390631298879,
+      "cohens_kappa": 0.3270451659713405,
+      "macro_precision": 0.6636710239651415,
+      "macro_recall": 0.6635390631298879,
+      "macro_f1": 0.6634377929421726,
+      "weighted_precision": 0.6636909084621502,
+      "weighted_recall": 0.6634920634920635,
+      "weighted_f1": 0.6634242253046998,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.6699346405228758,
+          "recall": 0.6487341772151899,
+          "f1_score": 0.6591639871382636
+        },
+        "Right Fist": {
+          "precision": 0.6574074074074074,
+          "recall": 0.678343949044586,
+          "f1_score": 0.6677115987460815
+        }
+      },
+      "confusion_matrix": [
+        [
+          205,
+          111
+        ],
+        [
+          101,
+          213
+        ]
+      ]
+    },
+    "train_time_sec": 69.17,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/paper_reproduction/temporal_cnn_lstm_best.pt"
+  },
+  {
+    "phase": "Phase 5: Riemannian Features",
+    "model_name": "Riemannian Tangent Space + LDA",
+    "preprocessing": "Log-Euclidean Tangent Space Covariance Mapping",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "Riemannian Covariance Vectors",
+    "total_parameters": 2081,
+    "best_epoch": 1,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.5761904761904761,
+      "balanced_accuracy": 0.5763524953640249,
+      "cohens_kappa": 0.15265422086099723,
+      "macro_precision": 0.5771478905510127,
+      "macro_recall": 0.5763524953640249,
+      "macro_f1": 0.5751618304839887,
+      "weighted_precision": 0.5771778097497795,
+      "weighted_recall": 0.5761904761904761,
+      "weighted_f1": 0.5750954662448605,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.5865724381625441,
+          "recall": 0.5253164556962026,
+          "f1_score": 0.5542570951585977
+        },
+        "Right Fist": {
+          "precision": 0.5677233429394812,
+          "recall": 0.6273885350318471,
+          "f1_score": 0.5960665658093798
+        }
+      },
+      "confusion_matrix": [
+        [
+          166,
+          150
+        ],
+        [
+          117,
+          197
+        ]
+      ]
+    },
+    "train_time_sec": 133.56,
+    "checkpoint_path": "N/A (Scikit-Learn LDA)"
+  },
+  {
+    "phase": "Phase 5: Riemannian Features",
+    "model_name": "Riemannian Tangent Space + Logistic Regression",
+    "preprocessing": "Log-Euclidean Tangent Space Covariance Mapping",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "Riemannian Covariance Vectors",
+    "total_parameters": 2081,
+    "best_epoch": 1,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.5761904761904761,
+      "balanced_accuracy": 0.5763625735709103,
+      "cohens_kappa": 0.15267129429069415,
+      "macro_precision": 0.5772619278263263,
+      "macro_recall": 0.5763625735709103,
+      "macro_f1": 0.5750244434843903,
+      "weighted_precision": 0.5772934411097337,
+      "weighted_recall": 0.5761904761904761,
+      "weighted_f1": 0.5749537748355366,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.5871886120996441,
+          "recall": 0.5221518987341772,
+          "f1_score": 0.5527638190954773
+        },
+        "Right Fist": {
+          "precision": 0.5673352435530086,
+          "recall": 0.6305732484076433,
+          "f1_score": 0.5972850678733032
+        }
+      },
+      "confusion_matrix": [
+        [
+          165,
+          151
+        ],
+        [
+          116,
+          198
+        ]
+      ]
+    },
+    "train_time_sec": 133.56,
+    "checkpoint_path": "N/A (Scikit-Learn LogReg)"
+  },
+  {
+    "phase": "Phase 4: Wavelet Features",
+    "model_name": "Wavelet (DWT db4) + LDA",
+    "preprocessing": "DWT level-4 + ANOVA k=100 selection",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "DWT Wavelet Sub-band Features",
+    "total_parameters": 101,
+    "best_epoch": 1,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.5428571428571428,
+      "balanced_accuracy": 0.5429633959525921,
+      "cohens_kappa": 0.08590774439272109,
+      "macro_precision": 0.5431547619047619,
+      "macro_recall": 0.5429633959525921,
+      "macro_f1": 0.5423959646910467,
+      "weighted_precision": 0.5431689342403628,
+      "weighted_recall": 0.5428571428571428,
+      "weighted_f1": 0.542349846874437,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.5476190476190477,
+          "recall": 0.509493670886076,
+          "f1_score": 0.5278688524590164
+        },
+        "Right Fist": {
+          "precision": 0.5386904761904762,
+          "recall": 0.5764331210191083,
+          "f1_score": 0.556923076923077
+        }
+      },
+      "confusion_matrix": [
+        [
+          161,
+          155
+        ],
+        [
+          133,
+          181
+        ]
+      ]
+    },
+    "train_time_sec": 70.57,
+    "checkpoint_path": "N/A (Scikit-Learn LDA)"
+  },
+  {
+    "phase": "Phase 4: Wavelet Features",
+    "model_name": "Wavelet (DWT db4) + SVM (RBF)",
+    "preprocessing": "DWT level-4 + ANOVA k=100 selection",
+    "epoch_duration_sec": 3.0,
+    "feature_type": "DWT Wavelet Sub-band Features",
+    "total_parameters": 3353,
+    "best_epoch": 1,
+    "seed": 42,
+    "val_metrics": {
+      "accuracy": 0.526984126984127,
+      "balanced_accuracy": 0.5269088123841006,
+      "cohens_kappa": 0.053825219231932286,
+      "macro_precision": 0.5269696969696969,
+      "macro_recall": 0.5269088123841006,
+      "macro_f1": 0.5266788354292514,
+      "weighted_precision": 0.5269706589706589,
+      "weighted_recall": 0.526984126984127,
+      "weighted_f1": 0.526716996873611,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.5272727272727272,
+          "recall": 0.5506329113924051,
+          "f1_score": 0.5386996904024768
+        },
+        "Right Fist": {
+          "precision": 0.5266666666666666,
+          "recall": 0.5031847133757962,
+          "f1_score": 0.5146579804560261
+        }
+      },
+      "confusion_matrix": [
+        [
+          174,
+          142
+        ],
+        [
+          156,
+          158
+        ]
+      ]
+    },
+    "train_time_sec": 70.97,
+    "checkpoint_path": "N/A (Scikit-Learn SVM)"
+  }
+]
