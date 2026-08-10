@@ -1,0 +1,2 @@
+Ensemble Model,CNN Weight,EEGNet Weight,Test Epochs,Test Acc (%),Balanced Acc (%),Macro Precision,Macro Recall,Macro F1,Cohen Kappa,Per-Subject Mean (%),Per-Subject Std (%),Diff vs Tuned CNN (pp)
+Val-Weighted Ensemble (Tuned CNN + EEGNet),0.45,0.55,673,80.98,81.01,0.8108,0.8101,0.8097,0.6198,75.92,23.46,6.98

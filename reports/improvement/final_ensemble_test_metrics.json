@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-08-10T09:01:10.289940+00:00",
+  "evaluation_type": "SINGLE_FINAL_TEST_EVALUATION",
+  "dataset_file": "/home/nixos/Projects/UROP/eeg-motor-imagery/data/processed/full_dataset.npz",
+  "test_subjects": "S094-S109 (16 subjects)",
+  "num_test_epochs": 673,
+  "test_class_counts": {
+    "class_0_left_fist": 340,
+    "class_1_right_fist": 333
+  },
+  "ensemble_architecture": {
+    "model_1": "Tuned 1D-CNN (cnn_tuned_cfg_02)",
+    "checkpoint_1": "reports/experiments/new_benchmark/exp5_cnn_tuning/cnn_tuned_cfg_02_best.pt",
+    "weight_1": 0.45,
+    "model_2": "EEGNet (eegnet_cfg_03)",
+    "checkpoint_2": "reports/experiments/new_benchmark/exp2_eegnet/eegnet_cfg_03_best.pt",
+    "weight_2": 0.55
+  },
+  "test_metrics": {
+    "overall_test_accuracy_pct": 80.98,
+    "balanced_accuracy_pct": 81.01,
+    "macro_precision": 0.8108,
+    "macro_recall": 0.8101,
+    "macro_f1": 0.8097,
+    "cohens_kappa": 0.6198,
+    "per_subject_mean_pct": 75.92,
+    "per_subject_std_pct": 23.46,
+    "inference_duration_sec": 0.7292
+  },
+  "comparisons": {
+    "orig_baseline_test_acc_pct": 72.81,
+    "diff_from_orig_baseline_percentage_points": 8.17,
+    "tuned_cnn_test_acc_pct": 74.0,
+    "diff_from_tuned_cnn_percentage_points": 6.98
+  },
+  "verdict": "IMPROVEMENT CONFIRMED \u2713 \u2014 Ensemble test accuracy (80.98%) beats tuned CNN baseline (74.00%) by +6.98 percentage points!",
+  "test_evaluated_once": true
+}
