@@ -1,0 +1,17 @@
+Rank,Phase,Model Name,Params,Best Epoch,Val Acc (%),Val Bal Acc (%),Val Macro F1,Val Kappa,Train Time (s)
+1,Phase 5: Val Ensemble,"Val-Weighted Ensemble (Tuned CNN + EEGNet, w=0.45)",191700,1,83.02,83.02,0.8302,0.6603,0.5
+2,Baseline Reference,Tuned 1D-CNN Baseline (cnn_tuned_cfg_02),189090,28,80.32,80.32,0.8032,0.6064,143.3
+3,Phase 4: Safe Augmentation,1D-CNN + Augment (aug_combined),189090,30,79.52,79.53,0.7952,0.5905,133.53
+4,Phase 4: Safe Augmentation,1D-CNN + Augment (aug_shift),189090,25,79.05,79.05,0.7904,0.581,126.41
+5,Phase 4: Safe Augmentation,1D-CNN + Augment (aug_noise),189090,25,79.05,79.06,0.7903,0.581,133.99
+6,Phase 2: Frequency-Band,1D-CNN (4-30Hz),189090,28,78.89,78.9,0.7888,0.5778,140.77
+7,Phase 2: Frequency-Band,1D-CNN (8-35Hz),189090,19,78.1,78.11,0.7806,0.562,134.42
+8,Phase 3: CNN+CSP Fusion,CNN+CSP Fusion (n=4),448034,27,77.62,77.62,0.7761,0.5523,142.88
+9,Phase 4: Safe Augmentation,1D-CNN + Augment (aug_scaling),189090,19,77.62,77.63,0.776,0.5525,126.33
+10,Phase 4: Safe Augmentation,1D-CNN + Augment (aug_drop),189090,20,77.3,77.3,0.773,0.546,128.02
+11,Phase 2: Frequency-Band,1D-CNN (8-30Hz),189090,28,77.3,77.31,0.773,0.5461,135.46
+12,Phase 3: CNN+CSP Fusion,CNN+CSP Fusion (n=16),449570,27,77.3,77.31,0.7729,0.5461,130.18
+13,Phase 3: CNN+CSP Fusion,CNN+CSP Fusion (n=12),449058,29,77.14,77.12,0.77,0.5426,138.26
+14,Phase 2: Frequency-Band,1D-CNN (12-30Hz),189090,17,76.19,76.19,0.7619,0.5238,124.49
+15,Phase 3: CNN+CSP Fusion,CNN+CSP Fusion (n=8),448546,30,76.03,76.03,0.7603,0.5206,142.11
+16,Phase 2: Frequency-Band,1D-CNN (8-12Hz),189090,29,75.71,75.72,0.7571,0.5143,139.81

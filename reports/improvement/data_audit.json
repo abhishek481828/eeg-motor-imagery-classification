@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-08-10T08:09:41Z",
+  "status": "PASS",
+  "dataset_file": "/home/nixos/Projects/UROP/eeg-motor-imagery/data/processed/full_dataset.npz",
+  "metadata_file": "/home/nixos/Projects/UROP/eeg-motor-imagery/data/processed/full_metadata.json",
+  "input_shapes": {
+    "X_train": [
+      3465,
+      64,
+      481
+    ],
+    "X_val": [
+      630,
+      64,
+      481
+    ],
+    "X_test": [
+      673,
+      64,
+      481
+    ]
+  },
+  "nan_counts": {
+    "train": 0,
+    "val": 0,
+    "test": 0
+  },
+  "inf_counts": {
+    "train": 0,
+    "val": 0,
+    "test": 0
+  },
+  "unique_classes": {
+    "train": [
+      0,
+      1
+    ],
+    "val": [
+      0,
+      1
+    ],
+    "test": [
+      0,
+      1
+    ]
+  },
+  "class_distributions": {
+    "train": {
+      "Left Fist": 1750,
+      "Right Fist": 1715
+    },
+    "val": {
+      "Left Fist": 316,
+      "Right Fist": 314
+    },
+    "test": {
+      "Left Fist": 340,
+      "Right Fist": 333
+    }
+  },
+  "subject_counts": {
+    "train": 77,
+    "val": 16,
+    "test": 16
+  },
+  "subject_overlaps": {
+    "train_val_overlap": [],
+    "train_test_overlap": [],
+    "val_test_overlap": [],
+    "total_overlap_count": 0
+  },
+  "duplicate_epochs_across_splits": {
+    "train_val_duplicates": 0,
+    "train_test_duplicates": 0,
+    "val_test_duplicates": 0,
+    "total_duplicate_count": 0
+  },
+  "scaler_fitting_verification": "TrainFittedScaler strictly fitted on train subjects S001-S077",
+  "reproduced_tuned_cnn_validation": {
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/reports/experiments/new_benchmark/exp5_cnn_tuning/cnn_tuned_cfg_02_best.pt",
+    "best_epoch": 28,
+    "val_accuracy": 0.803175,
+    "val_balanced_accuracy": 0.803203,
+    "val_macro_f1": 0.803167,
+    "val_cohens_kappa": 0.606369,
+    "expected_val_accuracy": 0.8032,
+    "expected_val_macro_f1": 0.8032,
+    "reproduction_match": true
+  },
+  "test_evaluated": false
+}

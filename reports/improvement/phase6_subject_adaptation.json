@@ -1,0 +1,326 @@
+{
+  "experiment_type": "SUBJECT-ADAPTED / CALIBRATION-BASED",
+  "description": "Subject adaptation using k labeled calibration trials per validation subject (S078-S093).",
+  "timestamp": "2026-08-10T08:13:11Z",
+  "test_subjects_used": false,
+  "calibration_trial_experiments": {
+    "k_5_trials": {
+      "calibration_trial_count": 5,
+      "mean_no_calibration_accuracy": 0.8032,
+      "mean_subject_adapted_accuracy": 0.7946,
+      "mean_accuracy_improvement_delta": -0.0085,
+      "per_subject_breakdown": {
+        "S078": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.6444,
+          "subject_adapted_accuracy": 0.65,
+          "accuracy_improvement_delta": 0.0056
+        },
+        "S079": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.6444,
+          "subject_adapted_accuracy": 0.6,
+          "accuracy_improvement_delta": -0.0444
+        },
+        "S080": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.7778,
+          "subject_adapted_accuracy": 0.725,
+          "accuracy_improvement_delta": -0.0528
+        },
+        "S081": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.8444,
+          "subject_adapted_accuracy": 0.825,
+          "accuracy_improvement_delta": -0.0194
+        },
+        "S082": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.8444,
+          "subject_adapted_accuracy": 0.875,
+          "accuracy_improvement_delta": 0.0306
+        },
+        "S083": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.7111,
+          "subject_adapted_accuracy": 0.65,
+          "accuracy_improvement_delta": -0.0611
+        },
+        "S084": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.8,
+          "subject_adapted_accuracy": 0.75,
+          "accuracy_improvement_delta": -0.05
+        },
+        "S085": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.9111,
+          "subject_adapted_accuracy": 0.875,
+          "accuracy_improvement_delta": -0.0361
+        },
+        "S086": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.9111,
+          "subject_adapted_accuracy": 0.975,
+          "accuracy_improvement_delta": 0.0639
+        },
+        "S087": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.7556,
+          "subject_adapted_accuracy": 0.725,
+          "accuracy_improvement_delta": -0.0306
+        },
+        "S089": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.8,
+          "subject_adapted_accuracy": 0.85,
+          "accuracy_improvement_delta": 0.05
+        },
+        "S090": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.8444,
+          "subject_adapted_accuracy": 0.9,
+          "accuracy_improvement_delta": 0.0556
+        },
+        "S091": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.8667,
+          "subject_adapted_accuracy": 0.825,
+          "accuracy_improvement_delta": -0.0417
+        },
+        "S093": {
+          "num_calibration_trials": 5,
+          "num_eval_trials": 40,
+          "no_calibration_accuracy": 0.8889,
+          "subject_adapted_accuracy": 0.9,
+          "accuracy_improvement_delta": 0.0111
+        }
+      }
+    },
+    "k_10_trials": {
+      "calibration_trial_count": 10,
+      "mean_no_calibration_accuracy": 0.8032,
+      "mean_subject_adapted_accuracy": 0.8,
+      "mean_accuracy_improvement_delta": -0.0032,
+      "per_subject_breakdown": {
+        "S078": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.6444,
+          "subject_adapted_accuracy": 0.6857,
+          "accuracy_improvement_delta": 0.0413
+        },
+        "S079": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.6444,
+          "subject_adapted_accuracy": 0.6571,
+          "accuracy_improvement_delta": 0.0127
+        },
+        "S080": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.7778,
+          "subject_adapted_accuracy": 0.7143,
+          "accuracy_improvement_delta": -0.0635
+        },
+        "S081": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.8444,
+          "subject_adapted_accuracy": 0.8286,
+          "accuracy_improvement_delta": -0.0159
+        },
+        "S082": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.8444,
+          "subject_adapted_accuracy": 0.8571,
+          "accuracy_improvement_delta": 0.0127
+        },
+        "S083": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.7111,
+          "subject_adapted_accuracy": 0.6857,
+          "accuracy_improvement_delta": -0.0254
+        },
+        "S084": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.8,
+          "subject_adapted_accuracy": 0.7714,
+          "accuracy_improvement_delta": -0.0286
+        },
+        "S085": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.9111,
+          "subject_adapted_accuracy": 0.8571,
+          "accuracy_improvement_delta": -0.054
+        },
+        "S086": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.9111,
+          "subject_adapted_accuracy": 0.9429,
+          "accuracy_improvement_delta": 0.0317
+        },
+        "S087": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.7556,
+          "subject_adapted_accuracy": 0.7143,
+          "accuracy_improvement_delta": -0.0413
+        },
+        "S089": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.8,
+          "subject_adapted_accuracy": 0.8571,
+          "accuracy_improvement_delta": 0.0571
+        },
+        "S090": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.8444,
+          "subject_adapted_accuracy": 0.9143,
+          "accuracy_improvement_delta": 0.0698
+        },
+        "S091": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.8667,
+          "subject_adapted_accuracy": 0.8571,
+          "accuracy_improvement_delta": -0.0095
+        },
+        "S093": {
+          "num_calibration_trials": 10,
+          "num_eval_trials": 35,
+          "no_calibration_accuracy": 0.8889,
+          "subject_adapted_accuracy": 0.8571,
+          "accuracy_improvement_delta": -0.0317
+        }
+      }
+    },
+    "k_20_trials": {
+      "calibration_trial_count": 20,
+      "mean_no_calibration_accuracy": 0.8032,
+      "mean_subject_adapted_accuracy": 0.7914,
+      "mean_accuracy_improvement_delta": -0.0117,
+      "per_subject_breakdown": {
+        "S078": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.6444,
+          "subject_adapted_accuracy": 0.68,
+          "accuracy_improvement_delta": 0.0356
+        },
+        "S079": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.6444,
+          "subject_adapted_accuracy": 0.64,
+          "accuracy_improvement_delta": -0.0044
+        },
+        "S080": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.7778,
+          "subject_adapted_accuracy": 0.8,
+          "accuracy_improvement_delta": 0.0222
+        },
+        "S081": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.8444,
+          "subject_adapted_accuracy": 0.84,
+          "accuracy_improvement_delta": -0.0044
+        },
+        "S082": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.8444,
+          "subject_adapted_accuracy": 0.88,
+          "accuracy_improvement_delta": 0.0356
+        },
+        "S083": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.7111,
+          "subject_adapted_accuracy": 0.64,
+          "accuracy_improvement_delta": -0.0711
+        },
+        "S084": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.8,
+          "subject_adapted_accuracy": 0.76,
+          "accuracy_improvement_delta": -0.04
+        },
+        "S085": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.9111,
+          "subject_adapted_accuracy": 0.88,
+          "accuracy_improvement_delta": -0.0311
+        },
+        "S086": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.9111,
+          "subject_adapted_accuracy": 0.92,
+          "accuracy_improvement_delta": 0.0089
+        },
+        "S087": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.7556,
+          "subject_adapted_accuracy": 0.64,
+          "accuracy_improvement_delta": -0.1156
+        },
+        "S089": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.8,
+          "subject_adapted_accuracy": 0.76,
+          "accuracy_improvement_delta": -0.04
+        },
+        "S090": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.8444,
+          "subject_adapted_accuracy": 0.92,
+          "accuracy_improvement_delta": 0.0756
+        },
+        "S091": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.8667,
+          "subject_adapted_accuracy": 0.8,
+          "accuracy_improvement_delta": -0.0667
+        },
+        "S093": {
+          "num_calibration_trials": 20,
+          "num_eval_trials": 25,
+          "no_calibration_accuracy": 0.8889,
+          "subject_adapted_accuracy": 0.92,
+          "accuracy_improvement_delta": 0.0311
+        }
+      }
+    }
+  }
+}
