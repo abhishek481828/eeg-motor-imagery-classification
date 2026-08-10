@@ -44,6 +44,14 @@ def create_model(
     model_type_clean = model_type.lower()
     if model_type_clean == "cnn":
         model = EEGCNN(in_channels=num_channels, num_classes=num_classes)
+    elif model_type_clean == "eegnet":
+        from eeg_mi.models.eegnet import EEGNet
+        model = EEGNet(
+            in_channels=num_channels,
+            sequence_length=sequence_length,
+            num_classes=num_classes,
+            **kwargs,
+        )
     elif model_type_clean == "lstm":
         model = EEGLSTM(in_channels=num_channels, num_classes=num_classes)
     elif model_type_clean in ["cnn_lstm", "gan_cnn_lstm"]:

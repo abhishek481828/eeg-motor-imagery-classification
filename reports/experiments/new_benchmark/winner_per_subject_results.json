@@ -1,0 +1,127 @@
+{
+  "S094": {
+    "num_epochs": 45,
+    "accuracy": 0.7556,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S095": {
+    "num_epochs": 45,
+    "accuracy": 0.7778,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  },
+  "S096": {
+    "num_epochs": 45,
+    "accuracy": 0.8667,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  },
+  "S097": {
+    "num_epochs": 45,
+    "accuracy": 0.8222,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  },
+  "S098": {
+    "num_epochs": 45,
+    "accuracy": 0.7111,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  },
+  "S099": {
+    "num_epochs": 45,
+    "accuracy": 0.5111,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S100": {
+    "num_epochs": 0,
+    "accuracy": 0.0,
+    "class_distribution": {}
+  },
+  "S101": {
+    "num_epochs": 45,
+    "accuracy": 0.8444,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S102": {
+    "num_epochs": 45,
+    "accuracy": 0.6889,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S103": {
+    "num_epochs": 45,
+    "accuracy": 0.9333,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S104": {
+    "num_epochs": 43,
+    "accuracy": 0.7209,
+    "class_distribution": {
+      "0": 22,
+      "1": 21
+    }
+  },
+  "S105": {
+    "num_epochs": 45,
+    "accuracy": 0.9111,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  },
+  "S106": {
+    "num_epochs": 45,
+    "accuracy": 0.6,
+    "class_distribution": {
+      "0": 24,
+      "1": 21
+    }
+  },
+  "S107": {
+    "num_epochs": 45,
+    "accuracy": 0.6889,
+    "class_distribution": {
+      "0": 24,
+      "1": 21
+    }
+  },
+  "S108": {
+    "num_epochs": 45,
+    "accuracy": 0.7778,
+    "class_distribution": {
+      "0": 22,
+      "1": 23
+    }
+  },
+  "S109": {
+    "num_epochs": 45,
+    "accuracy": 0.4889,
+    "class_distribution": {
+      "0": 23,
+      "1": 22
+    }
+  }
+}

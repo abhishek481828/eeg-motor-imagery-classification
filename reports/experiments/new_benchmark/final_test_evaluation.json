@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-08-10T05:59:56.234941+00:00",
+  "selected_winner": "CNN Tuned (cnn_tuned_cfg_02)",
+  "experiment_id": "exp5_cnn_tuning",
+  "hyperparameters": {
+    "filters": [
+      32,
+      64,
+      128
+    ],
+    "kernel": 15,
+    "dropout": 0.25,
+    "lr": 0.001,
+    "wd": 0.0001
+  },
+  "validation_macro_f1": 0.8031666683464186,
+  "test_metrics": {
+    "accuracy": 0.7399702823179792,
+    "balanced_accuracy": 0.7402667373255609,
+    "cohens_kappa": 0.4802217249886357,
+    "macro_precision": 0.740892265731541,
+    "macro_recall": 0.7402667373255609,
+    "macro_f1": 0.7398577086273808,
+    "weighted_precision": 0.7410766624142534,
+    "weighted_recall": 0.7399702823179792,
+    "weighted_f1": 0.7398014217820816,
+    "per_class": {
+      "Left Fist": {
+        "precision": 0.7586206896551724,
+        "recall": 0.711764705882353,
+        "f1_score": 0.7344461305007587
+      },
+      "Right Fist": {
+        "precision": 0.7231638418079096,
+        "recall": 0.7687687687687688,
+        "f1_score": 0.745269286754003
+      }
+    },
+    "confusion_matrix": [
+      [
+        242,
+        98
+      ],
+      [
+        77,
+        256
+      ]
+    ]
+  },
+  "per_subject_accuracy_mean": 0.7399133333333333,
+  "per_subject_accuracy_std": 0.12778079598367756,
+  "frozen_baseline_test_acc": 0.7281,
+  "verdict": "IMPROVEMENT CONFIRMED \u2713 \u2014 Beats frozen baseline (74.00% > 72.81%)",
+  "test_evaluated_once": true
+}

@@ -1,0 +1,46 @@
+{
+  "exp_id": "exp3_csp_lda",
+  "model_name": "CSP+LDA (components=16)",
+  "hyperparameters": {
+    "n_components": 16
+  },
+  "total_parameters": 1024,
+  "best_epoch": 1,
+  "train_loss": 0.0,
+  "val_loss": 0.0,
+  "val_metrics": {
+    "accuracy": 0.5888888888888889,
+    "balanced_accuracy": 0.5887587680399904,
+    "cohens_kappa": 0.17756227381324408,
+    "macro_precision": 0.5893667109762657,
+    "macro_recall": 0.5887587680399904,
+    "macro_f1": 0.5881323973738612,
+    "weighted_precision": 0.5893483332036742,
+    "weighted_recall": 0.5888888888888889,
+    "weighted_f1": 0.5881884337823818,
+    "per_class": {
+      "Left Fist": {
+        "precision": 0.5835777126099707,
+        "recall": 0.629746835443038,
+        "f1_score": 0.6057838660578386
+      },
+      "Right Fist": {
+        "precision": 0.5951557093425606,
+        "recall": 0.5477707006369427,
+        "f1_score": 0.5704809286898839
+      }
+    },
+    "confusion_matrix": [
+      [
+        199,
+        117
+      ],
+      [
+        142,
+        172
+      ]
+    ]
+  },
+  "train_time_sec": 18.581,
+  "checkpoint_path": "N/A (scikit-learn in memory)"
+}

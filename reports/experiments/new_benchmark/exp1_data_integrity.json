@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "unique_labels": [
+    0,
+    1
+  ],
+  "class_counts": {
+    "class_0_left_fist": 2406,
+    "class_1_right_fist": 2362
+  },
+  "subject_counts": {
+    "train": 77,
+    "val": 16,
+    "test": 16
+  },
+  "subject_overlap": 0,
+  "duplicate_epochs_across_splits": 0,
+  "input_shapes": {
+    "X_train": [
+      3465,
+      64,
+      481
+    ],
+    "X_val": [
+      630,
+      64,
+      481
+    ],
+    "X_test": [
+      673,
+      64,
+      481
+    ]
+  },
+  "nan_count": 0,
+  "inf_count": 0,
+  "reproduced_baseline_val_accuracy": 0.7857,
+  "reproduced_baseline_val_macro_f1": 0.7856
+}

@@ -1,0 +1,34 @@
+Rank,Exp ID,Model Name,Params,Best Epoch,Val Acc (%),Val Bal Acc (%),Val Macro F1,Val Kappa,Train Time (s)
+1,exp5_cnn_tuning,CNN Tuned (cnn_tuned_cfg_02),189090,28,80.32,80.32,0.8032,0.6064,143.34
+2,exp5_cnn_tuning,CNN Tuned (cnn_tuned_cfg_04),685378,29,79.84,79.86,0.7979,0.597,376.39
+3,exp5_cnn_tuning,CNN Tuned (cnn_tuned_cfg_01),27474,27,79.37,79.36,0.7936,0.5873,46.56
+4,exp5_cnn_tuning,CNN Tuned (cnn_tuned_cfg_03),311970,23,79.21,79.22,0.7917,0.5842,218.14
+5,frozen_baseline,Frozen 1D-CNN Baseline (Reference),65826,26,78.57,78.58,0.7856,0.5715,81.4
+6,exp5_cnn_tuning,CNN Tuned (cnn_tuned_cfg_05),189090,17,78.41,78.42,0.7841,0.5683,139.73
+7,exp2_eegnet,EEGNet (eegnet_cfg_03),2610,28,77.46,77.46,0.7745,0.5492,335.69
+8,exp2_eegnet,EEGNet (eegnet_cfg_04),2610,30,77.3,77.31,0.7729,0.5461,343.71
+9,exp2_eegnet,EEGNet (eegnet_cfg_10),2610,30,76.35,76.35,0.7635,0.527,361.76
+10,exp2_eegnet,EEGNet (eegnet_cfg_02),2610,23,76.19,76.19,0.7618,0.5238,329.91
+11,exp2_eegnet,EEGNet (eegnet_cfg_09),2610,30,76.03,76.04,0.7603,0.5207,359.03
+12,exp2_eegnet,EEGNet (eegnet_cfg_01),2610,28,75.71,75.71,0.7571,0.5143,307.56
+13,exp2_eegnet,EEGNet (eegnet_cfg_12),2610,30,74.44,74.45,0.7443,0.489,337.44
+14,exp2_eegnet,EEGNet (eegnet_cfg_06),2610,30,73.81,73.83,0.7375,0.4764,353.73
+15,exp2_eegnet,EEGNet (eegnet_cfg_05),2610,30,73.49,73.51,0.7344,0.47,347.79
+16,exp2_eegnet,EEGNet (eegnet_cfg_11),2610,30,72.86,72.86,0.7285,0.4572,348.45
+17,exp2_eegnet,EEGNet (eegnet_cfg_08),2610,30,70.79,70.79,0.7078,0.4158,350.63
+18,exp2_eegnet,EEGNet (eegnet_cfg_07),2610,28,70.0,70.0,0.7,0.4,342.3
+19,exp2_eegnet,EEGNet (eegnet_cfg_13),2610,30,67.14,67.14,0.6714,0.3428,343.94
+20,exp2_eegnet,EEGNet (eegnet_cfg_14),2610,30,67.14,67.14,0.6714,0.3428,1160.5
+21,exp2_eegnet,EEGNet (eegnet_cfg_15),2610,29,64.29,64.28,0.6425,0.2856,304.05
+22,exp2_eegnet,EEGNet (eegnet_cfg_16),2610,29,64.13,64.12,0.6409,0.2824,312.41
+23,exp4_fbcsp_lda,FBCSP+LDA (k_features=20),20,1,63.81,63.83,0.637,0.2764,114.333
+24,exp4_fbcsp_lda,FBCSP+LDA (k_features=10),10,1,63.33,63.34,0.6329,0.2668,114.28
+25,exp4_fbcsp_lda,FBCSP+LDA (k_features=all),30,1,62.38,62.4,0.6219,0.248,114.371
+26,exp4_fbcsp_lda,FBCSP+LDA (k_features=25),25,1,61.9,61.92,0.6179,0.2384,114.352
+27,exp4_fbcsp_lda,FBCSP+LDA (k_features=15),15,1,61.75,61.77,0.6149,0.2353,114.317
+28,exp3_csp_lda,CSP+LDA (components=16),1024,1,58.89,58.88,0.5881,0.1776,18.581
+29,exp3_csp_lda,CSP+LDA (components=10),640,1,58.25,58.24,0.5815,0.1648,18.284
+30,exp3_csp_lda,CSP+LDA (components=12),768,1,58.1,58.08,0.58,0.1617,21.632
+31,exp3_csp_lda,CSP+LDA (components=8),512,1,57.46,57.46,0.5746,0.1492,17.885
+32,exp3_csp_lda,CSP+LDA (components=6),384,1,57.3,57.3,0.573,0.146,20.276
+33,exp3_csp_lda,CSP+LDA (components=4),256,1,56.67,56.67,0.5666,0.1334,21.951

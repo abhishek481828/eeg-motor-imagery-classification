@@ -1,0 +1,53 @@
+{
+  "exp_id": "exp4_fbcsp_lda",
+  "model_name": "FBCSP+LDA (k_features=20)",
+  "hyperparameters": {
+    "bands": [
+      "Theta",
+      "Alpha_Mu",
+      "Low_Beta",
+      "Mid_Beta",
+      "High_Beta"
+    ],
+    "k_selected": "20"
+  },
+  "total_parameters": 20,
+  "best_epoch": 1,
+  "train_loss": 0.0,
+  "val_loss": 0.0,
+  "val_metrics": {
+    "accuracy": 0.638095238095238,
+    "balanced_accuracy": 0.6382729984681126,
+    "cohens_kappa": 0.2764456981664315,
+    "macro_precision": 0.64,
+    "macro_recall": 0.6382729984681126,
+    "macro_f1": 0.6370380852268133,
+    "weighted_precision": 0.6400544217687074,
+    "weighted_recall": 0.638095238095238,
+    "weighted_f1": 0.6369758997639647,
+    "per_class": {
+      "Left Fist": {
+        "precision": 0.6571428571428571,
+        "recall": 0.5822784810126582,
+        "f1_score": 0.6174496644295302
+      },
+      "Right Fist": {
+        "precision": 0.6228571428571429,
+        "recall": 0.6942675159235668,
+        "f1_score": 0.6566265060240963
+      }
+    },
+    "confusion_matrix": [
+      [
+        184,
+        132
+      ],
+      [
+        96,
+        218
+      ]
+    ]
+  },
+  "train_time_sec": 114.333,
+  "checkpoint_path": "N/A (scikit-learn in memory)"
+}
