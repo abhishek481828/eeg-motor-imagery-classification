@@ -1,0 +1,549 @@
+[
+  {
+    "phase": "Phase 2: Weight Search",
+    "model_name": "Ensemble (w_cnn=0.45, w_eeg=0.55)",
+    "ensemble_weights": {
+      "w_cnn": 0.45,
+      "w_eeg": 0.55
+    },
+    "seeds": [
+      42
+    ],
+    "augmentation": "None",
+    "total_parameters": 191700,
+    "best_epoch": 1,
+    "val_metrics": {
+      "accuracy": 0.8301587301587302,
+      "balanced_accuracy": 0.8301822139804886,
+      "cohens_kappa": 0.6603311531911034,
+      "macro_precision": 0.8302321361973208,
+      "macro_recall": 0.8301822139804886,
+      "macro_f1": 0.8301548787954376,
+      "weighted_precision": 0.8302504877069684,
+      "weighted_recall": 0.8301587301587302,
+      "weighted_f1": 0.8301523112199091,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8360128617363344,
+          "recall": 0.8227848101265823,
+          "f1_score": 0.8293460925039873
+        },
+        "Right Fist": {
+          "precision": 0.8244514106583072,
+          "recall": 0.8375796178343949,
+          "f1_score": 0.8309636650868878
+        }
+      },
+      "confusion_matrix": [
+        [
+          260,
+          56
+        ],
+        [
+          51,
+          263
+        ]
+      ]
+    },
+    "train_time_sec": 0.2,
+    "checkpoint_path": "Frozen Baseline Checkpoints"
+  },
+  {
+    "phase": "Phase 2: Weight Search",
+    "model_name": "Ensemble (w_cnn=0.40, w_eeg=0.60)",
+    "ensemble_weights": {
+      "w_cnn": 0.4,
+      "w_eeg": 0.6
+    },
+    "seeds": [
+      42
+    ],
+    "augmentation": "None",
+    "total_parameters": 191700,
+    "best_epoch": 1,
+    "val_metrics": {
+      "accuracy": 0.8285714285714286,
+      "balanced_accuracy": 0.8285697008788196,
+      "cohens_kappa": 0.6571394017576393,
+      "macro_precision": 0.8285697008788196,
+      "macro_recall": 0.8285697008788196,
+      "macro_f1": 0.8285697008788196,
+      "weighted_precision": 0.8285714285714286,
+      "weighted_recall": 0.8285714285714286,
+      "weighted_f1": 0.8285714285714286,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8291139240506329,
+          "recall": 0.8291139240506329,
+          "f1_score": 0.8291139240506329
+        },
+        "Right Fist": {
+          "precision": 0.8280254777070064,
+          "recall": 0.8280254777070064,
+          "f1_score": 0.8280254777070064
+        }
+      },
+      "confusion_matrix": [
+        [
+          262,
+          54
+        ],
+        [
+          54,
+          260
+        ]
+      ]
+    },
+    "train_time_sec": 0.2,
+    "checkpoint_path": "Frozen Baseline Checkpoints"
+  },
+  {
+    "phase": "Phase 2: Weight Search",
+    "model_name": "Ensemble (w_cnn=0.50, w_eeg=0.50)",
+    "ensemble_weights": {
+      "w_cnn": 0.5,
+      "w_eeg": 0.5
+    },
+    "seeds": [
+      42
+    ],
+    "augmentation": "None",
+    "total_parameters": 191700,
+    "best_epoch": 1,
+    "val_metrics": {
+      "accuracy": 0.8222222222222222,
+      "balanced_accuracy": 0.8222506651616545,
+      "cohens_kappa": 0.6444623601733347,
+      "macro_precision": 0.822328629032258,
+      "macro_recall": 0.8222506651616545,
+      "macro_f1": 0.8222150552806362,
+      "weighted_precision": 0.8223499103942652,
+      "weighted_recall": 0.8222222222222222,
+      "weighted_f1": 0.822211471809843,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8290322580645161,
+          "recall": 0.8132911392405063,
+          "f1_score": 0.8210862619808307
+        },
+        "Right Fist": {
+          "precision": 0.815625,
+          "recall": 0.8312101910828026,
+          "f1_score": 0.8233438485804416
+        }
+      },
+      "confusion_matrix": [
+        [
+          257,
+          59
+        ],
+        [
+          53,
+          261
+        ]
+      ]
+    },
+    "train_time_sec": 0.2,
+    "checkpoint_path": "Frozen Baseline Checkpoints"
+  },
+  {
+    "phase": "Phase 2: Weight Search",
+    "model_name": "Ensemble (w_cnn=0.60, w_eeg=0.40)",
+    "ensemble_weights": {
+      "w_cnn": 0.6,
+      "w_eeg": 0.4
+    },
+    "seeds": [
+      42
+    ],
+    "augmentation": "None",
+    "total_parameters": 191700,
+    "best_epoch": 1,
+    "val_metrics": {
+      "accuracy": 0.8222222222222222,
+      "balanced_accuracy": 0.8222909779891963,
+      "cohens_kappa": 0.6444910215844737,
+      "macro_precision": 0.8228375868195767,
+      "macro_recall": 0.8222909779891963,
+      "macro_f1": 0.8221576989383903,
+      "weighted_precision": 0.8228849225578349,
+      "weighted_recall": 0.8222222222222222,
+      "weighted_f1": 0.8221469450577518,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8377483443708609,
+          "recall": 0.8006329113924051,
+          "f1_score": 0.8187702265372169
+        },
+        "Right Fist": {
+          "precision": 0.8079268292682927,
+          "recall": 0.8439490445859873,
+          "f1_score": 0.8255451713395638
+        }
+      },
+      "confusion_matrix": [
+        [
+          253,
+          63
+        ],
+        [
+          49,
+          265
+        ]
+      ]
+    },
+    "train_time_sec": 0.2,
+    "checkpoint_path": "Frozen Baseline Checkpoints"
+  },
+  {
+    "phase": "Phase 2: Weight Search",
+    "model_name": "Ensemble (w_cnn=0.30, w_eeg=0.70)",
+    "ensemble_weights": {
+      "w_cnn": 0.3,
+      "w_eeg": 0.7
+    },
+    "seeds": [
+      42
+    ],
+    "augmentation": "None",
+    "total_parameters": 191700,
+    "best_epoch": 1,
+    "val_metrics": {
+      "accuracy": 0.8174603174603174,
+      "balanced_accuracy": 0.8174635168910748,
+      "cohens_kappa": 0.6349206349206349,
+      "macro_precision": 0.8174603174603174,
+      "macro_recall": 0.8174635168910748,
+      "macro_f1": 0.8174598575456224,
+      "weighted_precision": 0.8174653565129755,
+      "weighted_recall": 0.8174603174603174,
+      "weighted_f1": 0.8174607773750124,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.819047619047619,
+          "recall": 0.8164556962025317,
+          "f1_score": 0.8177496038034865
+        },
+        "Right Fist": {
+          "precision": 0.8158730158730159,
+          "recall": 0.8184713375796179,
+          "f1_score": 0.8171701112877583
+        }
+      },
+      "confusion_matrix": [
+        [
+          258,
+          58
+        ],
+        [
+          57,
+          257
+        ]
+      ]
+    },
+    "train_time_sec": 0.2,
+    "checkpoint_path": "Frozen Baseline Checkpoints"
+  },
+  {
+    "phase": "Phase 2: Weight Search",
+    "model_name": "Ensemble (w_cnn=0.70, w_eeg=0.30)",
+    "ensemble_weights": {
+      "w_cnn": 0.7,
+      "w_eeg": 0.3
+    },
+    "seeds": [
+      42
+    ],
+    "augmentation": "None",
+    "total_parameters": 191700,
+    "best_epoch": 1,
+    "val_metrics": {
+      "accuracy": 0.8142857142857143,
+      "balanced_accuracy": 0.8143392727565912,
+      "cohens_kappa": 0.6286088577618784,
+      "macro_precision": 0.8146532156368222,
+      "macro_recall": 0.8143392727565912,
+      "macro_f1": 0.8142478056746275,
+      "weighted_precision": 0.8146899657719331,
+      "weighted_recall": 0.8142857142857143,
+      "weighted_f1": 0.8142393815388304,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8262295081967214,
+          "recall": 0.7974683544303798,
+          "f1_score": 0.8115942028985508
+        },
+        "Right Fist": {
+          "precision": 0.803076923076923,
+          "recall": 0.8312101910828026,
+          "f1_score": 0.8169014084507042
+        }
+      },
+      "confusion_matrix": [
+        [
+          252,
+          64
+        ],
+        [
+          53,
+          261
+        ]
+      ]
+    },
+    "train_time_sec": 0.2,
+    "checkpoint_path": "Frozen Baseline Checkpoints"
+  },
+  {
+    "phase": "Phase 3: Multi-Seed Avg",
+    "model_name": "5-Seed CNN Averaging Ensemble",
+    "ensemble_weights": {
+      "cnn_seeds": 5
+    },
+    "seeds": [
+      42,
+      123,
+      2024,
+      31415,
+      999
+    ],
+    "augmentation": "None",
+    "total_parameters": 945450,
+    "best_epoch": 25,
+    "val_metrics": {
+      "accuracy": 0.8126984126984127,
+      "balanced_accuracy": 0.8128577763444328,
+      "cohens_kappa": 0.6255138228419441,
+      "macro_precision": 0.8159142717577139,
+      "macro_recall": 0.8128577763444328,
+      "macro_f1": 0.8122727272727273,
+      "weighted_precision": 0.8160180091467235,
+      "weighted_recall": 0.8126984126984127,
+      "weighted_f1": 0.8122443482443483,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8485915492957746,
+          "recall": 0.7626582278481012,
+          "f1_score": 0.8033333333333333
+        },
+        "Right Fist": {
+          "precision": 0.7832369942196532,
+          "recall": 0.8630573248407644,
+          "f1_score": 0.8212121212121212
+        }
+      },
+      "confusion_matrix": [
+        [
+          241,
+          75
+        ],
+        [
+          43,
+          271
+        ]
+      ]
+    },
+    "train_time_sec": 578.92,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/post_final_improvements"
+  },
+  {
+    "phase": "Phase 3: Multi-Seed Avg",
+    "model_name": "10-Model Super Ensemble (5-Seed CNN + 5-Seed EEGNet, w=0.45/0.55)",
+    "ensemble_weights": {
+      "w_cnn_5seed": 0.45,
+      "w_eegnet_5seed": 0.55
+    },
+    "seeds": [
+      42,
+      123,
+      2024,
+      31415,
+      999
+    ],
+    "augmentation": "None",
+    "total_parameters": 958500,
+    "best_epoch": 25,
+    "val_metrics": {
+      "accuracy": 0.8111111111111111,
+      "balanced_accuracy": 0.8112351850358784,
+      "cohens_kappa": 0.6223135749478584,
+      "macro_precision": 0.8130492959888088,
+      "macro_recall": 0.8112351850358784,
+      "macro_f1": 0.8108590184448408,
+      "weighted_precision": 0.8131300536920464,
+      "weighted_recall": 0.8111111111111111,
+      "weighted_f1": 0.810837097343426,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8384879725085911,
+          "recall": 0.7721518987341772,
+          "f1_score": 0.8039538714991763
+        },
+        "Right Fist": {
+          "precision": 0.7876106194690266,
+          "recall": 0.8503184713375797,
+          "f1_score": 0.8177641653905053
+        }
+      },
+      "confusion_matrix": [
+        [
+          244,
+          72
+        ],
+        [
+          47,
+          267
+        ]
+      ]
+    },
+    "train_time_sec": 1862.85,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/post_final_improvements"
+  },
+  {
+    "phase": "Phase 4: Safe Augmentation",
+    "model_name": "1D-CNN (aug_mild_noise_dropout)",
+    "ensemble_weights": {
+      "w_cnn": 1.0
+    },
+    "seeds": [
+      42
+    ],
+    "augmentation": "aug_mild_noise_dropout",
+    "total_parameters": 189090,
+    "best_epoch": 24,
+    "val_metrics": {
+      "accuracy": 0.807936507936508,
+      "balanced_accuracy": 0.8080303152463114,
+      "cohens_kappa": 0.6159426861340347,
+      "macro_precision": 0.8090363090363091,
+      "macro_recall": 0.8080303152463114,
+      "macro_f1": 0.8077965563234504,
+      "weighted_precision": 0.8090974090974091,
+      "weighted_recall": 0.807936507936508,
+      "weighted_f1": 0.8077800914277967,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8282828282828283,
+          "recall": 0.7784810126582279,
+          "f1_score": 0.802610114192496
+        },
+        "Right Fist": {
+          "precision": 0.7897897897897898,
+          "recall": 0.8375796178343949,
+          "f1_score": 0.8129829984544049
+        }
+      },
+      "confusion_matrix": [
+        [
+          246,
+          70
+        ],
+        [
+          51,
+          263
+        ]
+      ]
+    },
+    "train_time_sec": 112.42,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/post_final_improvements/aug_mild_noise_dropout_best.pt"
+  },
+  {
+    "phase": "Phase 4: Safe Augmentation",
+    "model_name": "1D-CNN (aug_mild_shift_scaling)",
+    "ensemble_weights": {
+      "w_cnn": 1.0
+    },
+    "seeds": [
+      42
+    ],
+    "augmentation": "aug_mild_shift_scaling",
+    "total_parameters": 189090,
+    "best_epoch": 21,
+    "val_metrics": {
+      "accuracy": 0.7904761904761904,
+      "balanced_accuracy": 0.7904841570587762,
+      "cohens_kappa": 0.5809566041158567,
+      "macro_precision": 0.7904841570587762,
+      "macro_recall": 0.7904841570587762,
+      "macro_f1": 0.7904761904761904,
+      "weighted_precision": 0.7904921236413617,
+      "weighted_recall": 0.7904761904761904,
+      "weighted_f1": 0.7904761904761904,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.7929936305732485,
+          "recall": 0.7879746835443038,
+          "f1_score": 0.7904761904761904
+        },
+        "Right Fist": {
+          "precision": 0.7879746835443038,
+          "recall": 0.7929936305732485,
+          "f1_score": 0.7904761904761904
+        }
+      },
+      "confusion_matrix": [
+        [
+          249,
+          67
+        ],
+        [
+          65,
+          249
+        ]
+      ]
+    },
+    "train_time_sec": 113.44,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/post_final_improvements/aug_mild_shift_scaling_best.pt"
+  },
+  {
+    "phase": "Phase 3: Multi-Seed Avg",
+    "model_name": "5-Seed EEGNet Averaging Ensemble",
+    "ensemble_weights": {
+      "eegnet_seeds": 5
+    },
+    "seeds": [
+      42,
+      123,
+      2024,
+      31415,
+      999
+    ],
+    "augmentation": "None",
+    "total_parameters": 13050,
+    "best_epoch": 25,
+    "val_metrics": {
+      "accuracy": 0.7777777777777778,
+      "balanced_accuracy": 0.7778158510037894,
+      "cohens_kappa": 0.5555869074492099,
+      "macro_precision": 0.7779503105590062,
+      "macro_recall": 0.7778158510037894,
+      "macro_f1": 0.7777576197387519,
+      "weighted_precision": 0.7779749580991817,
+      "weighted_recall": 0.7777777777777778,
+      "weighted_f1": 0.7777509003924099,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.7857142857142857,
+          "recall": 0.7658227848101266,
+          "f1_score": 0.7756410256410257
+        },
+        "Right Fist": {
+          "precision": 0.7701863354037267,
+          "recall": 0.7898089171974523,
+          "f1_score": 0.779874213836478
+        }
+      },
+      "confusion_matrix": [
+        [
+          242,
+          74
+        ],
+        [
+          66,
+          248
+        ]
+      ]
+    },
+    "train_time_sec": 1283.93,
+    "checkpoint_path": "/home/nixos/Projects/UROP/eeg-motor-imagery/models/checkpoints/post_final_improvements"
+  }
+]

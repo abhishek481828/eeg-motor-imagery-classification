@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-08-10T09:56:53Z",
+  "status": "PASS",
+  "git_branch": "experiments/post-final-improvements",
+  "checkpoints": {
+    "cnn_checkpoint": "reports/experiments/new_benchmark/exp5_cnn_tuning/cnn_tuned_cfg_02_best.pt",
+    "eegnet_checkpoint": "reports/experiments/new_benchmark/exp2_eegnet/eegnet_cfg_03_best.pt"
+  },
+  "subject_counts": {
+    "train": 77,
+    "val": 16,
+    "test": 16
+  },
+  "total_subject_overlap": 0,
+  "validation_reference_metrics": {
+    "val_accuracy": 0.830159,
+    "val_balanced_accuracy": 0.830182,
+    "val_macro_f1": 0.830155,
+    "val_cohens_kappa": 0.660331,
+    "expected_val_accuracy": 0.8302,
+    "reproduced": true
+  },
+  "test_subjects_loaded": false
+}

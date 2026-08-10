@@ -1,0 +1,12 @@
+Rank,Phase,Model Name,Params,Val Acc (%),Val Bal Acc (%),Val Macro F1,Val Kappa,Train Time (s)
+1,Phase 2: Weight Search,"Ensemble (w_cnn=0.45, w_eeg=0.55)",191700,83.02,83.02,0.8302,0.6603,0.2
+2,Phase 2: Weight Search,"Ensemble (w_cnn=0.40, w_eeg=0.60)",191700,82.86,82.86,0.8286,0.6571,0.2
+3,Phase 2: Weight Search,"Ensemble (w_cnn=0.50, w_eeg=0.50)",191700,82.22,82.23,0.8222,0.6445,0.2
+4,Phase 2: Weight Search,"Ensemble (w_cnn=0.60, w_eeg=0.40)",191700,82.22,82.23,0.8222,0.6445,0.2
+5,Phase 2: Weight Search,"Ensemble (w_cnn=0.30, w_eeg=0.70)",191700,81.75,81.75,0.8175,0.6349,0.2
+6,Phase 2: Weight Search,"Ensemble (w_cnn=0.70, w_eeg=0.30)",191700,81.43,81.43,0.8142,0.6286,0.2
+7,Phase 3: Multi-Seed Avg,5-Seed CNN Averaging Ensemble,945450,81.27,81.29,0.8123,0.6255,578.92
+8,Phase 3: Multi-Seed Avg,"10-Model Super Ensemble (5-Seed CNN + 5-Seed EEGNet, w=0.45/0.55)",958500,81.11,81.12,0.8109,0.6223,1862.85
+9,Phase 4: Safe Augmentation,1D-CNN (aug_mild_noise_dropout),189090,80.79,80.8,0.8078,0.6159,112.42
+10,Phase 4: Safe Augmentation,1D-CNN (aug_mild_shift_scaling),189090,79.05,79.05,0.7905,0.581,113.44
+11,Phase 3: Multi-Seed Avg,5-Seed EEGNet Averaging Ensemble,13050,77.78,77.78,0.7778,0.5556,1283.93
