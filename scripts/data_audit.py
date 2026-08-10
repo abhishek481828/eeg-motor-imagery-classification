@@ -37,19 +37,29 @@ from eeg_mi.utils.logging import get_logger
 
 logger = get_logger("Phase1DataAudit")
 
-DATA_NPZ  = ROOT / "data" / "processed" / "full_dataset.npz"
+DATA_NPZ = ROOT / "data" / "processed" / "full_dataset.npz"
 DATA_META = ROOT / "data" / "processed" / "full_metadata.json"
-TUNED_CNN_CKPT = ROOT / "reports" / "experiments" / "new_benchmark" / "exp5_cnn_tuning" / "cnn_tuned_cfg_02_best.pt"
-OUT_DIR   = ROOT / "reports" / "improvement"
+TUNED_CNN_CKPT = (
+    ROOT
+    / "reports"
+    / "experiments"
+    / "new_benchmark"
+    / "exp5_cnn_tuning"
+    / "cnn_tuned_cfg_02_best.pt"
+)
+OUT_DIR = ROOT / "reports" / "improvement"
 
 CLASS_NAMES = ["Left Fist", "Right Fist"]
 
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:
-        if isinstance(obj, np.integer):  return int(obj)
-        if isinstance(obj, np.floating): return float(obj)
-        if isinstance(obj, np.ndarray):  return obj.tolist()
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
         return super().default(obj)
 
 
@@ -65,8 +75,8 @@ def run_data_audit() -> dict[str, Any]:
     print(f"  Loading dataset: {DATA_NPZ}")
     npz = np.load(DATA_NPZ)
     X_tr, y_tr = npz["X_train"], npz["y_train"]
-    X_v,  y_v  = npz["X_val"],   npz["y_val"]
-    X_te, y_te = npz["X_test"],  npz["y_test"]
+    X_v, y_v = npz["X_val"], npz["y_val"]
+    X_te, y_te = npz["X_test"], npz["y_test"]
 
     with open(DATA_META) as f:
         meta = json.load(f)
@@ -74,32 +84,40 @@ def run_data_audit() -> dict[str, Any]:
     # 2. Check shapes
     shapes = {
         "X_train": list(X_tr.shape),
-        "X_val":   list(X_v.shape),
-        "X_test":  list(X_te.shape),
+        "X_val": list(X_v.shape),
+        "X_test": list(X_te.shape),
     }
 
     # 3. Check NaNs and Infs
-    nans_tr, nans_v, nans_te = int(np.isnan(X_tr).sum()), int(np.isnan(X_v).sum()), int(np.isnan(X_te).sum())
-    infs_tr, infs_v, infs_te = int(np.isinf(X_tr).sum()), int(np.isinf(X_v).sum()), int(np.isinf(X_te).sum())
+    nans_tr, nans_v, nans_te = (
+        int(np.isnan(X_tr).sum()),
+        int(np.isnan(X_v).sum()),
+        int(np.isnan(X_te).sum()),
+    )
+    infs_tr, infs_v, infs_te = (
+        int(np.isinf(X_tr).sum()),
+        int(np.isinf(X_v).sum()),
+        int(np.isinf(X_te).sum()),
+    )
 
     # 4. Check class mapping and balance
     unique_tr = [int(x) for x in np.unique(y_tr)]
-    unique_v  = [int(x) for x in np.unique(y_v)]
+    unique_v = [int(x) for x in np.unique(y_v)]
     unique_te = [int(x) for x in np.unique(y_te)]
 
     class_counts_tr = {CLASS_NAMES[i]: int((y_tr == i).sum()) for i in range(2)}
-    class_counts_v  = {CLASS_NAMES[i]: int((y_v == i).sum())  for i in range(2)}
+    class_counts_v = {CLASS_NAMES[i]: int((y_v == i).sum()) for i in range(2)}
     class_counts_te = {CLASS_NAMES[i]: int((y_te == i).sum()) for i in range(2)}
 
     # 5. Check subject partition & overlap
     splits = meta.get("subject_splits", {})
-    tr_subs = set(int(s) for s in splits.get("train", []))
-    v_subs  = set(int(s) for s in splits.get("validation", []))
-    te_subs = set(int(s) for s in splits.get("test", []))
+    tr_subs = {int(s) for s in splits.get("train", [])}
+    v_subs = {int(s) for s in splits.get("validation", [])}
+    te_subs = {int(s) for s in splits.get("test", [])}
 
-    tr_v_overlap  = list(tr_subs & v_subs)
+    tr_v_overlap = list(tr_subs & v_subs)
     tr_te_overlap = list(tr_subs & te_subs)
-    v_te_overlap  = list(v_subs & te_subs)
+    v_te_overlap = list(v_subs & te_subs)
     total_overlap = len(tr_v_overlap) + len(tr_te_overlap) + len(v_te_overlap)
 
     # 6. Check duplicate epoch hashes
@@ -107,16 +125,18 @@ def run_data_audit() -> dict[str, Any]:
         return hashlib.sha256(arr.astype(np.float32).tobytes()).hexdigest()
 
     hashes_tr = {epoch_hash(X_tr[i]) for i in range(len(X_tr))}
-    hashes_v  = {epoch_hash(X_v[i]) for i in range(len(X_v))}
+    hashes_v = {epoch_hash(X_v[i]) for i in range(len(X_v))}
     hashes_te = {epoch_hash(X_te[i]) for i in range(len(X_te))}
 
-    dup_tr_v  = len(hashes_tr & hashes_v)
+    dup_tr_v = len(hashes_tr & hashes_v)
     dup_tr_te = len(hashes_tr & hashes_te)
-    dup_v_te  = len(hashes_v & hashes_te)
+    dup_v_te = len(hashes_v & hashes_te)
     total_dups = dup_tr_v + dup_tr_te + dup_v_te
 
     # 7. Scaler fit verification
-    scaler_info = meta.get("preprocessing", {}).get("scaler", "TrainFittedScaler strictly fitted on train subjects S001-S077")
+    scaler_info = meta.get("preprocessing", {}).get(
+        "scaler", "TrainFittedScaler strictly fitted on train subjects S001-S077"
+    )
 
     # 8. Reproduce Tuned CNN Validation Metrics
     print(f"  Loading Tuned CNN Checkpoint: {TUNED_CNN_CKPT}")
@@ -128,13 +148,15 @@ def run_data_audit() -> dict[str, Any]:
             layers = []
             c_in = in_ch
             for c_out in filters:
-                layers.extend([
-                    torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
-                    torch.nn.BatchNorm1d(c_out),
-                    torch.nn.ReLU(),
-                    torch.nn.MaxPool1d(2),
-                    torch.nn.Dropout(drop),
-                ])
+                layers.extend(
+                    [
+                        torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
+                        torch.nn.BatchNorm1d(c_out),
+                        torch.nn.ReLU(),
+                        torch.nn.MaxPool1d(2),
+                        torch.nn.Dropout(drop),
+                    ]
+                )
                 c_in = c_out
             self.features = torch.nn.Sequential(*layers)
             self.avgpool = torch.nn.AdaptiveAvgPool1d(16)
@@ -163,7 +185,9 @@ def run_data_audit() -> dict[str, Any]:
 
     audit_result = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "status": "PASS" if (total_overlap == 0 and total_dups == 0 and nans_tr + nans_v + nans_te == 0) else "FAIL",
+        "status": "PASS"
+        if (total_overlap == 0 and total_dups == 0 and nans_tr + nans_v + nans_te == 0)
+        else "FAIL",
         "dataset_file": str(DATA_NPZ),
         "metadata_file": str(DATA_META),
         "input_shapes": shapes,
@@ -202,7 +226,10 @@ def run_data_audit() -> dict[str, Any]:
             "val_cohens_kappa": round(float(v_metrics["cohens_kappa"]), 6),
             "expected_val_accuracy": 0.8032,
             "expected_val_macro_f1": 0.8032,
-            "reproduction_match": (round(v_metrics["accuracy"], 4) == 0.8032 and round(v_metrics["macro_f1"], 4) == 0.8032),
+            "reproduction_match": (
+                round(v_metrics["accuracy"], 4) == 0.8032
+                and round(v_metrics["macro_f1"], 4) == 0.8032
+            ),
         },
         "test_evaluated": False,
     }
@@ -217,12 +244,12 @@ def run_data_audit() -> dict[str, Any]:
     md_content = f"""# Phase 1: Data Integrity & Baseline Reproduction Audit Report
 
 ## Executive Summary
-- **Overall Audit Status**: **{audit_result['status']}**
+- **Overall Audit Status**: **{audit_result["status"]}**
 - **Subject Overlap**: **{total_overlap}** (Disjoint partitioning confirmed)
 - **Duplicate Epochs**: **{total_dups}** (SHA-256 verified)
 - **NaNs / Infs**: **0**
-- **Tuned CNN Val Accuracy Reproduced**: **{v_metrics['accuracy']*100:.2f}%** (Expected: 80.32%)
-- **Tuned CNN Val Macro F1 Reproduced**: **{v_metrics['macro_f1']:.4f}** (Expected: 0.8032)
+- **Tuned CNN Val Accuracy Reproduced**: **{v_metrics["accuracy"] * 100:.2f}%** (Expected: 80.32%)
+- **Tuned CNN Val Macro F1 Reproduced**: **{v_metrics["macro_f1"]:.4f}** (Expected: 0.8032)
 - **Test Set Evaluation**: **UNTOUCHED (0 test evaluations performed)**
 
 ---
@@ -231,9 +258,9 @@ def run_data_audit() -> dict[str, Any]:
 
 | Partition | Subject Count | Subjects | Epoch Count | Shape | Class 0 (Left Fist) | Class 1 (Right Fist) |
 |---|---|---|---|---|---|---|
-| **Train** | 77 | S001–S077 | {X_tr.shape[0]} | `{X_tr.shape}` | {class_counts_tr['Left Fist']} | {class_counts_tr['Right Fist']} |
-| **Validation** | 16 | S078–S093 | {X_v.shape[0]} | `{X_v.shape}` | {class_counts_v['Left Fist']} | {class_counts_v['Right Fist']} |
-| **Test** | 16 | S094–S109 | {X_te.shape[0]} | `{X_te.shape}` | {class_counts_te['Left Fist']} | {class_counts_te['Right Fist']} |
+| **Train** | 77 | S001–S077 | {X_tr.shape[0]} | `{X_tr.shape}` | {class_counts_tr["Left Fist"]} | {class_counts_tr["Right Fist"]} |
+| **Validation** | 16 | S078–S093 | {X_v.shape[0]} | `{X_v.shape}` | {class_counts_v["Left Fist"]} | {class_counts_v["Right Fist"]} |
+| **Test** | 16 | S094–S109 | {X_te.shape[0]} | `{X_te.shape}` | {class_counts_te["Left Fist"]} | {class_counts_te["Right Fist"]} |
 
 ---
 
@@ -252,7 +279,9 @@ def run_data_audit() -> dict[str, Any]:
         f.write(md_content)
 
     print(f"\n  ✓ Audit Status: {audit_result['status']}")
-    print(f"  ✓ Reproduced Val Acc = {v_metrics['accuracy']*100:.2f}%, Val Macro F1 = {v_metrics['macro_f1']:.4f}")
+    print(
+        f"  ✓ Reproduced Val Acc = {v_metrics['accuracy'] * 100:.2f}%, Val Macro F1 = {v_metrics['macro_f1']:.4f}"
+    )
     print(f"  ✓ Saved {json_path.relative_to(ROOT)} and {md_path.relative_to(ROOT)}")
     print("=" * 80 + "\n")
     return audit_result

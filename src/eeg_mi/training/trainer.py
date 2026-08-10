@@ -1,8 +1,10 @@
 """Model Trainer class orchestrating model training, LR scheduling, and checkpointing."""
 
+from collections.abc import Sized
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -63,14 +65,15 @@ class Trainer:
                     torch.cuda.empty_cache()
             raise err
 
-        return total_loss / len(dataloader.dataset)
+        n_samples = len(cast(Sized, dataloader.dataset))
+        return total_loss / n_samples
 
     def evaluate(self, dataloader: DataLoader) -> tuple[float, dict[str, Any]]:
         """Evaluate model loss, accuracy, and macro F1 using configured device."""
         self.model.eval()
         total_loss = 0.0
-        all_preds = []
-        all_targets = []
+        all_preds: list[Any] = []
+        all_targets: list[Any] = []
         with torch.no_grad():
             for x_batch, y_batch in dataloader:
                 x_batch, y_batch = x_batch.to(self.device), y_batch.to(self.device)
@@ -81,8 +84,9 @@ class Trainer:
                 all_preds.extend(preds.cpu().numpy())
                 all_targets.extend(y_batch.cpu().numpy())
 
-        avg_loss = total_loss / len(dataloader.dataset)
-        metrics = compute_metrics(all_targets, all_preds)
+        n_samples = len(cast(Sized, dataloader.dataset))
+        avg_loss = total_loss / n_samples
+        metrics = compute_metrics(np.array(all_targets), np.array(all_preds))
         return avg_loss, metrics
 
     def fit(

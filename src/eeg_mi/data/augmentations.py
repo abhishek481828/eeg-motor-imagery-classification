@@ -46,7 +46,9 @@ class EEGAugmenter(nn.Module):
 
         # 3. Temporal Circular Shift
         if self.max_shift_samples > 0:
-            shift = torch.randint(-self.max_shift_samples, self.max_shift_samples + 1, (1,)).item()
+            shift = int(
+                torch.randint(-self.max_shift_samples, self.max_shift_samples + 1, (1,)).item()
+            )
             x_aug = torch.roll(x_aug, shifts=shift, dims=2)
 
         # 4. Random Channel Dropout

@@ -3,6 +3,7 @@
 import json
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -14,7 +15,7 @@ def generate_subject_splits(
     test_ratio: float = 0.15,
     seed: int = 42,
     dataset_version: str = "1.0.0",
-) -> dict[str, any]:
+) -> dict[str, Any]:
     """Generate subject-independent split manifest. Ensures disjoint sets."""
     assert abs((train_ratio + val_ratio + test_ratio) - 1.0) < 1e-5, "Ratios must sum to 1.0"
 
@@ -50,7 +51,7 @@ def generate_subject_splits(
     return manifest
 
 
-def save_split_manifest(manifest: dict[str, any], output_path: Path) -> None:
+def save_split_manifest(manifest: dict[str, Any], output_path: Path) -> None:
     """Save split manifest to JSON."""
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)

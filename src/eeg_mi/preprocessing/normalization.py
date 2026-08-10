@@ -23,4 +23,4 @@ class TrainFittedScaler:
         """Transform data shape (N, C, T) using fitted mean and std."""
         if self.mean is None or self.std is None:
             raise RuntimeError("Scaler must be fitted on training data before calling transform")
-        return (data - self.mean) / self.std
+        return np.asarray((data - self.mean) / self.std)

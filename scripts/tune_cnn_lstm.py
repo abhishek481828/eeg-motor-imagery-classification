@@ -28,7 +28,7 @@ import argparse
 import json
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -51,128 +51,131 @@ from eeg_mi.utils.logging import get_logger
 logger = get_logger("CNNLSTMTuning")
 
 # ── Frozen paths ───────────────────────────────────────────────────────────────
-DATA_NPZ      = ROOT / "data" / "processed" / "full_dataset.npz"
-DATA_META     = ROOT / "data" / "processed" / "full_metadata.json"
-OUT_DIR       = ROOT / "reports" / "experiments" / "cnn_lstm_tuning"
-ORIG_CKPT     = ROOT / "models" / "checkpoints" / "full_cnn_lstm_2class_best.pt"  # READ-ONLY
-CNN_BASELINE  = ROOT / "reports" / "experiments" / "full_dataset_best_model_test_report.json"
+DATA_NPZ = ROOT / "data" / "processed" / "full_dataset.npz"
+DATA_META = ROOT / "data" / "processed" / "full_metadata.json"
+OUT_DIR = ROOT / "reports" / "experiments" / "cnn_lstm_tuning"
+ORIG_CKPT = ROOT / "models" / "checkpoints" / "full_cnn_lstm_2class_best.pt"  # READ-ONLY
+CNN_BASELINE = ROOT / "reports" / "experiments" / "full_dataset_best_model_test_report.json"
 
 # ── Frozen reference thresholds (CNN Baseline) ────────────────────────────────
-CNN_BASELINE_VAL_F1   = 0.7856   # benchmark val_macro_f1
-CNN_BASELINE_TEST_ACC = 0.7281   # benchmark test accuracy
+CNN_BASELINE_VAL_F1 = 0.7856  # benchmark val_macro_f1
+CNN_BASELINE_TEST_ACC = 0.7281  # benchmark test accuracy
 
 # ── Fixed parameters (identical across ALL configs) ───────────────────────────
-FIXED = dict(
-    dataset       = str(DATA_NPZ),
-    split         = "S001-S077 train / S078-S093 val / S094-S109 test",
-    input_shape   = (64, 481),
-    num_channels  = 64,
-    num_classes   = 2,
-    labels        = "T1=class0 (Left Fist), T2=class1 (Right Fist)",
-    optimizer     = "Adam",
-    weight_decay  = 1e-4,
-    lr_scheduler  = "ReduceLROnPlateau(mode=min, patience=5)",
-    criterion     = "CrossEntropyLoss",
-    batch_size    = 32,
-    seed          = 42,
-    gan_aug       = False,
-    model_type    = "cnn_lstm",
-)
+FIXED = {
+    "dataset": str(DATA_NPZ),
+    "split": "S001-S077 train / S078-S093 val / S094-S109 test",
+    "input_shape": (64, 481),
+    "num_channels": 64,
+    "num_classes": 2,
+    "labels": "T1=class0 (Left Fist), T2=class1 (Right Fist)",
+    "optimizer": "Adam",
+    "weight_decay": 1e-4,
+    "lr_scheduler": "ReduceLROnPlateau(mode=min, patience=5)",
+    "criterion": "CrossEntropyLoss",
+    "batch_size": 32,
+    "seed": 42,
+    "gan_aug": False,
+    "model_type": "cnn_lstm",
+}
 
 # ── Config definitions (one change at a time) ─────────────────────────────────
 CONFIGS: dict[str, dict] = {
-    "0": dict(
-        name        = "config_0_original",
-        description = "Original benchmark config — reference. All defaults.",
-        change      = "none",
-        lstm_hidden = 128,
-        lstm_layers = 2,
-        dropout     = 0.5,
-        lr          = 0.001,
-        grad_clip   = None,
-        es_patience = 10,
-        max_epochs  = 30,
-    ),
-    "1": dict(
-        name        = "config_1_hidden64",
-        description = "Hidden size reduced: 128 → 64.",
-        change      = "lstm_hidden_size: 128 → 64",
-        lstm_hidden = 64,
-        lstm_layers = 2,
-        dropout     = 0.5,
-        lr          = 0.001,
-        grad_clip   = None,
-        es_patience = 10,
-        max_epochs  = 30,
-    ),
-    "2": dict(
-        name        = "config_2_dropout03",
-        description = "Dropout reduced: 0.5 → 0.3.",
-        change      = "dropout: 0.5 → 0.3",
-        lstm_hidden = 128,
-        lstm_layers = 2,
-        dropout     = 0.3,
-        lr          = 0.001,
-        grad_clip   = None,
-        es_patience = 10,
-        max_epochs  = 30,
-    ),
-    "3": dict(
-        name        = "config_3_lr0003",
-        description = "Learning rate reduced: 0.001 → 0.0003.",
-        change      = "lr: 0.001 → 0.0003",
-        lstm_hidden = 128,
-        lstm_layers = 2,
-        dropout     = 0.5,
-        lr          = 0.0003,
-        grad_clip   = None,
-        es_patience = 10,
-        max_epochs  = 30,
-    ),
-    "4": dict(
-        name        = "config_4_gradclip1",
-        description = "Gradient clipping added: clip_norm=1.0.",
-        change      = "grad_clip: None → 1.0",
-        lstm_hidden = 128,
-        lstm_layers = 2,
-        dropout     = 0.5,
-        lr          = 0.001,
-        grad_clip   = 1.0,
-        es_patience = 10,
-        max_epochs  = 30,
-    ),
-    "5": dict(
-        name        = "config_5_lstm1layer",
-        description = "LSTM layers reduced: 2 → 1.",
-        change      = "lstm_layers: 2 → 1",
-        lstm_hidden = 128,
-        lstm_layers = 1,
-        dropout     = 0.5,
-        lr          = 0.001,
-        grad_clip   = None,
-        es_patience = 10,
-        max_epochs  = 30,
-    ),
-    "6": dict(
-        name        = "config_6_patience20",
-        description = "ES patience extended: 10 → 20, max_epochs: 30 → 50.",
-        change      = "es_patience: 10 → 20, max_epochs: 30 → 50",
-        lstm_hidden = 128,
-        lstm_layers = 2,
-        dropout     = 0.5,
-        lr          = 0.001,
-        grad_clip   = None,
-        es_patience = 20,
-        max_epochs  = 50,
-    ),
+    "0": {
+        "name": "config_0_original",
+        "description": "Original benchmark config — reference. All defaults.",
+        "change": "none",
+        "lstm_hidden": 128,
+        "lstm_layers": 2,
+        "dropout": 0.5,
+        "lr": 0.001,
+        "grad_clip": None,
+        "es_patience": 10,
+        "max_epochs": 30,
+    },
+    "1": {
+        "name": "config_1_hidden64",
+        "description": "Hidden size reduced: 128 → 64.",
+        "change": "lstm_hidden_size: 128 → 64",
+        "lstm_hidden": 64,
+        "lstm_layers": 2,
+        "dropout": 0.5,
+        "lr": 0.001,
+        "grad_clip": None,
+        "es_patience": 10,
+        "max_epochs": 30,
+    },
+    "2": {
+        "name": "config_2_dropout03",
+        "description": "Dropout reduced: 0.5 → 0.3.",
+        "change": "dropout: 0.5 → 0.3",
+        "lstm_hidden": 128,
+        "lstm_layers": 2,
+        "dropout": 0.3,
+        "lr": 0.001,
+        "grad_clip": None,
+        "es_patience": 10,
+        "max_epochs": 30,
+    },
+    "3": {
+        "name": "config_3_lr0003",
+        "description": "Learning rate reduced: 0.001 → 0.0003.",
+        "change": "lr: 0.001 → 0.0003",
+        "lstm_hidden": 128,
+        "lstm_layers": 2,
+        "dropout": 0.5,
+        "lr": 0.0003,
+        "grad_clip": None,
+        "es_patience": 10,
+        "max_epochs": 30,
+    },
+    "4": {
+        "name": "config_4_gradclip1",
+        "description": "Gradient clipping added: clip_norm=1.0.",
+        "change": "grad_clip: None → 1.0",
+        "lstm_hidden": 128,
+        "lstm_layers": 2,
+        "dropout": 0.5,
+        "lr": 0.001,
+        "grad_clip": 1.0,
+        "es_patience": 10,
+        "max_epochs": 30,
+    },
+    "5": {
+        "name": "config_5_lstm1layer",
+        "description": "LSTM layers reduced: 2 → 1.",
+        "change": "lstm_layers: 2 → 1",
+        "lstm_hidden": 128,
+        "lstm_layers": 1,
+        "dropout": 0.5,
+        "lr": 0.001,
+        "grad_clip": None,
+        "es_patience": 10,
+        "max_epochs": 30,
+    },
+    "6": {
+        "name": "config_6_patience20",
+        "description": "ES patience extended: 10 → 20, max_epochs: 30 → 50.",
+        "change": "es_patience: 10 → 20, max_epochs: 30 → 50",
+        "lstm_hidden": 128,
+        "lstm_layers": 2,
+        "dropout": 0.5,
+        "lr": 0.001,
+        "grad_clip": None,
+        "es_patience": 20,
+        "max_epochs": 50,
+    },
 }
 
 
 class NpEncoder(json.JSONEncoder):
     def default(self, o: Any) -> Any:
-        if isinstance(o, np.integer):  return int(o)
-        if isinstance(o, np.floating): return float(o)
-        if isinstance(o, np.ndarray):  return o.tolist()
+        if isinstance(o, np.integer):
+            return int(o)
+        if isinstance(o, np.floating):
+            return float(o)
+        if isinstance(o, np.ndarray):
+            return o.tolist()
         return super().default(o)
 
 
@@ -180,9 +183,9 @@ CLASS_NAMES = ["Left Fist", "Right Fist"]
 
 
 def _per_subject_breakdown(y_test, preds, meta):
-    test_subs   = meta["subject_splits"]["test"]
-    records     = meta.get("records_metadata", [])
-    sub_counts  = {int(s): 0 for s in test_subs}
+    test_subs = meta["subject_splits"]["test"]
+    records = meta.get("records_metadata", [])
+    sub_counts = {int(s): 0 for s in test_subs}
     for rec in records:
         sid = rec.get("subject_id") or rec.get("subject", 0)
         if isinstance(sid, str) and sid.startswith("S"):
@@ -194,9 +197,9 @@ def _per_subject_breakdown(y_test, preds, meta):
     for s in test_subs:
         s_int = int(s)
         s_str = f"S{s_int:03d}"
-        n_ep  = sub_counts.get(s_int, 0)
-        s_y   = y_test[offset : offset + n_ep]
-        s_p   = preds[offset : offset + n_ep]
+        n_ep = sub_counts.get(s_int, 0)
+        s_y = y_test[offset : offset + n_ep]
+        s_p = preds[offset : offset + n_ep]
         offset += n_ep
         s_acc = float(np.mean(s_y == s_p)) if len(s_y) > 0 else 0.0
         breakdown[s_str] = {
@@ -208,21 +211,25 @@ def _per_subject_breakdown(y_test, preds, meta):
 
 # ── PHASE 1: Training & Validation Only (No Test Evaluation) ─────────────────
 
+
 def train_and_validate_config(
     cfg_key: str,
-    X_train, y_train, X_val, y_val,
+    X_train,
+    y_train,
+    X_val,
+    y_val,
     device: torch.device,
 ) -> dict[str, Any]:
     cfg = CONFIGS[cfg_key]
     config_dir = OUT_DIR / cfg["name"]
     config_dir.mkdir(parents=True, exist_ok=True)
-    ckpt_path  = config_dir / "checkpoint.pt"
+    ckpt_path = config_dir / "checkpoint.pt"
 
-    print(f"\n{'='*72}")
+    print(f"\n{'=' * 72}")
     print(f"  [PHASE 1: TRAIN & VAL] CONFIG {cfg_key}: {cfg['name']}")
     print(f"  Change: {cfg['change']}")
     print(f"  Description: {cfg['description']}")
-    print(f"{'='*72}")
+    print(f"{'=' * 72}")
 
     # 1. Seed
     set_seed(FIXED["seed"])
@@ -231,23 +238,27 @@ def train_and_validate_config(
     seq_len = int(X_train.shape[2])
     model = create_model(
         "cnn_lstm",
-        num_channels    = FIXED["num_channels"],
-        num_classes     = FIXED["num_classes"],
-        sequence_length = seq_len,
-        lstm_hidden_size = cfg["lstm_hidden"],
-        lstm_layers      = cfg["lstm_layers"],
-        dropout          = cfg["dropout"],
+        num_channels=FIXED["num_channels"],
+        num_classes=FIXED["num_classes"],
+        sequence_length=seq_len,
+        lstm_hidden_size=cfg["lstm_hidden"],
+        lstm_layers=cfg["lstm_layers"],
+        dropout=cfg["dropout"],
     )
     total_params = sum(p.numel() for p in model.parameters())
     print(f"  Total Parameters: {total_params:,}")
 
     # 3. DataLoaders (Train and Val ONLY)
     bs = FIXED["batch_size"]
-    train_loader = DataLoader(EEGDataset(X_train, y_train), batch_size=bs, shuffle=True,  num_workers=0)
-    val_loader   = DataLoader(EEGDataset(X_val,   y_val),   batch_size=bs, shuffle=False, num_workers=0)
+    train_loader = DataLoader(
+        EEGDataset(X_train, y_train), batch_size=bs, shuffle=True, num_workers=0
+    )
+    val_loader = DataLoader(EEGDataset(X_val, y_val), batch_size=bs, shuffle=False, num_workers=0)
 
     # 4. Optimizer & Scheduler
-    optimizer = torch.optim.Adam(model.parameters(), lr=cfg["lr"], weight_decay=FIXED["weight_decay"])
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=cfg["lr"], weight_decay=FIXED["weight_decay"]
+    )
     criterion = torch.nn.CrossEntropyLoss()
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", patience=5)
 
@@ -265,7 +276,18 @@ def train_and_validate_config(
             "config_key": cfg_key,
             "name": cfg["name"],
             "change": cfg["change"],
-            **{k: cfg[k] for k in ("lstm_hidden", "lstm_layers", "dropout", "lr", "grad_clip", "es_patience", "max_epochs")},
+            **{
+                k: cfg[k]
+                for k in (
+                    "lstm_hidden",
+                    "lstm_layers",
+                    "dropout",
+                    "lr",
+                    "grad_clip",
+                    "es_patience",
+                    "max_epochs",
+                )
+            },
         },
     )
 
@@ -274,10 +296,12 @@ def train_and_validate_config(
     history = trainer.fit(train_loader, val_loader, epochs=cfg["max_epochs"])
     train_time = round(time.time() - t0, 2)
 
-    best_val_f1  = max(history["val_macro_f1"])
+    best_val_f1 = max(history["val_macro_f1"])
     best_val_acc = max(history["val_acc"])
     best_val_loss = min(history["val_loss"])
-    print(f"  ✓ Phase 1 Complete in {train_time}s | Best Val F1={best_val_f1:.4f} | Best Val Acc={best_val_acc:.4f}")
+    print(
+        f"  ✓ Phase 1 Complete in {train_time}s | Best Val F1={best_val_f1:.4f} | Best Val Acc={best_val_acc:.4f}"
+    )
 
     # Load checkpoint to get best epoch
     saved = torch.load(ckpt_path, map_location="cpu")
@@ -288,25 +312,25 @@ def train_and_validate_config(
         "name": cfg["name"],
         "description": cfg["description"],
         "change": cfg["change"],
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "fixed_parameters": FIXED,
         "tuned_parameters": {
-            "lstm_hidden_size":  cfg["lstm_hidden"],
-            "lstm_layers":       cfg["lstm_layers"],
-            "dropout":           cfg["dropout"],
-            "lr":                cfg["lr"],
-            "grad_clip":         cfg["grad_clip"],
-            "es_patience":       cfg["es_patience"],
-            "max_epochs":        cfg["max_epochs"],
+            "lstm_hidden_size": cfg["lstm_hidden"],
+            "lstm_layers": cfg["lstm_layers"],
+            "dropout": cfg["dropout"],
+            "lr": cfg["lr"],
+            "grad_clip": cfg["grad_clip"],
+            "es_patience": cfg["es_patience"],
+            "max_epochs": cfg["max_epochs"],
         },
-        "total_parameters":      total_params,
+        "total_parameters": total_params,
         "best_checkpoint_epoch": best_epoch,
-        "best_val_macro_f1":     round(best_val_f1, 6),
-        "best_val_acc":          round(best_val_acc, 6),
-        "best_val_loss":         round(best_val_loss, 6),
-        "train_time_sec":        train_time,
-        "test_evaluated":        False,
-        "model_selection":       "validation_macro_f1_only",
+        "best_val_macro_f1": round(best_val_f1, 6),
+        "best_val_acc": round(best_val_acc, 6),
+        "best_val_loss": round(best_val_loss, 6),
+        "train_time_sec": train_time,
+        "test_evaluated": False,
+        "model_selection": "validation_macro_f1_only",
     }
 
     with open(config_dir / "val_results.json", "w") as f:
@@ -317,30 +341,33 @@ def train_and_validate_config(
 
 # ── PHASE 2: Single Winner Selection & Final Test Evaluation ───────────────────
 
+
 def evaluate_winning_config_on_test(
     winning_cfg_key: str,
-    X_train, X_test, y_test,
+    X_train,
+    X_test,
+    y_test,
     meta: dict,
     device: torch.device,
 ) -> dict[str, Any]:
     cfg = CONFIGS[winning_cfg_key]
     config_dir = OUT_DIR / cfg["name"]
-    ckpt_path  = config_dir / "checkpoint.pt"
+    ckpt_path = config_dir / "checkpoint.pt"
 
     print("\n" + "=" * 72)
     print(f"  [PHASE 2: FINAL TEST EVALUATION] WINNING CONFIG {winning_cfg_key}: {cfg['name']}")
-    print(f"  Selected strictly by Validation Macro F1")
+    print("  Selected strictly by Validation Macro F1")
     print("=" * 72)
 
     seq_len = int(X_train.shape[2])
     model = create_model(
         "cnn_lstm",
-        num_channels    = FIXED["num_channels"],
-        num_classes     = FIXED["num_classes"],
-        sequence_length = seq_len,
-        lstm_hidden_size = cfg["lstm_hidden"],
-        lstm_layers      = cfg["lstm_layers"],
-        dropout          = cfg["dropout"],
+        num_channels=FIXED["num_channels"],
+        num_classes=FIXED["num_classes"],
+        sequence_length=seq_len,
+        lstm_hidden_size=cfg["lstm_hidden"],
+        lstm_layers=cfg["lstm_layers"],
+        dropout=cfg["dropout"],
     )
 
     # Load frozen best checkpoint
@@ -350,31 +377,33 @@ def evaluate_winning_config_on_test(
     model.eval()
 
     bs = FIXED["batch_size"]
-    test_loader = DataLoader(EEGDataset(X_test, y_test), batch_size=bs, shuffle=False, num_workers=0)
+    test_loader = DataLoader(
+        EEGDataset(X_test, y_test), batch_size=bs, shuffle=False, num_workers=0
+    )
 
     t_inf = time.time()
     preds = []
     with torch.no_grad():
         for xb, _ in test_loader:
             preds.extend(torch.argmax(model(xb.to(device)), dim=1).cpu().numpy())
-    infer_time = round(time.time() - t_inf, 4)
+    round(time.time() - t_inf, 4)
     preds = np.array(preds)
 
     test_metrics = compute_metrics(y_test, preds, class_names=CLASS_NAMES)
-    per_subject  = _per_subject_breakdown(y_test, preds, meta)
-    sub_accs     = [v["accuracy"] for v in per_subject.values() if v["num_epochs"] > 0]
+    per_subject = _per_subject_breakdown(y_test, preds, meta)
+    sub_accs = [v["accuracy"] for v in per_subject.values() if v["num_epochs"] > 0]
 
     test_acc = test_metrics["accuracy"]
-    val_f1   = saved.get("metrics", {}).get("val_macro_f1", 0.0)
+    val_f1 = saved.get("metrics", {}).get("val_macro_f1", 0.0)
 
-    beats_val  = val_f1 > CNN_BASELINE_VAL_F1
+    beats_val = val_f1 > CNN_BASELINE_VAL_F1
     beats_test = test_acc > CNN_BASELINE_TEST_ACC
     if beats_val and beats_test:
         verdict = "IMPROVEMENT ✓ — beats CNN baseline on both val AND test"
     elif beats_val:
         verdict = f"PARTIAL — beats val F1 ({val_f1:.4f} > {CNN_BASELINE_VAL_F1}) but not test"
     elif beats_test:
-        verdict = f"PARTIAL — beats test acc ({test_acc*100:.2f}% > {CNN_BASELINE_TEST_ACC*100:.2f}%) but not val"
+        verdict = f"PARTIAL — beats test acc ({test_acc * 100:.2f}% > {CNN_BASELINE_TEST_ACC * 100:.2f}%) but not val"
     else:
         verdict = "NO IMPROVEMENT — tuned CNN-LSTM remains below frozen CNN baseline"
 
@@ -388,13 +417,13 @@ def evaluate_winning_config_on_test(
         "name": cfg["name"],
         "description": cfg["description"],
         "change": cfg["change"],
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "selection_rule": "Highest Validation Macro F1 among all 7 configs",
         "validation_macro_f1": round(val_f1, 6),
         "test_metrics": test_metrics,
         "per_subject_accuracy_mean": round(float(np.mean(sub_accs)), 6),
-        "per_subject_accuracy_std":  round(float(np.std(sub_accs)),  6),
-        "cnn_baseline_val_f1_threshold":   CNN_BASELINE_VAL_F1,
+        "per_subject_accuracy_std": round(float(np.std(sub_accs)), 6),
+        "cnn_baseline_val_f1_threshold": CNN_BASELINE_VAL_F1,
         "cnn_baseline_test_acc_threshold": CNN_BASELINE_TEST_ACC,
         "verdict": verdict,
         "test_evaluated_once": True,
@@ -405,7 +434,7 @@ def evaluate_winning_config_on_test(
         json.dump(final_report, f, indent=2, cls=NpEncoder)
 
     print(f"\n  FINAL TEST RESULTS FOR WINNER ({cfg['name']}):")
-    print(f"  Test Accuracy   : {test_acc*100:.2f}%")
+    print(f"  Test Accuracy   : {test_acc * 100:.2f}%")
     print(f"  Test Macro F1   : {test_metrics['macro_f1']:.4f}")
     print(f"  Test Kappa      : {test_metrics['cohens_kappa']:.4f}")
     print(f"  Verdict         : {verdict}")
@@ -415,11 +444,14 @@ def evaluate_winning_config_on_test(
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="CNN-LSTM Controlled Tuning Experiment")
     parser.add_argument(
-        "--config", "-c", default="all",
-        help="Config key to run (0-6) or 'all' to run all sequentially"
+        "--config",
+        "-c",
+        default="all",
+        help="Config key to run (0-6) or 'all' to run all sequentially",
     )
     args = parser.parse_args()
 
@@ -427,8 +459,10 @@ def main() -> int:
 
     print("\n" + "=" * 78)
     print("  CNN-LSTM CONTROLLED TUNING EXPERIMENT (2-PHASE SELECTION PROTOCOL)")
-    print(f"  GAN augmentation : DISABLED")
-    print(f"  Frozen baselines : CNN val F1={CNN_BASELINE_VAL_F1}  test acc={CNN_BASELINE_TEST_ACC*100:.2f}%")
+    print("  GAN augmentation : DISABLED")
+    print(
+        f"  Frozen baselines : CNN val F1={CNN_BASELINE_VAL_F1}  test acc={CNN_BASELINE_TEST_ACC * 100:.2f}%"
+    )
     print(f"  Original LSTM ckpt (untouched): {ORIG_CKPT}")
     print("=" * 78)
 
@@ -436,8 +470,8 @@ def main() -> int:
     print("\n  Loading full_dataset.npz...")
     npz = np.load(DATA_NPZ)
     X_train, y_train = npz["X_train"], npz["y_train"]
-    X_val,   y_val   = npz["X_val"],   npz["y_val"]
-    X_test,  y_test  = npz["X_test"],  npz["y_test"]
+    X_val, y_val = npz["X_val"], npz["y_val"]
+    X_test, y_test = npz["X_test"], npz["y_test"]
     with open(DATA_META) as f:
         meta = json.load(f)
 
@@ -458,16 +492,18 @@ def main() -> int:
     # Build Validation Summary Table
     rows = []
     for r in phase1_results:
-        rows.append({
-            "Config Key": r["config_key"],
-            "Config Name": r["name"],
-            "Change": r["change"],
-            "Params": r["total_parameters"],
-            "Best Epoch": r["best_checkpoint_epoch"],
-            "Val Macro F1": round(r["best_val_macro_f1"], 4),
-            "Val Accuracy (%)": round(r["best_val_acc"] * 100, 2),
-            "Train Time (s)": r["train_time_sec"],
-        })
+        rows.append(
+            {
+                "Config Key": r["config_key"],
+                "Config Name": r["name"],
+                "Change": r["change"],
+                "Params": r["total_parameters"],
+                "Best Epoch": r["best_checkpoint_epoch"],
+                "Val Macro F1": round(r["best_val_macro_f1"], 4),
+                "Val Accuracy (%)": round(r["best_val_acc"] * 100, 2),
+                "Train Time (s)": r["train_time_sec"],
+            }
+        )
     df_val = pd.DataFrame(rows)
     df_val.to_csv(OUT_DIR / "val_comparison.csv", index=False)
 
@@ -481,10 +517,12 @@ def main() -> int:
     if args.config == "all":
         winner = max(phase1_results, key=lambda x: x["best_val_macro_f1"])
         winning_key = winner["config_key"]
-        print(f"\n  🏆 SELECTED WINNER BY VALIDATION MACRO F1: Config {winning_key} ({winner['name']})")
+        print(
+            f"\n  🏆 SELECTED WINNER BY VALIDATION MACRO F1: Config {winning_key} ({winner['name']})"
+        )
         print(f"     Validation Macro F1: {winner['best_val_macro_f1']:.4f}")
 
-        final_report = evaluate_winning_config_on_test(winning_key, X_train, X_test, y_test, meta, device)
+        evaluate_winning_config_on_test(winning_key, X_train, X_test, y_test, meta, device)
 
     return 0
 

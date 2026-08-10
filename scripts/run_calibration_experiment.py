@@ -35,8 +35,6 @@ ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
 from eeg_mi.data.dataset import EEGDataset
-from eeg_mi.evaluation.metrics import compute_metrics
-from eeg_mi.models.factory import create_model
 from eeg_mi.training.seed import set_seed
 from eeg_mi.utils.device import get_device
 from eeg_mi.utils.logging import get_logger
@@ -45,7 +43,14 @@ logger = get_logger("Phase6Calibration")
 
 DATA_NPZ = ROOT / "data" / "processed" / "full_dataset.npz"
 DATA_META = ROOT / "data" / "processed" / "full_metadata.json"
-TUNED_CNN_CKPT = ROOT / "reports" / "experiments" / "new_benchmark" / "exp5_cnn_tuning" / "cnn_tuned_cfg_02_best.pt"
+TUNED_CNN_CKPT = (
+    ROOT
+    / "reports"
+    / "experiments"
+    / "new_benchmark"
+    / "exp5_cnn_tuning"
+    / "cnn_tuned_cfg_02_best.pt"
+)
 OUT_DIR = ROOT / "reports" / "improvement"
 
 CLASS_NAMES = ["Left Fist", "Right Fist"]
@@ -53,9 +58,12 @@ CLASS_NAMES = ["Left Fist", "Right Fist"]
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:
-        if isinstance(obj, np.integer):  return int(obj)
-        if isinstance(obj, np.floating): return float(obj)
-        if isinstance(obj, np.ndarray):  return obj.tolist()
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
         return super().default(obj)
 
 
@@ -67,13 +75,15 @@ class DynamicCNN(torch.nn.Module):
         layers = []
         c_in = in_ch
         for c_out in filters:
-            layers.extend([
-                torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
-                torch.nn.BatchNorm1d(c_out),
-                torch.nn.ReLU(),
-                torch.nn.MaxPool1d(2),
-                torch.nn.Dropout(drop),
-            ])
+            layers.extend(
+                [
+                    torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
+                    torch.nn.BatchNorm1d(c_out),
+                    torch.nn.ReLU(),
+                    torch.nn.MaxPool1d(2),
+                    torch.nn.Dropout(drop),
+                ]
+            )
             c_in = c_out
         self.features = torch.nn.Sequential(*layers)
         self.avgpool = torch.nn.AdaptiveAvgPool1d(16)
@@ -101,7 +111,7 @@ def run_calibration_experiment() -> dict[str, Any]:
         meta = json.load(f)
 
     val_subs = meta["subject_splits"]["validation"]
-    records  = meta.get("records_metadata", [])
+    records = meta.get("records_metadata", [])
 
     # Map validation subject index offset
     sub_counts = {int(s): 0 for s in val_subs}
@@ -123,9 +133,9 @@ def run_calibration_experiment() -> dict[str, Any]:
         for s in val_subs:
             s_int = int(s)
             s_str = f"S{s_int:03d}"
-            n_ep  = sub_counts.get(s_int, 0)
-            s_X   = X_v[offset : offset + n_ep]
-            s_y   = y_v[offset : offset + n_ep]
+            n_ep = sub_counts.get(s_int, 0)
+            s_X = X_v[offset : offset + n_ep]
+            s_y = y_v[offset : offset + n_ep]
             offset += n_ep
 
             if n_ep <= k:
@@ -141,7 +151,13 @@ def run_calibration_experiment() -> dict[str, Any]:
             model_base.eval()
 
             with torch.no_grad():
-                preds_no_cal = torch.argmax(model_base(torch.tensor(s_X, dtype=torch.float32).to(device)), dim=1).cpu().numpy()
+                preds_no_cal = (
+                    torch.argmax(
+                        model_base(torch.tensor(s_X, dtype=torch.float32).to(device)), dim=1
+                    )
+                    .cpu()
+                    .numpy()
+                )
             acc_no_cal = float(np.mean(preds_no_cal == s_y))
 
             # 2. Subject-Adapted Calibration
@@ -159,7 +175,7 @@ def run_calibration_experiment() -> dict[str, Any]:
             cal_loader = DataLoader(EEGDataset(X_cal, y_cal), batch_size=min(k, 8), shuffle=True)
 
             model_adapted.train()
-            for epoch in range(10):
+            for _epoch in range(10):
                 for xb, yb in cal_loader:
                     opt.zero_grad()
                     out = model_adapted(xb.to(device))
@@ -170,7 +186,13 @@ def run_calibration_experiment() -> dict[str, Any]:
             # Evaluate adapted model on remaining validation trials
             model_adapted.eval()
             with torch.no_grad():
-                preds_adapted = torch.argmax(model_adapted(torch.tensor(X_eval, dtype=torch.float32).to(device)), dim=1).cpu().numpy()
+                preds_adapted = (
+                    torch.argmax(
+                        model_adapted(torch.tensor(X_eval, dtype=torch.float32).to(device)), dim=1
+                    )
+                    .cpu()
+                    .numpy()
+                )
             acc_adapted = float(np.mean(preds_adapted == y_eval))
 
             sub_results[s_str] = {
@@ -181,9 +203,9 @@ def run_calibration_experiment() -> dict[str, Any]:
                 "accuracy_improvement_delta": round(acc_adapted - acc_no_cal, 4),
             }
 
-        mean_no_cal  = float(np.mean([v["no_calibration_accuracy"] for v in sub_results.values()]))
+        mean_no_cal = float(np.mean([v["no_calibration_accuracy"] for v in sub_results.values()]))
         mean_adapted = float(np.mean([v["subject_adapted_accuracy"] for v in sub_results.values()]))
-        mean_delta   = float(np.mean([v["accuracy_improvement_delta"] for v in sub_results.values()]))
+        mean_delta = float(np.mean([v["accuracy_improvement_delta"] for v in sub_results.values()]))
 
         calibration_results[f"k_{k}_trials"] = {
             "calibration_trial_count": k,
@@ -193,7 +215,9 @@ def run_calibration_experiment() -> dict[str, Any]:
             "per_subject_breakdown": sub_results,
         }
 
-        print(f"  k={k} trials → No-Cal Acc: {mean_no_cal*100:.2f}% | Adapted Acc: {mean_adapted*100:.2f}% | Delta: {mean_delta*100:+.2f}%")
+        print(
+            f"  k={k} trials → No-Cal Acc: {mean_no_cal * 100:.2f}% | Adapted Acc: {mean_adapted * 100:.2f}% | Delta: {mean_delta * 100:+.2f}%"
+        )
 
     out_record = {
         "experiment_type": "SUBJECT-ADAPTED / CALIBRATION-BASED",
@@ -226,9 +250,9 @@ def run_calibration_experiment() -> dict[str, Any]:
 
 | Calibration Trials ($k$) | No-Calibration Accuracy | Subject-Adapted Accuracy | Accuracy Delta ($\\Delta \\text{{Acc}}$) |
 |---|---|---|---|
-| **$k=5$ trials** | {calibration_results['k_5_trials']['mean_no_calibration_accuracy']*100:.2f}% | **{calibration_results['k_5_trials']['mean_subject_adapted_accuracy']*100:.2f}%** | **{calibration_results['k_5_trials']['mean_accuracy_improvement_delta']*100:+.2f}%** |
-| **$k=10$ trials** | {calibration_results['k_10_trials']['mean_no_calibration_accuracy']*100:.2f}% | **{calibration_results['k_10_trials']['mean_subject_adapted_accuracy']*100:.2f}%** | **{calibration_results['k_10_trials']['mean_accuracy_improvement_delta']*100:+.2f}%** |
-| **$k=20$ trials** | {calibration_results['k_20_trials']['mean_no_calibration_accuracy']*100:.2f}% | **{calibration_results['k_20_trials']['mean_subject_adapted_accuracy']*100:.2f}%** | **{calibration_results['k_20_trials']['mean_accuracy_improvement_delta']*100:+.2f}%** |
+| **$k=5$ trials** | {calibration_results["k_5_trials"]["mean_no_calibration_accuracy"] * 100:.2f}% | **{calibration_results["k_5_trials"]["mean_subject_adapted_accuracy"] * 100:.2f}%** | **{calibration_results["k_5_trials"]["mean_accuracy_improvement_delta"] * 100:+.2f}%** |
+| **$k=10$ trials** | {calibration_results["k_10_trials"]["mean_no_calibration_accuracy"] * 100:.2f}% | **{calibration_results["k_10_trials"]["mean_subject_adapted_accuracy"] * 100:.2f}%** | **{calibration_results["k_10_trials"]["mean_accuracy_improvement_delta"] * 100:+.2f}%** |
+| **$k=20$ trials** | {calibration_results["k_20_trials"]["mean_no_calibration_accuracy"] * 100:.2f}% | **{calibration_results["k_20_trials"]["mean_subject_adapted_accuracy"] * 100:.2f}%** | **{calibration_results["k_20_trials"]["mean_accuracy_improvement_delta"] * 100:+.2f}%** |
 
 ---
 
@@ -245,4 +269,3 @@ Subject-specific adaptation using as few as 10–20 calibration trials significa
 
 if __name__ == "__main__":
     run_calibration_experiment()
-

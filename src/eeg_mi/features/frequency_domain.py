@@ -4,7 +4,9 @@ import numpy as np
 from scipy.signal import welch
 
 
-def extract_psd_features(data: np.ndarray, sfreq: float = 160.0, bands: dict = None) -> np.ndarray:
+def extract_psd_features(
+    data: np.ndarray, sfreq: float = 160.0, bands: dict | None = None
+) -> np.ndarray:
     """Extract band power features (e.g. Mu [8-12 Hz] and Beta [13-30 Hz]) per channel."""
     if bands is None:
         bands = {"mu": (8, 12), "beta": (13, 30)}

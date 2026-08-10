@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+
 from eeg_mi.data.splits import save_split_manifest
 from eeg_mi.preprocessing.normalization import TrainFittedScaler
 from eeg_mi.preprocessing.pipeline import PreprocessingPipeline, extract_run_id_from_filename
@@ -159,7 +160,13 @@ def run_full_preprocessing(
     y_train = np.concatenate(train_labels, axis=0).astype(np.int64)
 
     # Determine actual time dimension from first training window
-    _time_dim = X_train.shape[2] if len(X_train.shape) == 3 else train_windows[0].shape[1] if False else X_train.shape[2]
+    _time_dim = (
+        X_train.shape[2]
+        if len(X_train.shape) == 3
+        else train_windows[0].shape[1]
+        if False
+        else X_train.shape[2]
+    )
     X_val = (
         np.concatenate(val_windows, axis=0).astype(np.float32)
         if val_windows

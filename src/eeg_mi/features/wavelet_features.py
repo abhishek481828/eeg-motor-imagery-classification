@@ -27,7 +27,7 @@ class WaveletFeatureExtractor:
         for c in range(num_channels):
             sig = epoch[c]
             coeffs = pywt.wavedec(sig, self.wavelet, level=self.level)
-            
+
             total_energy = sum(np.sum(np.square(c_arr)) for c_arr in coeffs) + 1e-12
 
             for c_arr in coeffs:
@@ -35,7 +35,7 @@ class WaveletFeatureExtractor:
                 rel_energy = energy / total_energy
                 mean_val = np.mean(c_arr)
                 std_val = np.std(c_arr)
-                
+
                 # Sub-band entropy
                 p = np.abs(c_arr) / (np.sum(np.abs(c_arr)) + 1e-12)
                 p = p[p > 0]

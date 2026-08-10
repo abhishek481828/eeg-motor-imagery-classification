@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import time
 import urllib.request
-import sys
 from pathlib import Path
 
 BASE_URL = "https://physionet.org/files/eegmmidb/1.0.0"
@@ -26,7 +25,7 @@ for sub in range(1, 110):
 
         url = f"{BASE_URL}/{s_str}/{fname}"
         success = False
-        for attempt in range(5):
+        for _attempt in range(5):
             try:
                 req = urllib.request.Request(url, headers=HEADERS)
                 with urllib.request.urlopen(req, timeout=15) as resp, open(dest, "wb") as f:
@@ -35,7 +34,7 @@ for sub in range(1, 110):
                     success = True
                     downloaded += 1
                     break
-            except Exception as e:
+            except Exception:
                 time.sleep(1)
 
         if not success:

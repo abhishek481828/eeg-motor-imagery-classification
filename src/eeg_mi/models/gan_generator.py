@@ -79,7 +79,7 @@ def train_wgan_gp(
     generator.to(device)
     discriminator.to(device)
 
-    for epoch in range(1, epochs + 1):
+    for _epoch in range(1, epochs + 1):
         for batch in loader:
             real_x = batch[0].to(device)
             b_sz = real_x.size(0)

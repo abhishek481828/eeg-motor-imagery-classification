@@ -1,5 +1,7 @@
 """Baseline Machine Learning Classifier (LDA / Logistic Regression) on EEG spectral features."""
 
+from typing import Any
+
 import numpy as np
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
@@ -43,7 +45,7 @@ class BaselineClassifier:
         y_test: np.ndarray,
         sfreq: float = 160.0,
         class_names: list[str] | None = None,
-    ) -> dict[str, any]:
+    ) -> dict[str, Any]:
         """Extract features and evaluate classifier on separate test subjects."""
         logger.info(f"Evaluating baseline on {len(X_test)} test windows...")
         feats_test = self.extract_features(X_test, sfreq=sfreq)

@@ -48,6 +48,7 @@ logger = get_logger("FullBenchmarkSuite")
 
 class _NumpySafeEncoder(json.JSONEncoder):
     """JSON encoder that converts numpy scalars/arrays to native Python types."""
+
     def default(self, obj: Any) -> Any:
         if isinstance(obj, np.integer):
             return int(obj)
@@ -58,13 +59,18 @@ class _NumpySafeEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-
-def verify_full_dataset(data_path: Path, meta_path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict[str, Any]]:
+def verify_full_dataset(
+    data_path: Path, meta_path: Path
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, dict[str, Any]]:
     """Verify integrity of preprocessed full dataset (4,905 epochs across 109 subjects)."""
     if not data_path.exists():
-        raise FileNotFoundError(f"CRITICAL ERROR: Processed full dataset '{data_path.resolve()}' missing!")
+        raise FileNotFoundError(
+            f"CRITICAL ERROR: Processed full dataset '{data_path.resolve()}' missing!"
+        )
     if not meta_path.exists():
-        raise FileNotFoundError(f"CRITICAL ERROR: Full metadata file '{meta_path.resolve()}' missing!")
+        raise FileNotFoundError(
+            f"CRITICAL ERROR: Full metadata file '{meta_path.resolve()}' missing!"
+        )
 
     data = np.load(data_path)
     X_tr, y_tr = data["X_train"], data["y_train"]
@@ -78,7 +84,9 @@ def verify_full_dataset(data_path: Path, meta_path: Path) -> tuple[np.ndarray, n
     # Real PhysioNet EEGMMIDB has 4768 usable epochs (theoretical max 4905;
     # S088, S092, S100 have no usable MI annotations — known data quality issue)
     if not (4500 <= tot_epochs <= 4905):
-        raise ValueError(f"Full dataset epoch count mismatch: Found {tot_epochs}, expected 4500–4905.")
+        raise ValueError(
+            f"Full dataset epoch count mismatch: Found {tot_epochs}, expected 4500–4905."
+        )
 
     all_y = np.concatenate([y_tr, y_v, y_te])
     if set(np.unique(all_y)) != {0, 1}:
@@ -87,19 +95,29 @@ def verify_full_dataset(data_path: Path, meta_path: Path) -> tuple[np.ndarray, n
     # Accept both 480 and 481 time samples (MNE inclusive endpoint)
     seq_len = X_tr.shape[2]
     if X_tr.shape[1] != 64 or seq_len not in (480, 481):
-        raise ValueError(f"Unexpected epoch shape: {X_tr.shape[1:]}. Expected (64, 480) or (64, 481).")
+        raise ValueError(
+            f"Unexpected epoch shape: {X_tr.shape[1:]}. Expected (64, 480) or (64, 481)."
+        )
 
-    tr_subs  = set(meta["subject_splits"]["train"])
+    tr_subs = set(meta["subject_splits"]["train"])
     val_subs = set(meta["subject_splits"]["validation"])
-    te_subs  = set(meta["subject_splits"]["test"])
+    te_subs = set(meta["subject_splits"]["test"])
 
-    if not tr_subs.isdisjoint(val_subs) or not tr_subs.isdisjoint(te_subs) or not val_subs.isdisjoint(te_subs):
+    if (
+        not tr_subs.isdisjoint(val_subs)
+        or not tr_subs.isdisjoint(te_subs)
+        or not val_subs.isdisjoint(te_subs)
+    ):
         raise ValueError("Subject leakage detected! Splits must be strictly disjoint.")
 
-    print(f"Total Real Epochs  : {tot_epochs} (Train: {len(X_tr)}, Val: {len(X_v)}, Test: {len(X_te)})")
+    print(
+        f"Total Real Epochs  : {tot_epochs} (Train: {len(X_tr)}, Val: {len(X_v)}, Test: {len(X_te)})"
+    )
     print(f"Epoch Tensor Shape : {X_tr.shape[1:]} (64 channels, {seq_len} time points)")
     print(f"Allowed Classes    : {np.unique(all_y)} (0 = Left Fist, 1 = Right Fist)")
-    print(f"Subject Partition  : Train={len(tr_subs)} subs (S001-S077), Val={len(val_subs)} subs (S078-S093), Test={len(te_subs)} subs (S094-S109)")
+    print(
+        f"Subject Partition  : Train={len(tr_subs)} subs (S001-S077), Val={len(val_subs)} subs (S078-S093), Test={len(te_subs)} subs (S094-S109)"
+    )
     print("Verification Status: 100% VERIFIED REAL DATASET (Zero Mock Fallback Active)")
     print("=" * 85 + "\n")
 
@@ -115,7 +133,7 @@ def run_full_benchmark() -> int:
     models_out_dir.mkdir(parents=True, exist_ok=True)
 
     X_train, y_train, X_val, y_val, X_test, y_test, meta = verify_full_dataset(data_path, meta_path)
-    seq_len = int(X_train.shape[2])   # 480 or 481 depending on pipeline version
+    seq_len = int(X_train.shape[2])  # 480 or 481 depending on pipeline version
     device = get_device("auto")
     class_names = ["Left Fist", "Right Fist"]
 
@@ -147,15 +165,17 @@ def run_full_benchmark() -> int:
     val_preds_dummy = clf_dummy.predict(feats_val_psd)
     inf_time = time.time() - t0
     val_m_dummy = compute_metrics(y_val, val_preds_dummy, class_names=class_names)
-    benchmark_results.append({
-        "model_name": "Majority Baseline",
-        "val_metrics": val_m_dummy,
-        "val_pred_dist": get_pred_dist(val_preds_dummy),
-        "train_time_sec": tr_time,
-        "infer_time_sec": inf_time,
-        "clf": clf_dummy,
-        "feature_type": "dummy",
-    })
+    benchmark_results.append(
+        {
+            "model_name": "Majority Baseline",
+            "val_metrics": val_m_dummy,
+            "val_pred_dist": get_pred_dist(val_preds_dummy),
+            "train_time_sec": tr_time,
+            "infer_time_sec": inf_time,
+            "clf": clf_dummy,
+            "feature_type": "dummy",
+        }
+    )
 
     # 2. PSD + LDA
     print("[2/8] Running PSD + LDA...")
@@ -167,15 +187,17 @@ def run_full_benchmark() -> int:
     val_preds_lda = clf_lda.predict(feats_val_psd)
     inf_time = time.time() - t0
     val_m_lda = compute_metrics(y_val, val_preds_lda, class_names=class_names)
-    benchmark_results.append({
-        "model_name": "PSD + LDA",
-        "val_metrics": val_m_lda,
-        "val_pred_dist": get_pred_dist(val_preds_lda),
-        "train_time_sec": tr_time,
-        "infer_time_sec": inf_time,
-        "clf": clf_lda,
-        "feature_type": "psd",
-    })
+    benchmark_results.append(
+        {
+            "model_name": "PSD + LDA",
+            "val_metrics": val_m_lda,
+            "val_pred_dist": get_pred_dist(val_preds_lda),
+            "train_time_sec": tr_time,
+            "infer_time_sec": inf_time,
+            "clf": clf_lda,
+            "feature_type": "psd",
+        }
+    )
 
     # 3. CSP + LDA
     print("[3/8] Running CSP + LDA...")
@@ -190,15 +212,17 @@ def run_full_benchmark() -> int:
     val_preds_csp_lda = clf_csp_lda.predict(feats_csp_val)
     inf_time = time.time() - t0
     val_m_csp_lda = compute_metrics(y_val, val_preds_csp_lda, class_names=class_names)
-    benchmark_results.append({
-        "model_name": "CSP + LDA",
-        "val_metrics": val_m_csp_lda,
-        "val_pred_dist": get_pred_dist(val_preds_csp_lda),
-        "train_time_sec": tr_time,
-        "infer_time_sec": inf_time,
-        "clf": (csp_trans, clf_csp_lda),
-        "feature_type": "csp",
-    })
+    benchmark_results.append(
+        {
+            "model_name": "CSP + LDA",
+            "val_metrics": val_m_csp_lda,
+            "val_pred_dist": get_pred_dist(val_preds_csp_lda),
+            "train_time_sec": tr_time,
+            "infer_time_sec": inf_time,
+            "clf": (csp_trans, clf_csp_lda),
+            "feature_type": "csp",
+        }
+    )
 
     # 4. CSP + SVM
     print("[4/8] Running CSP + SVM...")
@@ -213,15 +237,17 @@ def run_full_benchmark() -> int:
     val_preds_csp_svm = clf_csp_svm.predict(feats_csp_val_svm)
     inf_time = time.time() - t0
     val_m_csp_svm = compute_metrics(y_val, val_preds_csp_svm, class_names=class_names)
-    benchmark_results.append({
-        "model_name": "CSP + SVM",
-        "val_metrics": val_m_csp_svm,
-        "val_pred_dist": get_pred_dist(val_preds_csp_svm),
-        "train_time_sec": tr_time,
-        "infer_time_sec": inf_time,
-        "clf": (csp_svm_trans, clf_csp_svm),
-        "feature_type": "csp",
-    })
+    benchmark_results.append(
+        {
+            "model_name": "CSP + SVM",
+            "val_metrics": val_m_csp_svm,
+            "val_pred_dist": get_pred_dist(val_preds_csp_svm),
+            "train_time_sec": tr_time,
+            "infer_time_sec": inf_time,
+            "clf": (csp_svm_trans, clf_csp_svm),
+            "feature_type": "csp",
+        }
+    )
 
     # 5. PSD + Random Forest
     print("[5/8] Running PSD + Random Forest...")
@@ -233,15 +259,17 @@ def run_full_benchmark() -> int:
     val_preds_rf = clf_rf.predict(feats_val_psd)
     inf_time = time.time() - t0
     val_m_rf = compute_metrics(y_val, val_preds_rf, class_names=class_names)
-    benchmark_results.append({
-        "model_name": "PSD + Random Forest",
-        "val_metrics": val_m_rf,
-        "val_pred_dist": get_pred_dist(val_preds_rf),
-        "train_time_sec": tr_time,
-        "infer_time_sec": inf_time,
-        "clf": clf_rf,
-        "feature_type": "psd",
-    })
+    benchmark_results.append(
+        {
+            "model_name": "PSD + Random Forest",
+            "val_metrics": val_m_rf,
+            "val_pred_dist": get_pred_dist(val_preds_rf),
+            "train_time_sec": tr_time,
+            "infer_time_sec": inf_time,
+            "clf": clf_rf,
+            "feature_type": "psd",
+        }
+    )
 
     # 6. PSD + KNN
     print("[6/8] Running PSD + KNN...")
@@ -253,21 +281,29 @@ def run_full_benchmark() -> int:
     val_preds_knn = clf_knn.predict(feats_val_psd)
     inf_time = time.time() - t0
     val_m_knn = compute_metrics(y_val, val_preds_knn, class_names=class_names)
-    benchmark_results.append({
-        "model_name": "PSD + KNN",
-        "val_metrics": val_m_knn,
-        "val_pred_dist": get_pred_dist(val_preds_knn),
-        "train_time_sec": tr_time,
-        "infer_time_sec": inf_time,
-        "clf": clf_knn,
-        "feature_type": "psd",
-    })
+    benchmark_results.append(
+        {
+            "model_name": "PSD + KNN",
+            "val_metrics": val_m_knn,
+            "val_pred_dist": get_pred_dist(val_preds_knn),
+            "train_time_sec": tr_time,
+            "infer_time_sec": inf_time,
+            "clf": clf_knn,
+            "feature_type": "psd",
+        }
+    )
 
     # PyTorch DataLoaders (CPU-safe defaults, batch_size=32 for full dataset speed)
     batch_sz = 32
-    train_loader = DataLoader(EEGDataset(X_train, y_train), batch_size=batch_sz, shuffle=True, num_workers=0)
-    val_loader = DataLoader(EEGDataset(X_val, y_val), batch_size=batch_sz, shuffle=False, num_workers=0)
-    test_loader = DataLoader(EEGDataset(X_test, y_test), batch_size=batch_sz, shuffle=False, num_workers=0)
+    train_loader = DataLoader(
+        EEGDataset(X_train, y_train), batch_size=batch_sz, shuffle=True, num_workers=0
+    )
+    val_loader = DataLoader(
+        EEGDataset(X_val, y_val), batch_size=batch_sz, shuffle=False, num_workers=0
+    )
+    test_loader = DataLoader(
+        EEGDataset(X_test, y_test), batch_size=batch_sz, shuffle=False, num_workers=0
+    )
 
     # 7. CNN Baseline
     print("[7/8] Running CNN Baseline...")
@@ -305,19 +341,23 @@ def run_full_benchmark() -> int:
     inf_time_cnn = time.time() - t0
     val_preds_cnn = np.array(val_preds_cnn)
     val_m_cnn = compute_metrics(y_val, val_preds_cnn, class_names=class_names)
-    benchmark_results.append({
-        "model_name": "CNN Baseline",
-        "val_metrics": val_m_cnn,
-        "val_pred_dist": get_pred_dist(val_preds_cnn),
-        "train_time_sec": tr_time_cnn,
-        "infer_time_sec": inf_time_cnn,
-        "clf": cnn_model,
-        "feature_type": "deep_learning",
-    })
+    benchmark_results.append(
+        {
+            "model_name": "CNN Baseline",
+            "val_metrics": val_m_cnn,
+            "val_pred_dist": get_pred_dist(val_preds_cnn),
+            "train_time_sec": tr_time_cnn,
+            "infer_time_sec": inf_time_cnn,
+            "clf": cnn_model,
+            "feature_type": "deep_learning",
+        }
+    )
 
     # 8. CNN-LSTM
     print("[8/8] Running CNN-LSTM...")
-    cnnlstm_model = create_model("cnn_lstm", num_channels=64, num_classes=2, sequence_length=seq_len)
+    cnnlstm_model = create_model(
+        "cnn_lstm", num_channels=64, num_classes=2, sequence_length=seq_len
+    )
     opt_cnnlstm = torch.optim.Adam(cnnlstm_model.parameters(), lr=0.001, weight_decay=1e-4)
     crit_cnnlstm = torch.nn.CrossEntropyLoss()
     sched_cnnlstm = torch.optim.lr_scheduler.ReduceLROnPlateau(opt_cnnlstm, mode="min", patience=5)
@@ -351,15 +391,17 @@ def run_full_benchmark() -> int:
     inf_time_cnnlstm = time.time() - t0
     val_preds_cnnlstm = np.array(val_preds_cnnlstm)
     val_m_cnnlstm = compute_metrics(y_val, val_preds_cnnlstm, class_names=class_names)
-    benchmark_results.append({
-        "model_name": "CNN-LSTM",
-        "val_metrics": val_m_cnnlstm,
-        "val_pred_dist": get_pred_dist(val_preds_cnnlstm),
-        "train_time_sec": tr_time_cnnlstm,
-        "infer_time_sec": inf_time_cnnlstm,
-        "clf": cnnlstm_model,
-        "feature_type": "deep_learning",
-    })
+    benchmark_results.append(
+        {
+            "model_name": "CNN-LSTM",
+            "val_metrics": val_m_cnnlstm,
+            "val_pred_dist": get_pred_dist(val_preds_cnnlstm),
+            "train_time_sec": tr_time_cnnlstm,
+            "infer_time_sec": inf_time_cnnlstm,
+            "clf": cnnlstm_model,
+            "feature_type": "deep_learning",
+        }
+    )
 
     # Save individual JSON reports under reports/experiments/full_dataset_models/
     summary_rows = []
@@ -381,17 +423,19 @@ def run_full_benchmark() -> int:
         with open(m_file, "w") as f:
             json.dump(record, f, indent=2)
 
-        summary_rows.append({
-            "Model": m_name,
-            "Val Accuracy": round(vm["accuracy"] * 100, 2),
-            "Val Bal Acc": round(vm["balanced_accuracy"] * 100, 2),
-            "Val Macro P": round(vm["macro_precision"], 4),
-            "Val Macro R": round(vm["macro_recall"], 4),
-            "Val Macro F1": round(vm["macro_f1"], 4),
-            "Val Kappa": round(vm["cohens_kappa"], 4),
-            "Train Time (s)": round(item["train_time_sec"], 3),
-            "Infer Time (s)": round(item["infer_time_sec"], 4),
-        })
+        summary_rows.append(
+            {
+                "Model": m_name,
+                "Val Accuracy": round(vm["accuracy"] * 100, 2),
+                "Val Bal Acc": round(vm["balanced_accuracy"] * 100, 2),
+                "Val Macro P": round(vm["macro_precision"], 4),
+                "Val Macro R": round(vm["macro_recall"], 4),
+                "Val Macro F1": round(vm["macro_f1"], 4),
+                "Val Kappa": round(vm["cohens_kappa"], 4),
+                "Train Time (s)": round(item["train_time_sec"], 3),
+                "Infer Time (s)": round(item["infer_time_sec"], 4),
+            }
+        )
 
     # Save comparison CSV
     df_comp = pd.DataFrame(summary_rows)
@@ -417,7 +461,9 @@ def run_full_benchmark() -> int:
     # -------------------------------------------------------------------------
     # FINAL STEP: EVALUATE SELECTED BEST MODEL ON 16 TEST SUBJECTS (S094-S109)
     # -------------------------------------------------------------------------
-    print(f"Evaluating selected best model ({best_name}) on 16 TEST subjects (S094-S109) EXACTLY ONCE...")
+    print(
+        f"Evaluating selected best model ({best_name}) on 16 TEST subjects (S094-S109) EXACTLY ONCE..."
+    )
     t0_test = time.time()
 
     if best_item["feature_type"] == "dummy":
@@ -450,8 +496,8 @@ def run_full_benchmark() -> int:
 
     # Build per-subject epoch counts from metadata records_metadata
     records_meta = meta.get("records_metadata", [])
-    test_sub_set = set(test_subs_list)
-    sub_epoch_map: dict[int, int] = {s: 0 for s in test_subs_list}
+    set(test_subs_list)
+    sub_epoch_map: dict[int, int] = dict.fromkeys(test_subs_list, 0)
     for rec in records_meta:
         sid = rec.get("subject_id") or rec.get("subject", 0)
         if isinstance(sid, str) and sid.startswith("S"):
@@ -465,7 +511,7 @@ def run_full_benchmark() -> int:
         s_int = int(s)
         s_str = f"S{s_int:03d}"
         n_ep = sub_epoch_map.get(s_int, 0)
-        s_y    = y_test[offset : offset + n_ep]
+        s_y = y_test[offset : offset + n_ep]
         s_pred = test_preds[offset : offset + n_ep]
         offset += n_ep
         s_acc = float(np.mean(s_y == s_pred)) if len(s_y) > 0 else 0.0
@@ -519,8 +565,12 @@ def run_full_benchmark() -> int:
     print(f"Cohen's Kappa        : {test_metrics['cohens_kappa']:.4f}")
     print("-" * 85)
     print("Test Confusion Matrix (Row=True, Col=Pred):")
-    print(f"  [ [ Left_Fist -> Left: {test_metrics['confusion_matrix'][0][0]:<3d}, Right: {test_metrics['confusion_matrix'][0][1]:<3d} ]")
-    print(f"    [ Right_Fist -> Left: {test_metrics['confusion_matrix'][1][0]:<3d}, Right: {test_metrics['confusion_matrix'][1][1]:<3d} ] ]")
+    print(
+        f"  [ [ Left_Fist -> Left: {test_metrics['confusion_matrix'][0][0]:<3d}, Right: {test_metrics['confusion_matrix'][0][1]:<3d} ]"
+    )
+    print(
+        f"    [ Right_Fist -> Left: {test_metrics['confusion_matrix'][1][0]:<3d}, Right: {test_metrics['confusion_matrix'][1][1]:<3d} ] ]"
+    )
     print("-" * 85)
     print(f"Saved CSV Table      : {csv_path.resolve()}")
     print(f"Saved Test Report    : {final_test_report_path.resolve()}")

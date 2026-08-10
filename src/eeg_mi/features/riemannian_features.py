@@ -23,7 +23,7 @@ class RiemannianTangentSpaceTransformer:
             X: Training EEG dataset of shape (num_epochs, channels, time)
         """
         covs = [self._estimate_cov(X[i]) for i in range(len(X))]
-        
+
         # Log-Euclidean Reference Mean
         log_covs = [la.logm(c) for c in covs]
         mean_log = np.mean(log_covs, axis=0)
@@ -63,7 +63,7 @@ class RiemannianTangentSpaceTransformer:
         whitened = self.C_ref_inv_sqrt @ cov @ self.C_ref_inv_sqrt
         # Matrix logarithm
         tangent_mat = la.logm(whitened)
-        
+
         # Extract upper triangular vector with off-diagonal sqrt(2) scaling
         channels = tangent_mat.shape[0]
         vec = []

@@ -1,5 +1,7 @@
 """Evaluation metrics computation for EEG classification."""
 
+from typing import Any
+
 import numpy as np
 from sklearn.metrics import (
     accuracy_score,
@@ -12,7 +14,7 @@ from sklearn.metrics import (
 
 def compute_metrics(
     y_true: np.ndarray, y_pred: np.ndarray, class_names: list[str] | None = None
-) -> dict[str, any]:
+) -> dict[str, Any]:
     """Compute comprehensive classification performance metrics."""
     acc = float(accuracy_score(y_true, y_pred))
     bal_acc = float(balanced_accuracy_score(y_true, y_pred))

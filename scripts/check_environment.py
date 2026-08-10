@@ -55,7 +55,7 @@ def check_torch_and_cuda() -> tuple[bool, str, str]:
 
 
 def check_directories(base_dir: Path) -> list[tuple[str, bool]]:
-    """Check required project directories."""
+    """Check required project directories and create them if missing."""
     required_dirs = [
         "data/raw",
         "data/interim",
@@ -75,6 +75,8 @@ def check_directories(base_dir: Path) -> list[tuple[str, bool]]:
     results = []
     for rel_path in required_dirs:
         dir_path = base_dir / rel_path
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
         results.append((rel_path, dir_path.exists() and dir_path.is_dir()))
     return results
 

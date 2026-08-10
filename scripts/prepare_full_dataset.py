@@ -48,31 +48,31 @@ from pathlib import Path
 import numpy as np
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-RAW_DIR         = Path("data/raw/physionet")
-PROCESSED_DIR   = Path("data/processed")
-PENDING_NPZ     = PROCESSED_DIR / "full_dataset.pending.npz"
-PENDING_META    = PROCESSED_DIR / "full_metadata.pending.json"
-FINAL_NPZ       = PROCESSED_DIR / "full_dataset.npz"
-FINAL_META      = PROCESSED_DIR / "full_metadata.json"
-SPLIT_MANIFEST  = Path("data/splits/full_subject_split.json")
+RAW_DIR = Path("data/raw/physionet")
+PROCESSED_DIR = Path("data/processed")
+PENDING_NPZ = PROCESSED_DIR / "full_dataset.pending.npz"
+PENDING_META = PROCESSED_DIR / "full_metadata.pending.json"
+FINAL_NPZ = PROCESSED_DIR / "full_dataset.npz"
+FINAL_META = PROCESSED_DIR / "full_metadata.json"
+SPLIT_MANIFEST = Path("data/splits/full_subject_split.json")
 
 # ── Expected counts — based on real PhysioNet EEGMMIDB dataset:
 # Theoretical max = 109 subjects × 3 runs × 15 events = 4,905
 # Real dataset has 9 files with no usable MI events → actual total = 4,768
 # (This is a known data-quality characteristic of EEGMMIDB, not an error)
-EXPECTED_SUBJECTS   = 109
-EXPECTED_RUNS       = [4, 8, 12]          # R04, R08, R12
-EXPECTED_TOTAL_MIN  = 4500   # hard lower bound: flag if catastrophically low
-EXPECTED_TOTAL_MAX  = 4905   # theoretical upper bound
-EXPECTED_TRAIN_MIN  = 3200   # lower bound for train split (77 subjects)
-EXPECTED_TRAIN_MAX  = 3465   # theoretical max for train split
-EXPECTED_VAL_MIN    = 550    # lower bound for val split  (16 subjects)
-EXPECTED_VAL_MAX    = 720    # theoretical max for val split
-EXPECTED_TEST_MIN   = 550    # lower bound for test split (16 subjects)
-EXPECTED_TEST_MAX   = 720    # theoretical max for test split
-EXPECTED_EDFS       = EXPECTED_SUBJECTS * len(EXPECTED_RUNS)   # 327
-EXPECTED_SHAPE      = (64, 481)   # 64 ch × (160 Hz × 3.0 s + 1 inclusive sample)
-MIN_EDF_BYTES       = 2_000_000          # 2 MB floor; stubs are smaller
+EXPECTED_SUBJECTS = 109
+EXPECTED_RUNS = [4, 8, 12]  # R04, R08, R12
+EXPECTED_TOTAL_MIN = 4500  # hard lower bound: flag if catastrophically low
+EXPECTED_TOTAL_MAX = 4905  # theoretical upper bound
+EXPECTED_TRAIN_MIN = 3200  # lower bound for train split (77 subjects)
+EXPECTED_TRAIN_MAX = 3465  # theoretical max for train split
+EXPECTED_VAL_MIN = 550  # lower bound for val split  (16 subjects)
+EXPECTED_VAL_MAX = 720  # theoretical max for val split
+EXPECTED_TEST_MIN = 550  # lower bound for test split (16 subjects)
+EXPECTED_TEST_MAX = 720  # theoretical max for test split
+EXPECTED_EDFS = EXPECTED_SUBJECTS * len(EXPECTED_RUNS)  # 327
+EXPECTED_SHAPE = (64, 481)  # 64 ch × (160 Hz × 3.0 s + 1 inclusive sample)
+MIN_EDF_BYTES = 2_000_000  # 2 MB floor; stubs are smaller
 
 
 def abort(msg: str, code: int = 1) -> None:
@@ -83,6 +83,7 @@ def abort(msg: str, code: int = 1) -> None:
 # ══════════════════════════════════════════════════════════════════════════════
 # PHASE 1 — EDF Verification
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def phase1_verify_edfs() -> list[Path]:
     """Return sorted list of valid target EDF paths; abort on any violation."""
@@ -95,13 +96,13 @@ def phase1_verify_edfs() -> list[Path]:
 
     # Collect all EDF files with target runs
     all_edfs: list[Path] = sorted(
-        f for f in RAW_DIR.glob("**/*.edf")
-        if _run_id(f.name) in EXPECTED_RUNS
+        f for f in RAW_DIR.glob("**/*.edf") if _run_id(f.name) in EXPECTED_RUNS
     )
 
     # 1. Check subject directories
     subject_dirs = sorted(
-        d for d in RAW_DIR.iterdir()
+        d
+        for d in RAW_DIR.iterdir()
         if d.is_dir() and d.name.startswith("S") and d.name[1:].isdigit()
     )
     subject_ids = sorted(int(d.name[1:]) for d in subject_dirs)
@@ -124,8 +125,8 @@ def phase1_verify_edfs() -> list[Path]:
         s_str = f"S{sub_id:03d}"
         s_dir = RAW_DIR / s_str
         for run in EXPECTED_RUNS:
-            fname   = f"{s_str}R{run:02d}.edf"
-            fpath   = s_dir / fname
+            fname = f"{s_str}R{run:02d}.edf"
+            fpath = s_dir / fname
             if not fpath.exists():
                 per_subject_missing.setdefault(s_str, []).append(fname)
             elif fpath.stat().st_size < MIN_EDF_BYTES:
@@ -148,7 +149,7 @@ def phase1_verify_edfs() -> list[Path]:
             f"is incomplete: {dict(list(per_subject_stubs.items())[:5])}"
         )
 
-    print(f"✓ Each subject has R04, R08, R12 (no missing files)")
+    print("✓ Each subject has R04, R08, R12 (no missing files)")
 
     # 3. Final EDF count
     print(f"Target EDF files found     : {len(all_edfs)}")
@@ -177,6 +178,7 @@ def _run_id(filename: str) -> int | None:
 # ══════════════════════════════════════════════════════════════════════════════
 # PHASE 2 — Preprocessing
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def phase2_preprocess() -> None:
     """Run the full preprocessing pipeline and write pending output files."""
@@ -219,6 +221,7 @@ def phase2_preprocess() -> None:
 # PHASE 3 — Validation
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def phase3_validate() -> None:
     """Load pending files and run all 10 validation checks."""
     print("═" * 70)
@@ -227,8 +230,8 @@ def phase3_validate() -> None:
 
     data = np.load(PENDING_NPZ)
     X_tr, y_tr = data["X_train"], data["y_train"]
-    X_v,  y_v  = data["X_val"],   data["y_val"]
-    X_te, y_te = data["X_test"],  data["y_test"]
+    X_v, y_v = data["X_val"], data["y_val"]
+    X_te, y_te = data["X_test"], data["y_test"]
 
     with open(PENDING_META) as f:
         meta = json.load(f)
@@ -242,73 +245,76 @@ def phase3_validate() -> None:
             failures.append(msg)
 
     n_train = len(X_tr)
-    n_val   = len(X_v)
-    n_test  = len(X_te)
+    n_val = len(X_v)
+    n_test = len(X_te)
     n_total = n_train + n_val + n_test
 
     # 8. Total epoch count — real PhysioNet has 4,768 usable epochs (not theoretical 4,905)
-    check(EXPECTED_TOTAL_MIN <= n_total <= EXPECTED_TOTAL_MAX,
-          f"Total epochs = {n_total} (expected {EXPECTED_TOTAL_MIN}–{EXPECTED_TOTAL_MAX})")
+    check(
+        EXPECTED_TOTAL_MIN <= n_total <= EXPECTED_TOTAL_MAX,
+        f"Total epochs = {n_total} (expected {EXPECTED_TOTAL_MIN}–{EXPECTED_TOTAL_MAX})",
+    )
 
     # 9. Metadata record count must match epoch count exactly
     meta_records = meta.get("records_metadata", [])
-    check(len(meta_records) == n_total,
-          f"Metadata records = {len(meta_records)} (expected {n_total} to match epoch count)")
+    check(
+        len(meta_records) == n_total,
+        f"Metadata records = {len(meta_records)} (expected {n_total} to match epoch count)",
+    )
 
     # 10. Train count
-    check(EXPECTED_TRAIN_MIN <= n_train <= EXPECTED_TRAIN_MAX,
-          f"Train epochs = {n_train} (expected {EXPECTED_TRAIN_MIN}–{EXPECTED_TRAIN_MAX})")
+    check(
+        EXPECTED_TRAIN_MIN <= n_train <= EXPECTED_TRAIN_MAX,
+        f"Train epochs = {n_train} (expected {EXPECTED_TRAIN_MIN}–{EXPECTED_TRAIN_MAX})",
+    )
 
     # 11. Validation count
-    check(EXPECTED_VAL_MIN <= n_val <= EXPECTED_VAL_MAX,
-          f"Val epochs = {n_val} (expected {EXPECTED_VAL_MIN}–{EXPECTED_VAL_MAX})")
+    check(
+        EXPECTED_VAL_MIN <= n_val <= EXPECTED_VAL_MAX,
+        f"Val epochs = {n_val} (expected {EXPECTED_VAL_MIN}–{EXPECTED_VAL_MAX})",
+    )
 
     # 12. Test count
-    check(EXPECTED_TEST_MIN <= n_test <= EXPECTED_TEST_MAX,
-          f"Test epochs = {n_test} (expected {EXPECTED_TEST_MIN}–{EXPECTED_TEST_MAX})")
+    check(
+        EXPECTED_TEST_MIN <= n_test <= EXPECTED_TEST_MAX,
+        f"Test epochs = {n_test} (expected {EXPECTED_TEST_MIN}–{EXPECTED_TEST_MAX})",
+    )
 
     # 13. Classes only 0 and 1
     all_y = np.concatenate([y_tr, y_v, y_te])
-    unique_labels = set(int(v) for v in np.unique(all_y))
-    check(unique_labels == {0, 1},
-          f"Label set = {unique_labels} (expected {{0, 1}})")
+    unique_labels = {int(v) for v in np.unique(all_y)}
+    check(unique_labels == {0, 1}, f"Label set = {unique_labels} (expected {{0, 1}})")
 
     # 14. Epoch shape: accept (64, 480) or (64, 481) — pipeline uses inclusive endpoint
     actual_shape = tuple(X_tr.shape[1:])
     shapes_ok = (
-        X_tr.shape[1] == 64 and X_tr.shape[2] in (480, 481)
-        and (n_val  == 0 or (X_v.shape[1]  == 64 and X_v.shape[2]  in (480, 481)))
+        X_tr.shape[1] == 64
+        and X_tr.shape[2] in (480, 481)
+        and (n_val == 0 or (X_v.shape[1] == 64 and X_v.shape[2] in (480, 481)))
         and (n_test == 0 or (X_te.shape[1] == 64 and X_te.shape[2] in (480, 481)))
     )
-    check(shapes_ok,
-          f"Epoch shape = {actual_shape} (expected 64 channels, 480 or 481 time samples)")
+    check(
+        shapes_ok, f"Epoch shape = {actual_shape} (expected 64 channels, 480 or 481 time samples)"
+    )
 
     # 15. No NaN values
-    nan_count = (
-        int(np.isnan(X_tr).sum())
-        + int(np.isnan(X_v).sum())
-        + int(np.isnan(X_te).sum())
-    )
+    nan_count = int(np.isnan(X_tr).sum()) + int(np.isnan(X_v).sum()) + int(np.isnan(X_te).sum())
     check(nan_count == 0, f"NaN values in arrays = {nan_count} (expected 0)")
 
     # 16. No infinite values
-    inf_count = (
-        int(np.isinf(X_tr).sum())
-        + int(np.isinf(X_v).sum())
-        + int(np.isinf(X_te).sum())
-    )
+    inf_count = int(np.isinf(X_tr).sum()) + int(np.isinf(X_v).sum()) + int(np.isinf(X_te).sum())
     check(inf_count == 0, f"Infinite values in arrays = {inf_count} (expected 0)")
 
     # 17. No subject overlap across splits
-    tr_subs  = set(meta["subject_splits"]["train"])
+    tr_subs = set(meta["subject_splits"]["train"])
     val_subs = set(meta["subject_splits"]["validation"])
-    te_subs  = set(meta["subject_splits"]["test"])
-    tv_overlap  = tr_subs  & val_subs
-    tt_overlap  = tr_subs  & te_subs
-    vt_overlap  = val_subs & te_subs
-    check(not tv_overlap,  f"Train ∩ Val subjects = {tv_overlap} (expected ∅)")
-    check(not tt_overlap,  f"Train ∩ Test subjects = {tt_overlap} (expected ∅)")
-    check(not vt_overlap,  f"Val ∩ Test subjects = {vt_overlap} (expected ∅)")
+    te_subs = set(meta["subject_splits"]["test"])
+    tv_overlap = tr_subs & val_subs
+    tt_overlap = tr_subs & te_subs
+    vt_overlap = val_subs & te_subs
+    check(not tv_overlap, f"Train ∩ Val subjects = {tv_overlap} (expected ∅)")
+    check(not tt_overlap, f"Train ∩ Test subjects = {tt_overlap} (expected ∅)")
+    check(not vt_overlap, f"Val ∩ Test subjects = {vt_overlap} (expected ∅)")
 
     if failures:
         print(f"\n  {len(failures)} validation check(s) FAILED:")
@@ -323,13 +329,14 @@ def phase3_validate() -> None:
 # PHASE 4 — Atomic Promotion
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def phase4_atomic_rename() -> None:
     """Atomically rename pending files to final paths."""
     print("═" * 70)
     print("  PHASE 4 — Atomic Promotion of Pending Files")
     print("═" * 70)
 
-    os.replace(PENDING_NPZ,  FINAL_NPZ)
+    os.replace(PENDING_NPZ, FINAL_NPZ)
     print(f"  {PENDING_NPZ.name}  →  {FINAL_NPZ.name}")
 
     os.replace(PENDING_META, FINAL_META)
@@ -347,6 +354,7 @@ def phase4_atomic_rename() -> None:
 # PHASE 5 — Pre-flight Summary
 # ══════════════════════════════════════════════════════════════════════════════
 
+
 def phase5_preflight_summary() -> None:
     """Print the mandatory pre-flight summary before any benchmark run."""
     print("═" * 70)
@@ -355,25 +363,22 @@ def phase5_preflight_summary() -> None:
 
     data = np.load(FINAL_NPZ)
     X_tr, y_tr = data["X_train"], data["y_train"]
-    X_v,  y_v  = data["X_val"],   data["y_val"]
-    X_te, y_te = data["X_test"],  data["y_test"]
+    X_v, y_v = data["X_val"], data["y_val"]
+    X_te, y_te = data["X_test"], data["y_test"]
 
     with open(FINAL_META) as f:
         meta = json.load(f)
 
     all_y = np.concatenate([y_tr, y_v, y_te])
-    cls0  = int(np.sum(all_y == 0))
-    cls1  = int(np.sum(all_y == 1))
+    cls0 = int(np.sum(all_y == 0))
+    cls1 = int(np.sum(all_y == 1))
 
-    tr_subs  = meta["subject_splits"]["train"]
+    tr_subs = meta["subject_splits"]["train"]
     val_subs = meta["subject_splits"]["validation"]
-    te_subs  = meta["subject_splits"]["test"]
+    te_subs = meta["subject_splits"]["test"]
 
     edf_count = len(sorted(RAW_DIR.glob("**/*.edf")))
-    target_edf_count = sum(
-        1 for f in RAW_DIR.glob("**/*.edf")
-        if _run_id(f.name) in EXPECTED_RUNS
-    )
+    target_edf_count = sum(1 for f in RAW_DIR.glob("**/*.edf") if _run_id(f.name) in EXPECTED_RUNS)
 
     print(f"""
   ┌──────────────────────────────────────────────────────────────────┐
@@ -406,13 +411,21 @@ def phase5_preflight_summary() -> None:
     # Hard stop if anything is wrong at this point (use bounds — real data has 4768, not 4905)
     n_total = len(X_tr) + len(X_v) + len(X_te)
     if not (EXPECTED_TOTAL_MIN <= n_total <= EXPECTED_TOTAL_MAX):
-        abort(f"Pre-flight count mismatch: {n_total} not in [{EXPECTED_TOTAL_MIN}, {EXPECTED_TOTAL_MAX}]. STOP.")
+        abort(
+            f"Pre-flight count mismatch: {n_total} not in [{EXPECTED_TOTAL_MIN}, {EXPECTED_TOTAL_MAX}]. STOP."
+        )
     if not (EXPECTED_TRAIN_MIN <= len(X_tr) <= EXPECTED_TRAIN_MAX):
-        abort(f"Pre-flight train count mismatch: {len(X_tr)} not in [{EXPECTED_TRAIN_MIN}, {EXPECTED_TRAIN_MAX}]. STOP.")
+        abort(
+            f"Pre-flight train count mismatch: {len(X_tr)} not in [{EXPECTED_TRAIN_MIN}, {EXPECTED_TRAIN_MAX}]. STOP."
+        )
     if not (EXPECTED_VAL_MIN <= len(X_v) <= EXPECTED_VAL_MAX):
-        abort(f"Pre-flight val count mismatch: {len(X_v)} not in [{EXPECTED_VAL_MIN}, {EXPECTED_VAL_MAX}]. STOP.")
+        abort(
+            f"Pre-flight val count mismatch: {len(X_v)} not in [{EXPECTED_VAL_MIN}, {EXPECTED_VAL_MAX}]. STOP."
+        )
     if not (EXPECTED_TEST_MIN <= len(X_te) <= EXPECTED_TEST_MAX):
-        abort(f"Pre-flight test count mismatch: {len(X_te)} not in [{EXPECTED_TEST_MIN}, {EXPECTED_TEST_MAX}]. STOP.")
+        abort(
+            f"Pre-flight test count mismatch: {len(X_te)} not in [{EXPECTED_TEST_MIN}, {EXPECTED_TEST_MAX}]. STOP."
+        )
 
     print("  ✓ Pre-flight counts verified. Safe to run benchmark_full_dataset.py.\n")
 
@@ -420,6 +433,7 @@ def phase5_preflight_summary() -> None:
 # ══════════════════════════════════════════════════════════════════════════════
 # Main
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def main() -> int:
     print("\n" + "═" * 70)

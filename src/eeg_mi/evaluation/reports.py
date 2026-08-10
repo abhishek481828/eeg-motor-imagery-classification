@@ -2,11 +2,12 @@
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 
 
-def save_evaluation_report(metrics: dict[str, any], output_dir: Path) -> None:
+def save_evaluation_report(metrics: dict[str, Any], output_dir: Path) -> None:
     """Save metrics evaluation summary as JSON and CSV tables."""
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

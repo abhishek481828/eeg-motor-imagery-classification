@@ -1,5 +1,7 @@
 """Model Factory for instantiating architecture choices by name and model summaries."""
 
+from typing import Any
+
 import torch.nn as nn
 
 from eeg_mi.models.cnn import EEGCNN
@@ -38,14 +40,16 @@ def create_model(
     num_channels: int = 64,
     num_classes: int = 4,
     sequence_length: int = 480,
-    **kwargs: any,
+    **kwargs: Any,
 ) -> nn.Module:
     """Instantiate and return requested model architecture with summary logging."""
     model_type_clean = model_type.lower()
+    model: nn.Module
     if model_type_clean == "cnn":
         model = EEGCNN(in_channels=num_channels, num_classes=num_classes)
     elif model_type_clean == "eegnet":
         from eeg_mi.models.eegnet import EEGNet
+
         model = EEGNet(
             in_channels=num_channels,
             sequence_length=sequence_length,

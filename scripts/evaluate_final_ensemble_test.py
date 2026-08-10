@@ -16,15 +16,16 @@ Outputs:
   - reports/improvement/FINAL_ENSEMBLE_TEST_REPORT.md
 """
 
-import json
 import itertools
+import json
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -46,8 +47,17 @@ logger = get_logger("FinalEnsembleTestEval")
 DATA_NPZ = ROOT / "data" / "processed" / "full_dataset.npz"
 DATA_META = ROOT / "data" / "processed" / "full_metadata.json"
 
-CNN_CKPT_PATH = ROOT / "reports" / "experiments" / "new_benchmark" / "exp5_cnn_tuning" / "cnn_tuned_cfg_02_best.pt"
-EEGNET_CKPT_PATH = ROOT / "reports" / "experiments" / "new_benchmark" / "exp2_eegnet" / "eegnet_cfg_03_best.pt"
+CNN_CKPT_PATH = (
+    ROOT
+    / "reports"
+    / "experiments"
+    / "new_benchmark"
+    / "exp5_cnn_tuning"
+    / "cnn_tuned_cfg_02_best.pt"
+)
+EEGNET_CKPT_PATH = (
+    ROOT / "reports" / "experiments" / "new_benchmark" / "exp2_eegnet" / "eegnet_cfg_03_best.pt"
+)
 
 OUT_DIR = ROOT / "reports" / "improvement"
 
@@ -56,14 +66,17 @@ W_CNN = 0.45
 W_EEGNET = 0.55
 
 ORIG_BASELINE_TEST_ACC = 0.7281  # 72.81%
-TUNED_CNN_TEST_ACC = 0.7400      # 74.00%
+TUNED_CNN_TEST_ACC = 0.7400  # 74.00%
 
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:
-        if isinstance(obj, np.integer):  return int(obj)
-        if isinstance(obj, np.floating): return float(obj)
-        if isinstance(obj, np.ndarray):  return obj.tolist()
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
         return super().default(obj)
 
 
@@ -75,13 +88,15 @@ class DynamicCNN(torch.nn.Module):
         layers = []
         c_in = in_ch
         for c_out in filters:
-            layers.extend([
-                torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
-                torch.nn.BatchNorm1d(c_out),
-                torch.nn.ReLU(),
-                torch.nn.MaxPool1d(2),
-                torch.nn.Dropout(drop),
-            ])
+            layers.extend(
+                [
+                    torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
+                    torch.nn.BatchNorm1d(c_out),
+                    torch.nn.ReLU(),
+                    torch.nn.MaxPool1d(2),
+                    torch.nn.Dropout(drop),
+                ]
+            )
             c_in = c_out
         self.features = torch.nn.Sequential(*layers)
         self.avgpool = torch.nn.AdaptiveAvgPool1d(16)
@@ -116,7 +131,7 @@ def evaluate_final_ensemble() -> dict[str, Any]:
         meta = json.load(f)
 
     test_subs = meta["subject_splits"]["test"]
-    assert set(int(s) for s in test_subs) == set(range(94, 110)), "Test subjects mismatch!"
+    assert {int(s) for s in test_subs} == set(range(94, 110)), "Test subjects mismatch!"
     print(f"  ✓ Test Subjects verified: S094–S109 ({len(test_subs)} subjects, {len(y_te)} epochs)")
 
     test_class_counts = {
@@ -132,7 +147,9 @@ def evaluate_final_ensemble() -> dict[str, Any]:
     m_cnn.load_state_dict(ckpt_cnn["state_dict"])
     m_cnn.to(device).eval()
 
-    m_eegnet = create_model("eegnet", num_channels=64, num_classes=2, sequence_length=X_te.shape[2], dropout=0.25)
+    m_eegnet = create_model(
+        "eegnet", num_channels=64, num_classes=2, sequence_length=X_te.shape[2], dropout=0.25
+    )
     ckpt_eegnet = torch.load(EEGNET_CKPT_PATH, map_location=device)
     m_eegnet.load_state_dict(ckpt_eegnet["state_dict"])
     m_eegnet.to(device).eval()
@@ -190,31 +207,33 @@ def evaluate_final_ensemble() -> dict[str, Any]:
         s_p = ens_preds[offset : offset + n_ep]
         offset += n_ep
         s_acc = float(np.mean(s_y == s_p)) if len(s_y) > 0 else 0.0
-        per_sub_rows.append({
-            "subject_id": s_str,
-            "epoch_count": len(s_y),
-            "correct_count": int(np.sum(s_y == s_p)),
-            "test_accuracy_pct": round(s_acc * 100, 2),
-        })
+        per_sub_rows.append(
+            {
+                "subject_id": s_str,
+                "epoch_count": len(s_y),
+                "correct_count": int(np.sum(s_y == s_p)),
+                "test_accuracy_pct": round(s_acc * 100, 2),
+            }
+        )
 
     df_per_sub = pd.DataFrame(per_sub_rows)
     sub_accs = [r["test_accuracy_pct"] for r in per_sub_rows]
     mean_sub_acc = float(np.mean(sub_accs))
-    std_sub_acc  = float(np.std(sub_accs))
+    std_sub_acc = float(np.std(sub_accs))
 
     # Comparisons in Percentage Points
     diff_from_baseline = (acc * 100) - (ORIG_BASELINE_TEST_ACC * 100)
     diff_from_tuned_cnn = (acc * 100) - (TUNED_CNN_TEST_ACC * 100)
 
-    improved_over_tuned = (acc > TUNED_CNN_TEST_ACC)
+    improved_over_tuned = acc > TUNED_CNN_TEST_ACC
     if improved_over_tuned:
-        verdict = f"IMPROVEMENT CONFIRMED ✓ — Ensemble test accuracy ({acc*100:.2f}%) beats tuned CNN baseline ({TUNED_CNN_TEST_ACC*100:.2f}%) by {diff_from_tuned_cnn:+.2f} percentage points!"
+        verdict = f"IMPROVEMENT CONFIRMED ✓ — Ensemble test accuracy ({acc * 100:.2f}%) beats tuned CNN baseline ({TUNED_CNN_TEST_ACC * 100:.2f}%) by {diff_from_tuned_cnn:+.2f} percentage points!"
     else:
-        verdict = f"NO TEST IMPROVEMENT — Ensemble test accuracy ({acc*100:.2f}%) did not beat tuned CNN baseline ({TUNED_CNN_TEST_ACC*100:.2f}%)."
+        verdict = f"NO TEST IMPROVEMENT — Ensemble test accuracy ({acc * 100:.2f}%) did not beat tuned CNN baseline ({TUNED_CNN_TEST_ACC * 100:.2f}%)."
 
     # 1. Save JSON metrics
     json_record = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "evaluation_type": "SINGLE_FINAL_TEST_EVALUATION",
         "dataset_file": str(DATA_NPZ),
         "test_subjects": "S094-S109 (16 subjects)",
@@ -254,21 +273,25 @@ def evaluate_final_ensemble() -> dict[str, Any]:
         json.dump(json_record, f, indent=2, cls=NpEncoder)
 
     # 2. Save CSV metrics
-    df_metrics = pd.DataFrame([{
-        "Ensemble Model": "Val-Weighted Ensemble (Tuned CNN + EEGNet)",
-        "CNN Weight": W_CNN,
-        "EEGNet Weight": W_EEGNET,
-        "Test Epochs": len(y_te),
-        "Test Acc (%)": round(acc * 100, 2),
-        "Balanced Acc (%)": round(bal_acc * 100, 2),
-        "Macro Precision": round(macro_p, 4),
-        "Macro Recall": round(macro_r, 4),
-        "Macro F1": round(macro_f1, 4),
-        "Cohen Kappa": round(kappa, 4),
-        "Per-Subject Mean (%)": round(mean_sub_acc, 2),
-        "Per-Subject Std (%)": round(std_sub_acc, 2),
-        "Diff vs Tuned CNN (pp)": round(diff_from_tuned_cnn, 2),
-    }])
+    df_metrics = pd.DataFrame(
+        [
+            {
+                "Ensemble Model": "Val-Weighted Ensemble (Tuned CNN + EEGNet)",
+                "CNN Weight": W_CNN,
+                "EEGNet Weight": W_EEGNET,
+                "Test Epochs": len(y_te),
+                "Test Acc (%)": round(acc * 100, 2),
+                "Balanced Acc (%)": round(bal_acc * 100, 2),
+                "Macro Precision": round(macro_p, 4),
+                "Macro Recall": round(macro_r, 4),
+                "Macro F1": round(macro_f1, 4),
+                "Cohen Kappa": round(kappa, 4),
+                "Per-Subject Mean (%)": round(mean_sub_acc, 2),
+                "Per-Subject Std (%)": round(std_sub_acc, 2),
+                "Diff vs Tuned CNN (pp)": round(diff_from_tuned_cnn, 2),
+            }
+        ]
+    )
     df_metrics.to_csv(OUT_DIR / "final_ensemble_test_metrics.csv", index=False)
 
     # 3. Save Per-Subject CSV
@@ -278,14 +301,19 @@ def evaluate_final_ensemble() -> dict[str, Any]:
     plt.figure(figsize=(6, 5))
     cm = np.array(test_metrics["confusion_matrix"])
     plt.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
-    plt.title(f"Final Test Confusion Matrix: Ensemble ({acc*100:.2f}%)")
+    plt.title(f"Final Test Confusion Matrix: Ensemble ({acc * 100:.2f}%)")
     plt.colorbar()
     tick_marks = np.arange(len(CLASS_NAMES))
     plt.xticks(tick_marks, CLASS_NAMES, rotation=45)
     plt.yticks(tick_marks, CLASS_NAMES)
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, format(cm[i, j], "d"), horizontalalignment="center",
-                 color="white" if cm[i, j] > cm.max() / 2.0 else "black")
+        plt.text(
+            j,
+            i,
+            format(cm[i, j], "d"),
+            horizontalalignment="center",
+            color="white" if cm[i, j] > cm.max() / 2.0 else "black",
+        )
     plt.ylabel("True Label")
     plt.xlabel("Predicted Label")
     plt.tight_layout()
@@ -294,15 +322,15 @@ def evaluate_final_ensemble() -> dict[str, Any]:
     plt.close()
 
     # 5. Save Final Markdown Report
-    md_report = f"""# Final Test Evaluation Report: Val-Weighted Ensemble (S094–S109)
+    md_report = rf"""# Final Test Evaluation Report: Val-Weighted Ensemble (S094–S109)
 
 ## Executive Summary
 - **Protocol Compliance**: Single final test evaluation on unseen subjects $S094-S109$.
 - **Validation Selection**: The ensemble was selected strictly using validation subjects $S078-S093$ (Val Macro F1 = **0.8302**, Val Acc = **83.02%**).
-- **Single Test Execution**: Evaluated on $S094-S109$ **EXACTLY ONCE** on {json_record['timestamp']}.
-- **Final Test Accuracy**: **{acc*100:.2f}%** (Balanced Acc: **{bal_acc*100:.2f}%**, Macro F1: **{macro_f1:.4f}**, Kappa: **{kappa:.4f}**).
-- **Comparison vs Frozen Tuned CNN Baseline (74.00%)**: The model improved from 74.00% to **{acc*100:.2f}%**, an improvement of **{diff_from_tuned_cnn:+.2f} percentage points**.
-- **Comparison vs Original CNN Baseline (72.81%)**: The model improved from 72.81% to **{acc*100:.2f}%**, an improvement of **{diff_from_baseline:+.2f} percentage points**.
+- **Single Test Execution**: Evaluated on $S094-S109$ **EXACTLY ONCE** on {json_record["timestamp"]}.
+- **Final Test Accuracy**: **{acc * 100:.2f}%** (Balanced Acc: **{bal_acc * 100:.2f}%**, Macro F1: **{macro_f1:.4f}**, Kappa: **{kappa:.4f}**).
+- **Comparison vs Frozen Tuned CNN Baseline (74.00%)**: The model improved from 74.00% to **{acc * 100:.2f}%**, an improvement of **{diff_from_tuned_cnn:+.2f} percentage points**.
+- **Comparison vs Original CNN Baseline (72.81%)**: The model improved from 72.81% to **{acc * 100:.2f}%**, an improvement of **{diff_from_baseline:+.2f} percentage points**.
 - **Verdict**: **{verdict}**.
 
 ---
@@ -323,8 +351,8 @@ def evaluate_final_ensemble() -> dict[str, Any]:
 
 | Metric | Val-Weighted Ensemble | Tuned 1D-CNN Baseline | Original CNN Baseline | Difference vs Tuned CNN |
 |---|---|---|---|---|
-| **Overall Test Accuracy** | **{acc*100:.2f}%** | **74.00%** | **72.81%** | **{diff_from_tuned_cnn:+.2f} percentage points** |
-| **Balanced Accuracy** | **{bal_acc*100:.2f}%** | **74.03%** | **72.88%** | **{(bal_acc*100)-74.03:+.2f} percentage points** |
+| **Overall Test Accuracy** | **{acc * 100:.2f}%** | **74.00%** | **72.81%** | **{diff_from_tuned_cnn:+.2f} percentage points** |
+| **Balanced Accuracy** | **{bal_acc * 100:.2f}%** | **74.03%** | **72.88%** | **{(bal_acc * 100) - 74.03:+.2f} percentage points** |
 | **Macro Precision** | **{macro_p:.4f}** | **0.7400** | **0.7280** | **{macro_p - 0.7400:+.4f}** |
 | **Macro Recall** | **{macro_r:.4f}** | **0.7403** | **0.7288** | **{macro_r - 0.7403:+.4f}** |
 | **Macro F1** | **{macro_f1:.4f}** | **0.7399** | **0.7270** | **{macro_f1 - 0.7399:+.4f}** |
@@ -362,8 +390,10 @@ def evaluate_final_ensemble() -> dict[str, Any]:
         f.write(md_report)
 
     print("\n" + "=" * 80)
-    print(f"  ✓ Test Accuracy           : {acc*100:.2f}% ({diff_from_tuned_cnn:+.2f} percentage points vs tuned CNN)")
-    print(f"  ✓ Balanced Accuracy       : {bal_acc*100:.2f}%")
+    print(
+        f"  ✓ Test Accuracy           : {acc * 100:.2f}% ({diff_from_tuned_cnn:+.2f} percentage points vs tuned CNN)"
+    )
+    print(f"  ✓ Balanced Accuracy       : {bal_acc * 100:.2f}%")
     print(f"  ✓ Macro F1                : {macro_f1:.4f}")
     print(f"  ✓ Cohen's Kappa           : {kappa:.4f}")
     print(f"  ✓ Per-Subject Mean ± Std  : {mean_sub_acc:.2f}% ± {std_sub_acc:.2f}%")

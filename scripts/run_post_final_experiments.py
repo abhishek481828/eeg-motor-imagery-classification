@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,10 +36,8 @@ from eeg_mi.data.dataset import EEGDataset
 from eeg_mi.evaluation.metrics import compute_metrics
 from eeg_mi.models.factory import create_model
 from eeg_mi.training.seed import set_seed
-from eeg_mi.training.trainer import Trainer
 from eeg_mi.utils.device import get_device
 from eeg_mi.utils.logging import get_logger
-
 from src.experiments.post_final.multi_seed_trainer import train_multi_seed_models
 
 logger = get_logger("PostFinalExperiments")
@@ -46,22 +45,34 @@ logger = get_logger("PostFinalExperiments")
 DATA_NPZ = ROOT / "data" / "processed" / "full_dataset.npz"
 DATA_META = ROOT / "data" / "processed" / "full_metadata.json"
 
-CNN_CKPT_PATH    = ROOT / "reports" / "experiments" / "new_benchmark" / "exp5_cnn_tuning" / "cnn_tuned_cfg_02_best.pt"
-EEGNET_CKPT_PATH = ROOT / "reports" / "experiments" / "new_benchmark" / "exp2_eegnet" / "eegnet_cfg_03_best.pt"
+CNN_CKPT_PATH = (
+    ROOT
+    / "reports"
+    / "experiments"
+    / "new_benchmark"
+    / "exp5_cnn_tuning"
+    / "cnn_tuned_cfg_02_best.pt"
+)
+EEGNET_CKPT_PATH = (
+    ROOT / "reports" / "experiments" / "new_benchmark" / "exp2_eegnet" / "eegnet_cfg_03_best.pt"
+)
 
-OUT_DIR  = ROOT / "reports" / "post_final_improvements"
+OUT_DIR = ROOT / "reports" / "post_final_improvements"
 CKPT_DIR = ROOT / "models" / "checkpoints" / "post_final_improvements"
 
 CLASS_NAMES = ["Left Fist", "Right Fist"]
 VAL_REF_ACC = 0.8302
-VAL_REF_F1  = 0.8302
+VAL_REF_F1 = 0.8302
 
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:
-        if isinstance(obj, np.integer):  return int(obj)
-        if isinstance(obj, np.floating): return float(obj)
-        if isinstance(obj, np.ndarray):  return obj.tolist()
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
         return super().default(obj)
 
 
@@ -73,13 +84,15 @@ class DynamicCNN(torch.nn.Module):
         layers = []
         c_in = in_ch
         for c_out in filters:
-            layers.extend([
-                torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
-                torch.nn.BatchNorm1d(c_out),
-                torch.nn.ReLU(),
-                torch.nn.MaxPool1d(2),
-                torch.nn.Dropout(drop),
-            ])
+            layers.extend(
+                [
+                    torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
+                    torch.nn.BatchNorm1d(c_out),
+                    torch.nn.ReLU(),
+                    torch.nn.MaxPool1d(2),
+                    torch.nn.Dropout(drop),
+                ]
+            )
             c_in = c_out
         self.features = torch.nn.Sequential(*layers)
         self.avgpool = torch.nn.AdaptiveAvgPool1d(16)
@@ -105,7 +118,9 @@ def run_phase_2(X_v, y_v, device) -> list[dict[str, Any]]:
     m_cnn.load_state_dict(ckpt_cnn["state_dict"])
     m_cnn.to(device).eval()
 
-    m_eegnet = create_model("eegnet", num_channels=64, num_classes=2, sequence_length=X_v.shape[2], dropout=0.25)
+    m_eegnet = create_model(
+        "eegnet", num_channels=64, num_classes=2, sequence_length=X_v.shape[2], dropout=0.25
+    )
     ckpt_eegnet = torch.load(EEGNET_CKPT_PATH, map_location=device)
     m_eegnet.load_state_dict(ckpt_eegnet["state_dict"])
     m_eegnet.to(device).eval()
@@ -153,7 +168,9 @@ def run_phase_2(X_v, y_v, device) -> list[dict[str, Any]]:
             "checkpoint_path": "Frozen Baseline Checkpoints",
         }
         results.append(rec)
-        print(f"  Ensemble w_cnn={w_cnn:.2f}, w_eeg={w_eeg:.2f} → Val Acc={v_m['accuracy']*100:.2f}%, Val F1={v_m['macro_f1']:.4f}")
+        print(
+            f"  Ensemble w_cnn={w_cnn:.2f}, w_eeg={w_eeg:.2f} → Val Acc={v_m['accuracy'] * 100:.2f}%, Val F1={v_m['macro_f1']:.4f}"
+        )
 
     return results
 
@@ -207,15 +224,23 @@ def run_phase_3(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
         "checkpoint_path": str(CKPT_DIR.resolve()),
     }
 
-    print(f"  5-Seed CNN Avg     → Val Acc={m_acc(rec_cnn_avg):.2f}%, Val F1={m_f1(rec_cnn_avg):.4f}")
-    print(f"  5-Seed EEGNet Avg  → Val Acc={m_acc(rec_eegnet_avg):.2f}%, Val F1={m_f1(rec_eegnet_avg):.4f}")
+    print(
+        f"  5-Seed CNN Avg     → Val Acc={m_acc(rec_cnn_avg):.2f}%, Val F1={m_f1(rec_cnn_avg):.4f}"
+    )
+    print(
+        f"  5-Seed EEGNet Avg  → Val Acc={m_acc(rec_eegnet_avg):.2f}%, Val F1={m_f1(rec_eegnet_avg):.4f}"
+    )
     print(f"  10-Model Super Ens → Val Acc={m_acc(rec_super):.2f}%, Val F1={m_f1(rec_super):.4f}")
 
     return [rec_cnn_avg, rec_eegnet_avg, rec_super]
 
 
-def m_acc(rec): return rec["val_metrics"]["accuracy"] * 100
-def m_f1(rec):  return rec["val_metrics"]["macro_f1"]
+def m_acc(rec):
+    return rec["val_metrics"]["accuracy"] * 100
+
+
+def m_f1(rec):
+    return rec["val_metrics"]["macro_f1"]
 
 
 # ==============================================================================
@@ -227,8 +252,20 @@ def run_phase_4(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
     print("=" * 80)
 
     aug_configs = [
-        {"name": "aug_mild_shift_scaling", "scale": (0.95, 1.05), "noise": 0.0,  "shift": 10, "drop_p": 0.0},
-        {"name": "aug_mild_noise_dropout", "scale": None,        "noise": 0.01, "shift": 0,  "drop_p": 0.03},
+        {
+            "name": "aug_mild_shift_scaling",
+            "scale": (0.95, 1.05),
+            "noise": 0.0,
+            "shift": 10,
+            "drop_p": 0.0,
+        },
+        {
+            "name": "aug_mild_noise_dropout",
+            "scale": None,
+            "noise": 0.01,
+            "shift": 0,
+            "drop_p": 0.03,
+        },
     ]
 
     results = []
@@ -303,7 +340,7 @@ def run_phase_4(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
             "checkpoint_path": str(ckpt_path.resolve()),
         }
         results.append(rec)
-        print(f"  {name:<25} → Val Acc={v_m['accuracy']*100:.2f}%, Val F1={v_m['macro_f1']:.4f}")
+        print(f"  {name:<25} → Val Acc={v_m['accuracy'] * 100:.2f}%, Val F1={v_m['macro_f1']:.4f}")
 
     return results
 
@@ -321,7 +358,7 @@ def run_phase_5(X_tr, y_tr, X_v, y_v, device) -> dict[str, Any]:
         meta = json.load(f)
 
     val_subs = meta["subject_splits"]["validation"]
-    records  = meta.get("records_metadata", [])
+    records = meta.get("records_metadata", [])
 
     sub_counts = {int(s): 0 for s in val_subs}
     for rec in records:
@@ -341,9 +378,9 @@ def run_phase_5(X_tr, y_tr, X_v, y_v, device) -> dict[str, Any]:
         for s in val_subs:
             s_int = int(s)
             s_str = f"S{s_int:03d}"
-            n_ep  = sub_counts.get(s_int, 0)
-            s_X   = X_v[offset : offset + n_ep]
-            s_y   = y_v[offset : offset + n_ep]
+            n_ep = sub_counts.get(s_int, 0)
+            s_X = X_v[offset : offset + n_ep]
+            s_y = y_v[offset : offset + n_ep]
             offset += n_ep
 
             if n_ep <= k:
@@ -358,7 +395,11 @@ def run_phase_5(X_tr, y_tr, X_v, y_v, device) -> dict[str, Any]:
             m_base.to(device).eval()
 
             with torch.no_grad():
-                preds_no_cal = torch.argmax(m_base(torch.tensor(s_X, dtype=torch.float32).to(device)), dim=1).cpu().numpy()
+                preds_no_cal = (
+                    torch.argmax(m_base(torch.tensor(s_X, dtype=torch.float32).to(device)), dim=1)
+                    .cpu()
+                    .numpy()
+                )
             acc_no_cal = float(np.mean(preds_no_cal == s_y))
 
             # 2. Subject-Adapted Calibration
@@ -374,7 +415,7 @@ def run_phase_5(X_tr, y_tr, X_v, y_v, device) -> dict[str, Any]:
             cal_loader = DataLoader(EEGDataset(X_cal, y_cal), batch_size=min(k, 8), shuffle=True)
 
             m_adapted.train()
-            for epoch in range(10):
+            for _epoch in range(10):
                 for xb, yb in cal_loader:
                     opt.zero_grad()
                     out = m_adapted(xb.to(device))
@@ -384,7 +425,13 @@ def run_phase_5(X_tr, y_tr, X_v, y_v, device) -> dict[str, Any]:
 
             m_adapted.eval()
             with torch.no_grad():
-                preds_adapted = torch.argmax(m_adapted(torch.tensor(X_eval, dtype=torch.float32).to(device)), dim=1).cpu().numpy()
+                preds_adapted = (
+                    torch.argmax(
+                        m_adapted(torch.tensor(X_eval, dtype=torch.float32).to(device)), dim=1
+                    )
+                    .cpu()
+                    .numpy()
+                )
             acc_adapted = float(np.mean(preds_adapted == y_eval))
 
             sub_results[s_str] = {
@@ -394,9 +441,9 @@ def run_phase_5(X_tr, y_tr, X_v, y_v, device) -> dict[str, Any]:
                 "accuracy_delta": round(acc_adapted - acc_no_cal, 4),
             }
 
-        mean_no_cal  = float(np.mean([v["no_calibration_accuracy"] for v in sub_results.values()]))
+        mean_no_cal = float(np.mean([v["no_calibration_accuracy"] for v in sub_results.values()]))
         mean_adapted = float(np.mean([v["subject_adapted_accuracy"] for v in sub_results.values()]))
-        mean_delta   = float(np.mean([v["accuracy_delta"] for v in sub_results.values()]))
+        mean_delta = float(np.mean([v["accuracy_delta"] for v in sub_results.values()]))
 
         calibration_results[f"k_{k}_trials"] = {
             "k_trials": k,
@@ -406,7 +453,9 @@ def run_phase_5(X_tr, y_tr, X_v, y_v, device) -> dict[str, Any]:
             "per_subject": sub_results,
         }
 
-        print(f"  k={k:<2d} trials → No-Cal Acc: {mean_no_cal*100:.2f}% | Adapted Acc: {mean_adapted*100:.2f}% | Delta: {mean_delta*100:+.2f}%")
+        print(
+            f"  k={k:<2d} trials → No-Cal Acc: {mean_no_cal * 100:.2f}% | Adapted Acc: {mean_adapted * 100:.2f}% | Delta: {mean_delta * 100:+.2f}%"
+        )
 
     md_content = f"""# Phase 5: Subject-Adaptation / Calibration Results Report
 
@@ -417,10 +466,10 @@ def run_phase_5(X_tr, y_tr, X_v, y_v, device) -> dict[str, Any]:
 
 | Calibration Trials ($k$) | No-Calibration Accuracy | Subject-Adapted Accuracy | Accuracy Delta ($\\Delta \\text{{Acc}}$) |
 |---|---|---|---|
-| **$k=5$ trials** | {calibration_results['k_5_trials']['mean_no_calibration_accuracy']*100:.2f}% | **{calibration_results['k_5_trials']['mean_subject_adapted_accuracy']*100:.2f}%** | **{calibration_results['k_5_trials']['mean_accuracy_delta']*100:+.2f}%** |
-| **$k=10$ trials** | {calibration_results['k_10_trials']['mean_no_calibration_accuracy']*100:.2f}% | **{calibration_results['k_10_trials']['mean_subject_adapted_accuracy']*100:.2f}%** | **{calibration_results['k_10_trials']['mean_accuracy_delta']*100:+.2f}%** |
-| **$k=20$ trials** | {calibration_results['k_20_trials']['mean_no_calibration_accuracy']*100:.2f}% | **{calibration_results['k_20_trials']['mean_subject_adapted_accuracy']*100:.2f}%** | **{calibration_results['k_20_trials']['mean_accuracy_delta']*100:+.2f}%** |
-| **$k=30$ trials** | {calibration_results['k_30_trials']['mean_no_calibration_accuracy']*100:.2f}% | **{calibration_results['k_30_trials']['mean_subject_adapted_accuracy']*100:.2f}%** | **{calibration_results['k_30_trials']['mean_accuracy_delta']*100:+.2f}%** |
+| **$k=5$ trials** | {calibration_results["k_5_trials"]["mean_no_calibration_accuracy"] * 100:.2f}% | **{calibration_results["k_5_trials"]["mean_subject_adapted_accuracy"] * 100:.2f}%** | **{calibration_results["k_5_trials"]["mean_accuracy_delta"] * 100:+.2f}%** |
+| **$k=10$ trials** | {calibration_results["k_10_trials"]["mean_no_calibration_accuracy"] * 100:.2f}% | **{calibration_results["k_10_trials"]["mean_subject_adapted_accuracy"] * 100:.2f}%** | **{calibration_results["k_10_trials"]["mean_accuracy_delta"] * 100:+.2f}%** |
+| **$k=20$ trials** | {calibration_results["k_20_trials"]["mean_no_calibration_accuracy"] * 100:.2f}% | **{calibration_results["k_20_trials"]["mean_subject_adapted_accuracy"] * 100:.2f}%** | **{calibration_results["k_20_trials"]["mean_accuracy_delta"] * 100:+.2f}%** |
+| **$k=30$ trials** | {calibration_results["k_30_trials"]["mean_no_calibration_accuracy"] * 100:.2f}% | **{calibration_results["k_30_trials"]["mean_subject_adapted_accuracy"] * 100:.2f}%** | **{calibration_results["k_30_trials"]["mean_accuracy_delta"] * 100:+.2f}%** |
 """
     with open(OUT_DIR / "calibration_results.md", "w") as f:
         f.write(md_content)
@@ -443,7 +492,7 @@ def main() -> int:
 
     npz = np.load(DATA_NPZ)
     X_tr, y_tr = npz["X_train"], npz["y_train"]
-    X_v,  y_v  = npz["X_val"],   npz["y_val"]
+    X_v, y_v = npz["X_val"], npz["y_val"]
 
     # 1. Phase 2: Weight Search
     p2_recs = run_phase_2(X_v, y_v, device)
@@ -455,7 +504,7 @@ def main() -> int:
     p4_recs = run_phase_4(X_tr, y_tr, X_v, y_v, device)
 
     # 4. Phase 5: Calibration Analysis
-    cal_res = run_phase_5(X_tr, y_tr, X_v, y_v, device)
+    run_phase_5(X_tr, y_tr, X_v, y_v, device)
 
     # Combine all zero-calibration records
     all_recs = p2_recs + p3_recs + p4_recs
@@ -464,17 +513,19 @@ def main() -> int:
     summary_rows = []
     for rank, r in enumerate(all_recs, 1):
         vm = r["val_metrics"]
-        summary_rows.append({
-            "Rank": rank,
-            "Phase": r["phase"],
-            "Model Name": r["model_name"],
-            "Params": r["total_parameters"],
-            "Val Acc (%)": round(vm["accuracy"] * 100, 2),
-            "Val Bal Acc (%)": round(vm["balanced_accuracy"] * 100, 2),
-            "Val Macro F1": round(vm["macro_f1"], 4),
-            "Val Kappa": round(vm.get("cohens_kappa", 0.0), 4),
-            "Train Time (s)": r["train_time_sec"],
-        })
+        summary_rows.append(
+            {
+                "Rank": rank,
+                "Phase": r["phase"],
+                "Model Name": r["model_name"],
+                "Params": r["total_parameters"],
+                "Val Acc (%)": round(vm["accuracy"] * 100, 2),
+                "Val Bal Acc (%)": round(vm["balanced_accuracy"] * 100, 2),
+                "Val Macro F1": round(vm["macro_f1"], 4),
+                "Val Kappa": round(vm.get("cohens_kappa", 0.0), 4),
+                "Train Time (s)": r["train_time_sec"],
+            }
+        )
 
     df_summary = pd.DataFrame(summary_rows)
     df_summary.to_csv(OUT_DIR / "all_validation_results.csv", index=False)
@@ -488,16 +539,18 @@ def main() -> int:
     print("=" * 90 + "\n")
 
     winner = all_recs[0]
-    beats_ref = (winner["val_metrics"]["macro_f1"] > VAL_REF_F1)
+    beats_ref = winner["val_metrics"]["macro_f1"] > VAL_REF_F1
 
     # Save Bar Chart Figure
     plt.figure(figsize=(10, 6))
     top10 = summary_rows[:10]
     names = [f"{r['Rank']}. {r['Model Name'][:28]}" for r in top10]
-    f1s   = [r["Val Macro F1"] for r in top10]
+    f1s = [r["Val Macro F1"] for r in top10]
     colors = ["#2ecc71" if r["Val Macro F1"] > VAL_REF_F1 else "#3498db" for r in top10]
     plt.barh(names[::-1], f1s[::-1], color=colors[::-1])
-    plt.axvline(x=VAL_REF_F1, color="red", linestyle="--", label=f"Val Reference ({VAL_REF_F1:.4f})")
+    plt.axvline(
+        x=VAL_REF_F1, color="red", linestyle="--", label=f"Val Reference ({VAL_REF_F1:.4f})"
+    )
     plt.xlabel("Validation Macro F1")
     plt.title("Post-Final Candidate Validation Models")
     plt.legend()
@@ -506,7 +559,7 @@ def main() -> int:
     plt.close()
 
     # Generate Validation Ranking Markdown Report
-    md_ranking = f"""# Post-Final Experiments: Validation Model Rankings (S078–S093)
+    md_ranking = """# Post-Final Experiments: Validation Model Rankings (S078–S093)
 
 > **REQUIRED STATEMENT**:
 > **The official 80.98% test result remains frozen. All post-final experiments were conducted using training and validation subjects only and were not evaluated on the original test subjects.**
@@ -525,7 +578,7 @@ def main() -> int:
 ---
 
 ## Key Findings & Conclusions
-- **Top Validation Model**: **{winner['model_name']}** (Val Acc = **{winner['val_metrics']['accuracy']*100:.2f}%**, Val Macro F1 = **{winner['val_metrics']['macro_f1']:.4f}**).
+- **Top Validation Model**: **{winner["model_name"]}** (Val Acc = **{winner["val_metrics"]["accuracy"] * 100:.2f}%**, Val Macro F1 = **{winner["val_metrics"]["macro_f1"]:.4f}**).
 - **Validation Outcome**: {"A new experiment improved validation performance over the reference ensemble!" if beats_ref else "The reference Val-Weighted Ensemble (Tuned CNN + EEGNet, 83.02% Val Acc) remains the top-performing model on validation."}
 - **Official Test Benchmark**: **80.98% Test Accuracy** (Commit `5d7458d`) on $S094-S109$ remains frozen and untouched.
 """
@@ -534,7 +587,7 @@ def main() -> int:
         f.write(md_ranking)
 
     print(f"  ✓ Saved validation ranking → {OUT_DIR / 'validation_ranking.md'}")
-    print(f"  ✓ CONFIRMED: 0 test set evaluations on S094-S109.")
+    print("  ✓ CONFIRMED: 0 test set evaluations on S094-S109.")
     print("=" * 90 + "\n")
     return 0
 

@@ -37,11 +37,20 @@ from eeg_mi.utils.logging import get_logger
 
 logger = get_logger("PostFinalEnvAudit")
 
-DATA_NPZ  = ROOT / "data" / "processed" / "full_dataset.npz"
+DATA_NPZ = ROOT / "data" / "processed" / "full_dataset.npz"
 DATA_META = ROOT / "data" / "processed" / "full_metadata.json"
 
-CNN_CKPT_PATH    = ROOT / "reports" / "experiments" / "new_benchmark" / "exp5_cnn_tuning" / "cnn_tuned_cfg_02_best.pt"
-EEGNET_CKPT_PATH = ROOT / "reports" / "experiments" / "new_benchmark" / "exp2_eegnet" / "eegnet_cfg_03_best.pt"
+CNN_CKPT_PATH = (
+    ROOT
+    / "reports"
+    / "experiments"
+    / "new_benchmark"
+    / "exp5_cnn_tuning"
+    / "cnn_tuned_cfg_02_best.pt"
+)
+EEGNET_CKPT_PATH = (
+    ROOT / "reports" / "experiments" / "new_benchmark" / "exp2_eegnet" / "eegnet_cfg_03_best.pt"
+)
 
 OUT_DIR = ROOT / "reports" / "post_final_improvements"
 CLASS_NAMES = ["Left Fist", "Right Fist"]
@@ -49,9 +58,12 @@ CLASS_NAMES = ["Left Fist", "Right Fist"]
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:
-        if isinstance(obj, np.integer):  return int(obj)
-        if isinstance(obj, np.floating): return float(obj)
-        if isinstance(obj, np.ndarray):  return obj.tolist()
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
         return super().default(obj)
 
 
@@ -63,13 +75,15 @@ class DynamicCNN(torch.nn.Module):
         layers = []
         c_in = in_ch
         for c_out in filters:
-            layers.extend([
-                torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
-                torch.nn.BatchNorm1d(c_out),
-                torch.nn.ReLU(),
-                torch.nn.MaxPool1d(2),
-                torch.nn.Dropout(drop),
-            ])
+            layers.extend(
+                [
+                    torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
+                    torch.nn.BatchNorm1d(c_out),
+                    torch.nn.ReLU(),
+                    torch.nn.MaxPool1d(2),
+                    torch.nn.Dropout(drop),
+                ]
+            )
             c_in = c_out
         self.features = torch.nn.Sequential(*layers)
         self.avgpool = torch.nn.AdaptiveAvgPool1d(16)
@@ -91,7 +105,11 @@ def run_env_audit() -> dict[str, Any]:
     print("=" * 80)
 
     # 1. Check Git Branch
-    git_branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=ROOT).decode().strip()
+    git_branch = (
+        subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=ROOT)
+        .decode()
+        .strip()
+    )
     print(f"  ✓ Active Git Branch: {git_branch}")
 
     # 2. Check Checkpoint Files
@@ -102,19 +120,19 @@ def run_env_audit() -> dict[str, Any]:
 
     # 3. Load dataset & check splits
     npz = np.load(DATA_NPZ)
-    X_tr, y_tr = npz["X_train"], npz["y_train"]
-    X_v,  y_v  = npz["X_val"],   npz["y_val"]
+    X_tr, _y_tr = npz["X_train"], npz["y_train"]
+    X_v, y_v = npz["X_val"], npz["y_val"]
     with open(DATA_META) as f:
         meta = json.load(f)
 
     splits = meta.get("subject_splits", {})
-    tr_subs = set(int(s) for s in splits.get("train", []))
-    v_subs  = set(int(s) for s in splits.get("validation", []))
-    te_subs = set(int(s) for s in splits.get("test", []))
+    tr_subs = {int(s) for s in splits.get("train", [])}
+    v_subs = {int(s) for s in splits.get("validation", [])}
+    te_subs = {int(s) for s in splits.get("test", [])}
 
-    tr_v_overlap  = list(tr_subs & v_subs)
+    tr_v_overlap = list(tr_subs & v_subs)
     tr_te_overlap = list(tr_subs & te_subs)
-    v_te_overlap  = list(v_subs & te_subs)
+    v_te_overlap = list(v_subs & te_subs)
     total_overlap = len(tr_v_overlap) + len(tr_te_overlap) + len(v_te_overlap)
 
     # 4. Reproduce Validation Reference Performance
@@ -123,7 +141,9 @@ def run_env_audit() -> dict[str, Any]:
     m_cnn.load_state_dict(ckpt_cnn["state_dict"])
     m_cnn.to(device).eval()
 
-    m_eegnet = create_model("eegnet", num_channels=64, num_classes=2, sequence_length=X_tr.shape[2], dropout=0.25)
+    m_eegnet = create_model(
+        "eegnet", num_channels=64, num_classes=2, sequence_length=X_tr.shape[2], dropout=0.25
+    )
     ckpt_eegnet = torch.load(EEGNET_CKPT_PATH, map_location=device)
     m_eegnet.load_state_dict(ckpt_eegnet["state_dict"])
     m_eegnet.to(device).eval()
@@ -149,7 +169,9 @@ def run_env_audit() -> dict[str, Any]:
 
     audit_result = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "status": "PASS" if (total_overlap == 0 and git_branch == "experiments/post-final-improvements") else "FAIL",
+        "status": "PASS"
+        if (total_overlap == 0 and git_branch == "experiments/post-final-improvements")
+        else "FAIL",
         "git_branch": git_branch,
         "checkpoints": {
             "cnn_checkpoint": str(CNN_CKPT_PATH.relative_to(ROOT)),
@@ -182,13 +204,13 @@ def run_env_audit() -> dict[str, Any]:
     md_content = f"""# Phase 1: Environment & Checkpoint Verification Audit Report
 
 ## Executive Summary
-- **Audit Status**: **{audit_result['status']}**
+- **Audit Status**: **{audit_result["status"]}**
 - **Git Branch**: `{git_branch}`
-- **Tuned CNN Checkpoint**: `{audit_result['checkpoints']['cnn_checkpoint']}`
-- **EEGNet Checkpoint**: `{audit_result['checkpoints']['eegnet_checkpoint']}`
+- **Tuned CNN Checkpoint**: `{audit_result["checkpoints"]["cnn_checkpoint"]}`
+- **EEGNet Checkpoint**: `{audit_result["checkpoints"]["eegnet_checkpoint"]}`
 - **Subject Overlap**: **{total_overlap}** (Disjoint partitioning confirmed)
-- **Validation Ensemble Accuracy**: **{v_metrics['accuracy']*100:.2f}%** (Expected: 83.02%)
-- **Validation Ensemble Macro F1**: **{v_metrics['macro_f1']:.4f}** (Expected: 0.8302)
+- **Validation Ensemble Accuracy**: **{v_metrics["accuracy"] * 100:.2f}%** (Expected: 83.02%)
+- **Validation Ensemble Macro F1**: **{v_metrics["macro_f1"]:.4f}** (Expected: 0.8302)
 - **Test Set Protection**: **CONFIRMED (0 test subjects loaded or evaluated)**
 
 ---
@@ -205,7 +227,9 @@ def run_env_audit() -> dict[str, Any]:
         f.write(md_content)
 
     print(f"\n  ✓ Audit Status: {audit_result['status']}")
-    print(f"  ✓ Reproduced Val Acc = {v_metrics['accuracy']*100:.2f}%, Val Macro F1 = {v_metrics['macro_f1']:.4f}")
+    print(
+        f"  ✓ Reproduced Val Acc = {v_metrics['accuracy'] * 100:.2f}%, Val Macro F1 = {v_metrics['macro_f1']:.4f}"
+    )
     print(f"  ✓ Saved {json_path.relative_to(ROOT)} and {md_path.relative_to(ROOT)}")
     print("=" * 80 + "\n")
     return audit_result

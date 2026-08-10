@@ -22,28 +22,26 @@ from pathlib import Path
 from typing import Any
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import mne
 import numpy as np
 import pandas as pd
 import torch
-from torch.utils.data import DataLoader
-
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
+from torch.utils.data import DataLoader
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
-from eeg_mi.data.augmentations import EEGAugmenter
 from eeg_mi.data.dataset import EEGDataset
 from eeg_mi.evaluation.metrics import compute_metrics
 from eeg_mi.features.riemannian_features import RiemannianTangentSpaceTransformer
 from eeg_mi.features.wavelet_features import WaveletFeatureExtractor
-from eeg_mi.models.factory import create_model
 from eeg_mi.models.gan_generator import EEGDiscriminator, EEGGenerator, train_wgan_gp
 from eeg_mi.models.temporal_cnn_lstm import TemporalCNNLSTM
 from eeg_mi.training.seed import set_seed
@@ -57,22 +55,34 @@ logger = get_logger("PaperStudy")
 DATA_NPZ = ROOT / "data" / "processed" / "full_dataset.npz"
 DATA_META = ROOT / "data" / "processed" / "full_metadata.json"
 
-CNN_CKPT_PATH = ROOT / "reports" / "experiments" / "new_benchmark" / "exp5_cnn_tuning" / "cnn_tuned_cfg_02_best.pt"
-EEGNET_CKPT_PATH = ROOT / "reports" / "experiments" / "new_benchmark" / "exp2_eegnet" / "eegnet_cfg_03_best.pt"
+CNN_CKPT_PATH = (
+    ROOT
+    / "reports"
+    / "experiments"
+    / "new_benchmark"
+    / "exp5_cnn_tuning"
+    / "cnn_tuned_cfg_02_best.pt"
+)
+EEGNET_CKPT_PATH = (
+    ROOT / "reports" / "experiments" / "new_benchmark" / "exp2_eegnet" / "eegnet_cfg_03_best.pt"
+)
 
 OUT_DIR = ROOT / "reports" / "paper_reproduction"
 CKPT_DIR = ROOT / "models" / "checkpoints" / "paper_reproduction"
 
 CLASS_NAMES = ["Left Fist", "Right Fist"]
 VAL_ENSEMBLE_REF_ACC = 0.8302
-VAL_ENSEMBLE_REF_F1  = 0.8302
+VAL_ENSEMBLE_REF_F1 = 0.8302
 
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:
-        if isinstance(obj, np.integer):  return int(obj)
-        if isinstance(obj, np.floating): return float(obj)
-        if isinstance(obj, np.ndarray):  return obj.tolist()
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
         return super().default(obj)
 
 
@@ -84,13 +94,15 @@ class DynamicCNN(torch.nn.Module):
         layers = []
         c_in = in_ch
         for c_out in filters:
-            layers.extend([
-                torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
-                torch.nn.BatchNorm1d(c_out),
-                torch.nn.ReLU(),
-                torch.nn.MaxPool1d(2),
-                torch.nn.Dropout(drop),
-            ])
+            layers.extend(
+                [
+                    torch.nn.Conv1d(c_in, c_out, kernel_size=k_sz, padding=k_sz // 2),
+                    torch.nn.BatchNorm1d(c_out),
+                    torch.nn.ReLU(),
+                    torch.nn.MaxPool1d(2),
+                    torch.nn.Dropout(drop),
+                ]
+            )
             c_in = c_out
         self.features = torch.nn.Sequential(*layers)
         self.avgpool = torch.nn.AdaptiveAvgPool1d(16)
@@ -121,7 +133,12 @@ def run_phase_2(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
         "total_parameters": 191700,
         "best_epoch": 1,
         "seed": 42,
-        "val_metrics": {"accuracy": 0.8302, "balanced_accuracy": 0.8302, "macro_f1": 0.8302, "cohens_kappa": 0.6603},
+        "val_metrics": {
+            "accuracy": 0.8302,
+            "balanced_accuracy": 0.8302,
+            "macro_f1": 0.8302,
+            "cohens_kappa": 0.6603,
+        },
         "train_time_sec": 0.5,
         "checkpoint_path": "N/A (Ensemble Reference)",
     }
@@ -133,7 +150,7 @@ def run_phase_2(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
     pad_right = pad_len - pad_left
 
     X_tr_5s = np.pad(X_tr, ((0, 0), (0, 0), (pad_left, pad_right)), mode="edge")
-    X_v_5s  = np.pad(X_v,  ((0, 0), (0, 0), (pad_left, pad_right)), mode="edge")
+    X_v_5s = np.pad(X_v, ((0, 0), (0, 0), (pad_left, pad_right)), mode="edge")
 
     # Train 1D-CNN architecture on 5s pipeline
     set_seed(42)
@@ -144,11 +161,11 @@ def run_phase_2(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
     ckpt_path = CKPT_DIR / "epoch_5s_cnn_best.pt"
 
     tr_loader = DataLoader(EEGDataset(X_tr_5s, y_tr), batch_size=32, shuffle=True)
-    v_loader  = DataLoader(EEGDataset(X_v_5s,  y_v),  batch_size=32, shuffle=False)
+    v_loader = DataLoader(EEGDataset(X_v_5s, y_v), batch_size=32, shuffle=False)
 
     t0 = time.time()
     trainer = Trainer(model_5s, opt, crit, device, ckpt_path, scheduler=sched, patience=10)
-    history = trainer.fit(tr_loader, v_loader, epochs=25)
+    trainer.fit(tr_loader, v_loader, epochs=25)
     t_5s = round(time.time() - t0, 2)
 
     ckpt = torch.load(ckpt_path, map_location=device)
@@ -175,8 +192,12 @@ def run_phase_2(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
         "checkpoint_path": str(ckpt_path.resolve()),
     }
 
-    print(f"  3.0s Window → Val Acc={rec_3s['val_metrics']['accuracy']*100:.2f}%, Val F1={rec_3s['val_metrics']['macro_f1']:.4f}")
-    print(f"  5.0s Window → Val Acc={rec_5s['val_metrics']['accuracy']*100:.2f}%, Val F1={rec_5s['val_metrics']['macro_f1']:.4f}")
+    print(
+        f"  3.0s Window → Val Acc={rec_3s['val_metrics']['accuracy'] * 100:.2f}%, Val F1={rec_3s['val_metrics']['macro_f1']:.4f}"
+    )
+    print(
+        f"  5.0s Window → Val Acc={rec_5s['val_metrics']['accuracy'] * 100:.2f}%, Val F1={rec_5s['val_metrics']['macro_f1']:.4f}"
+    )
 
     return [rec_3s, rec_5s]
 
@@ -191,7 +212,7 @@ def run_phase_3(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
 
     configs = [
         ("bandpass_0_5_40Hz", 0.5, 40.0, False),
-        ("bandpass_4_38Hz",   4.0, 38.0, False),
+        ("bandpass_4_38Hz", 4.0, 38.0, False),
         ("bandpass_0_5_40_notch", 0.5, 40.0, True),
     ]
 
@@ -202,16 +223,20 @@ def run_phase_3(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
         set_seed(42)
         print(f"  Filtering {c_name} (l_freq={l_f}, h_freq={h_f}, notch={do_notch})...")
 
-        tr_p = mne.filter.filter_data(X_tr.copy().astype(np.float64), sfreq=sfreq, l_freq=l_f, h_freq=h_f, verbose=False)
-        v_p  = mne.filter.filter_data(X_v.copy().astype(np.float64),  sfreq=sfreq, l_freq=l_f, h_freq=h_f, verbose=False)
+        tr_p = mne.filter.filter_data(
+            X_tr.copy().astype(np.float64), sfreq=sfreq, l_freq=l_f, h_freq=h_f, verbose=False
+        )
+        v_p = mne.filter.filter_data(
+            X_v.copy().astype(np.float64), sfreq=sfreq, l_freq=l_f, h_freq=h_f, verbose=False
+        )
 
         if do_notch:
             tr_p = mne.filter.notch_filter(tr_p, sfreq, [50.0], verbose=False)
-            v_p  = mne.filter.notch_filter(v_p,  sfreq, [50.0], verbose=False)
+            v_p = mne.filter.notch_filter(v_p, sfreq, [50.0], verbose=False)
 
         # Baseline subtraction (zero mean per epoch)
         tr_p = (tr_p - np.mean(tr_p, axis=2, keepdims=True)).astype(np.float32)
-        v_p  = (v_p  - np.mean(v_p,  axis=2, keepdims=True)).astype(np.float32)
+        v_p = (v_p - np.mean(v_p, axis=2, keepdims=True)).astype(np.float32)
 
         model = DynamicCNN(64, [32, 64, 128], 15, 0.25, 2)
         opt = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
@@ -220,11 +245,11 @@ def run_phase_3(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
         ckpt_path = CKPT_DIR / f"prep_{c_name}_best.pt"
 
         tr_loader = DataLoader(EEGDataset(tr_p, y_tr), batch_size=32, shuffle=True)
-        v_loader  = DataLoader(EEGDataset(v_p,  y_v),  batch_size=32, shuffle=False)
+        v_loader = DataLoader(EEGDataset(v_p, y_v), batch_size=32, shuffle=False)
 
         t0 = time.time()
         trainer = Trainer(model, opt, crit, device, ckpt_path, scheduler=sched, patience=10)
-        history = trainer.fit(tr_loader, v_loader, epochs=25)
+        trainer.fit(tr_loader, v_loader, epochs=25)
         t_sec = round(time.time() - t0, 2)
 
         ckpt = torch.load(ckpt_path, map_location=device)
@@ -252,7 +277,9 @@ def run_phase_3(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
         }
         results.append(rec)
 
-        print(f"  {c_name:<20} → Val Acc={v_m['accuracy']*100:.2f}%, Val F1={v_m['macro_f1']:.4f}")
+        print(
+            f"  {c_name:<20} → Val Acc={v_m['accuracy'] * 100:.2f}%, Val F1={v_m['macro_f1']:.4f}"
+        )
 
     return results
 
@@ -269,14 +296,14 @@ def run_phase_4(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
     extractor = WaveletFeatureExtractor(wavelet="db4", level=4)
     t0 = time.time()
     W_tr = extractor.transform_dataset(X_tr)
-    W_v  = extractor.transform_dataset(X_v)
+    W_v = extractor.transform_dataset(X_v)
     t_feat = time.time() - t0
     print(f"  ✓ Wavelet feature matrix shape: {W_tr.shape} extracted in {t_feat:.2f}s")
 
     # Fit feature selection strictly on Training data
     selector = SelectKBest(score_func=f_classif, k=100)
     W_tr_sel = selector.fit_transform(W_tr, y_tr)
-    W_v_sel  = selector.transform(W_v)
+    W_v_sel = selector.transform(W_v)
 
     results = []
 
@@ -285,41 +312,49 @@ def run_phase_4(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
     lda.fit(W_tr_sel, y_tr)
     v_preds_lda = lda.predict(W_v_sel)
     v_m_lda = compute_metrics(y_v, v_preds_lda, class_names=CLASS_NAMES)
-    results.append({
-        "phase": "Phase 4: Wavelet Features",
-        "model_name": "Wavelet (DWT db4) + LDA",
-        "preprocessing": "DWT level-4 + ANOVA k=100 selection",
-        "epoch_duration_sec": 3.0,
-        "feature_type": "DWT Wavelet Sub-band Features",
-        "total_parameters": W_tr_sel.shape[1] + 1,
-        "best_epoch": 1,
-        "seed": 42,
-        "val_metrics": v_m_lda,
-        "train_time_sec": round(t_feat + 0.1, 2),
-        "checkpoint_path": "N/A (Scikit-Learn LDA)",
-    })
+    results.append(
+        {
+            "phase": "Phase 4: Wavelet Features",
+            "model_name": "Wavelet (DWT db4) + LDA",
+            "preprocessing": "DWT level-4 + ANOVA k=100 selection",
+            "epoch_duration_sec": 3.0,
+            "feature_type": "DWT Wavelet Sub-band Features",
+            "total_parameters": W_tr_sel.shape[1] + 1,
+            "best_epoch": 1,
+            "seed": 42,
+            "val_metrics": v_m_lda,
+            "train_time_sec": round(t_feat + 0.1, 2),
+            "checkpoint_path": "N/A (Scikit-Learn LDA)",
+        }
+    )
 
     # 2. Wavelet + SVM (RBF Kernel)
     svm = SVC(C=1.0, kernel="rbf", probability=True)
     svm.fit(W_tr_sel, y_tr)
     v_preds_svm = svm.predict(W_v_sel)
     v_m_svm = compute_metrics(y_v, v_preds_svm, class_names=CLASS_NAMES)
-    results.append({
-        "phase": "Phase 4: Wavelet Features",
-        "model_name": "Wavelet (DWT db4) + SVM (RBF)",
-        "preprocessing": "DWT level-4 + ANOVA k=100 selection",
-        "epoch_duration_sec": 3.0,
-        "feature_type": "DWT Wavelet Sub-band Features",
-        "total_parameters": len(svm.support_),
-        "best_epoch": 1,
-        "seed": 42,
-        "val_metrics": v_m_svm,
-        "train_time_sec": round(t_feat + 0.5, 2),
-        "checkpoint_path": "N/A (Scikit-Learn SVM)",
-    })
+    results.append(
+        {
+            "phase": "Phase 4: Wavelet Features",
+            "model_name": "Wavelet (DWT db4) + SVM (RBF)",
+            "preprocessing": "DWT level-4 + ANOVA k=100 selection",
+            "epoch_duration_sec": 3.0,
+            "feature_type": "DWT Wavelet Sub-band Features",
+            "total_parameters": len(svm.support_),
+            "best_epoch": 1,
+            "seed": 42,
+            "val_metrics": v_m_svm,
+            "train_time_sec": round(t_feat + 0.5, 2),
+            "checkpoint_path": "N/A (Scikit-Learn SVM)",
+        }
+    )
 
-    print(f"  Wavelet + LDA → Val Acc={v_m_lda['accuracy']*100:.2f}%, Val F1={v_m_lda['macro_f1']:.4f}")
-    print(f"  Wavelet + SVM → Val Acc={v_m_svm['accuracy']*100:.2f}%, Val F1={v_m_svm['macro_f1']:.4f}")
+    print(
+        f"  Wavelet + LDA → Val Acc={v_m_lda['accuracy'] * 100:.2f}%, Val F1={v_m_lda['macro_f1']:.4f}"
+    )
+    print(
+        f"  Wavelet + SVM → Val Acc={v_m_svm['accuracy'] * 100:.2f}%, Val F1={v_m_svm['macro_f1']:.4f}"
+    )
 
     return results
 
@@ -337,7 +372,7 @@ def run_phase_5(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
     riem_trans = RiemannianTangentSpaceTransformer(reg_eps=1e-5)
     riem_trans.fit(X_tr)
     R_tr = riem_trans.transform(X_tr)
-    R_v  = riem_trans.transform(X_v)
+    R_v = riem_trans.transform(X_v)
     t_feat = time.time() - t0
     print(f"  ✓ Tangent space feature shape: {R_tr.shape} fitted in {t_feat:.2f}s")
 
@@ -348,41 +383,49 @@ def run_phase_5(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
     lr.fit(R_tr, y_tr)
     v_preds_lr = lr.predict(R_v)
     v_m_lr = compute_metrics(y_v, v_preds_lr, class_names=CLASS_NAMES)
-    results.append({
-        "phase": "Phase 5: Riemannian Features",
-        "model_name": "Riemannian Tangent Space + Logistic Regression",
-        "preprocessing": "Log-Euclidean Tangent Space Covariance Mapping",
-        "epoch_duration_sec": 3.0,
-        "feature_type": "Riemannian Covariance Vectors",
-        "total_parameters": R_tr.shape[1] + 1,
-        "best_epoch": 1,
-        "seed": 42,
-        "val_metrics": v_m_lr,
-        "train_time_sec": round(t_feat + 0.2, 2),
-        "checkpoint_path": "N/A (Scikit-Learn LogReg)",
-    })
+    results.append(
+        {
+            "phase": "Phase 5: Riemannian Features",
+            "model_name": "Riemannian Tangent Space + Logistic Regression",
+            "preprocessing": "Log-Euclidean Tangent Space Covariance Mapping",
+            "epoch_duration_sec": 3.0,
+            "feature_type": "Riemannian Covariance Vectors",
+            "total_parameters": R_tr.shape[1] + 1,
+            "best_epoch": 1,
+            "seed": 42,
+            "val_metrics": v_m_lr,
+            "train_time_sec": round(t_feat + 0.2, 2),
+            "checkpoint_path": "N/A (Scikit-Learn LogReg)",
+        }
+    )
 
     # 2. Riemannian + LDA
     lda = LinearDiscriminantAnalysis()
     lda.fit(R_tr, y_tr)
     v_preds_lda = lda.predict(R_v)
     v_m_lda = compute_metrics(y_v, v_preds_lda, class_names=CLASS_NAMES)
-    results.append({
-        "phase": "Phase 5: Riemannian Features",
-        "model_name": "Riemannian Tangent Space + LDA",
-        "preprocessing": "Log-Euclidean Tangent Space Covariance Mapping",
-        "epoch_duration_sec": 3.0,
-        "feature_type": "Riemannian Covariance Vectors",
-        "total_parameters": R_tr.shape[1] + 1,
-        "best_epoch": 1,
-        "seed": 42,
-        "val_metrics": v_m_lda,
-        "train_time_sec": round(t_feat + 0.2, 2),
-        "checkpoint_path": "N/A (Scikit-Learn LDA)",
-    })
+    results.append(
+        {
+            "phase": "Phase 5: Riemannian Features",
+            "model_name": "Riemannian Tangent Space + LDA",
+            "preprocessing": "Log-Euclidean Tangent Space Covariance Mapping",
+            "epoch_duration_sec": 3.0,
+            "feature_type": "Riemannian Covariance Vectors",
+            "total_parameters": R_tr.shape[1] + 1,
+            "best_epoch": 1,
+            "seed": 42,
+            "val_metrics": v_m_lda,
+            "train_time_sec": round(t_feat + 0.2, 2),
+            "checkpoint_path": "N/A (Scikit-Learn LDA)",
+        }
+    )
 
-    print(f"  Riemannian + LogReg → Val Acc={v_m_lr['accuracy']*100:.2f}%, Val F1={v_m_lr['macro_f1']:.4f}")
-    print(f"  Riemannian + LDA    → Val Acc={v_m_lda['accuracy']*100:.2f}%, Val F1={v_m_lda['macro_f1']:.4f}")
+    print(
+        f"  Riemannian + LogReg → Val Acc={v_m_lr['accuracy'] * 100:.2f}%, Val F1={v_m_lr['macro_f1']:.4f}"
+    )
+    print(
+        f"  Riemannian + LDA    → Val Acc={v_m_lda['accuracy'] * 100:.2f}%, Val F1={v_m_lda['macro_f1']:.4f}"
+    )
 
     return results
 
@@ -396,7 +439,13 @@ def run_phase_6(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
     print("=" * 80)
 
     set_seed(42)
-    model = TemporalCNNLSTM(in_channels=64, sequence_length=X_tr.shape[2], num_sub_windows=5, hidden_dim=64, dropout=0.25)
+    model = TemporalCNNLSTM(
+        in_channels=64,
+        sequence_length=X_tr.shape[2],
+        num_sub_windows=5,
+        hidden_dim=64,
+        dropout=0.25,
+    )
     model.to(device)
 
     opt = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
@@ -405,11 +454,11 @@ def run_phase_6(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
     ckpt_path = CKPT_DIR / "temporal_cnn_lstm_best.pt"
 
     tr_loader = DataLoader(EEGDataset(X_tr, y_tr), batch_size=32, shuffle=True)
-    v_loader  = DataLoader(EEGDataset(X_v,  y_v),  batch_size=32, shuffle=False)
+    v_loader = DataLoader(EEGDataset(X_v, y_v), batch_size=32, shuffle=False)
 
     t0 = time.time()
     trainer = Trainer(model, opt, crit, device, ckpt_path, scheduler=sched, patience=10)
-    history = trainer.fit(tr_loader, v_loader, epochs=30)
+    trainer.fit(tr_loader, v_loader, epochs=30)
     t_sec = round(time.time() - t0, 2)
 
     ckpt = torch.load(ckpt_path, map_location=device)
@@ -436,7 +485,9 @@ def run_phase_6(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
         "checkpoint_path": str(ckpt_path.resolve()),
     }
 
-    print(f"  Temporal CNN-LSTM → Val Acc={v_m['accuracy']*100:.2f}%, Val F1={v_m['macro_f1']:.4f}")
+    print(
+        f"  Temporal CNN-LSTM → Val Acc={v_m['accuracy'] * 100:.2f}%, Val F1={v_m['macro_f1']:.4f}"
+    )
     return [rec]
 
 
@@ -459,7 +510,7 @@ def run_phase_7(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
     ckpt_real = CKPT_DIR / "real_only_cnn_best.pt"
 
     tr_loader = DataLoader(EEGDataset(X_tr, y_tr), batch_size=32, shuffle=True)
-    v_loader  = DataLoader(EEGDataset(X_v,  y_v),  batch_size=32, shuffle=False)
+    v_loader = DataLoader(EEGDataset(X_v, y_v), batch_size=32, shuffle=False)
 
     t0 = time.time()
     trainer = Trainer(m_real, opt, crit, device, ckpt_real, scheduler=sched, patience=10)
@@ -476,26 +527,28 @@ def run_phase_7(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
             v_preds_r.extend(torch.argmax(m_real(xb.to(device)), dim=1).cpu().numpy())
     v_m_real = compute_metrics(y_v, np.array(v_preds_r), class_names=CLASS_NAMES)
 
-    results.append({
-        "phase": "Phase 7: Augmentation",
-        "model_name": "Real-Only Training Baseline",
-        "preprocessing": "Standard Real Signals Only",
-        "epoch_duration_sec": 3.0,
-        "feature_type": "Raw EEG Tensor",
-        "total_parameters": sum(p.numel() for p in m_real.parameters()),
-        "best_epoch": int(ckpt_r.get("epoch", -1)),
-        "seed": 42,
-        "val_metrics": v_m_real,
-        "train_time_sec": t_real,
-        "checkpoint_path": str(ckpt_real.resolve()),
-    })
+    results.append(
+        {
+            "phase": "Phase 7: Augmentation",
+            "model_name": "Real-Only Training Baseline",
+            "preprocessing": "Standard Real Signals Only",
+            "epoch_duration_sec": 3.0,
+            "feature_type": "Raw EEG Tensor",
+            "total_parameters": sum(p.numel() for p in m_real.parameters()),
+            "best_epoch": int(ckpt_r.get("epoch", -1)),
+            "seed": 42,
+            "val_metrics": v_m_real,
+            "train_time_sec": t_real,
+            "checkpoint_path": str(ckpt_real.resolve()),
+        }
+    )
 
     # 2. Train WGAN-GP strictly on X_train (S001-S077)
     print("  Training WGAN-GP Synthetic Generator strictly on X_train (S001-S077)...")
     t0_gan = time.time()
     gen = EEGGenerator(latent_dim=64, num_channels=64, time_points=X_tr.shape[2])
     disc = EEGDiscriminator(num_channels=64, time_points=X_tr.shape[2])
-    
+
     X_tr_tensor = torch.tensor(X_tr, dtype=torch.float32)
     gen = train_wgan_gp(gen, disc, X_tr_tensor, device, epochs=10, batch_size=32)
     t_gan_train = time.time() - t0_gan
@@ -535,22 +588,28 @@ def run_phase_7(X_tr, y_tr, X_v, y_v, device) -> list[dict[str, Any]]:
             v_preds_g.extend(torch.argmax(m_gan(xb.to(device)), dim=1).cpu().numpy())
     v_m_gan = compute_metrics(y_v, np.array(v_preds_g), class_names=CLASS_NAMES)
 
-    results.append({
-        "phase": "Phase 7: Augmentation",
-        "model_name": "Real + WGAN-GP Synthetic Augmentation",
-        "preprocessing": "WGAN-GP 500 Synthetic Trials",
-        "epoch_duration_sec": 3.0,
-        "feature_type": "Real + Synthetic EEG Tensors",
-        "total_parameters": sum(p.numel() for p in m_gan.parameters()),
-        "best_epoch": int(ckpt_g.get("epoch", -1)),
-        "seed": 42,
-        "val_metrics": v_m_gan,
-        "train_time_sec": t_gan_eval,
-        "checkpoint_path": str(ckpt_gan.resolve()),
-    })
+    results.append(
+        {
+            "phase": "Phase 7: Augmentation",
+            "model_name": "Real + WGAN-GP Synthetic Augmentation",
+            "preprocessing": "WGAN-GP 500 Synthetic Trials",
+            "epoch_duration_sec": 3.0,
+            "feature_type": "Real + Synthetic EEG Tensors",
+            "total_parameters": sum(p.numel() for p in m_gan.parameters()),
+            "best_epoch": int(ckpt_g.get("epoch", -1)),
+            "seed": 42,
+            "val_metrics": v_m_gan,
+            "train_time_sec": t_gan_eval,
+            "checkpoint_path": str(ckpt_gan.resolve()),
+        }
+    )
 
-    print(f"  Real-Only Baseline      → Val Acc={v_m_real['accuracy']*100:.2f}%, Val F1={v_m_real['macro_f1']:.4f}")
-    print(f"  Real + WGAN-GP Synthetic → Val Acc={v_m_gan['accuracy']*100:.2f}%, Val F1={v_m_gan['macro_f1']:.4f}")
+    print(
+        f"  Real-Only Baseline      → Val Acc={v_m_real['accuracy'] * 100:.2f}%, Val F1={v_m_real['macro_f1']:.4f}"
+    )
+    print(
+        f"  Real + WGAN-GP Synthetic → Val Acc={v_m_gan['accuracy'] * 100:.2f}%, Val F1={v_m_gan['macro_f1']:.4f}"
+    )
 
     return results
 
@@ -571,7 +630,7 @@ def main() -> int:
     # Load dataset
     npz = np.load(DATA_NPZ)
     X_tr, y_tr = npz["X_train"], npz["y_train"]
-    X_v,  y_v  = npz["X_val"],   npz["y_val"]
+    X_v, y_v = npz["X_val"], npz["y_val"]
 
     # 1. Include Baseline Val-Weighted Ensemble Reference (83.02%)
     ref_rec = {
@@ -621,18 +680,20 @@ def main() -> int:
     summary_rows = []
     for rank, r in enumerate(all_recs, 1):
         vm = r["val_metrics"]
-        summary_rows.append({
-            "Rank": rank,
-            "Phase": r["phase"],
-            "Model Name": r["model_name"],
-            "Epoch Len": f"{r['epoch_duration_sec']}s",
-            "Params": r["total_parameters"],
-            "Val Acc (%)": round(vm["accuracy"] * 100, 2),
-            "Val Bal Acc (%)": round(vm["balanced_accuracy"] * 100, 2),
-            "Val Macro F1": round(vm["macro_f1"], 4),
-            "Val Kappa": round(vm.get("cohens_kappa", 0.0), 4),
-            "Train Time (s)": r["train_time_sec"],
-        })
+        summary_rows.append(
+            {
+                "Rank": rank,
+                "Phase": r["phase"],
+                "Model Name": r["model_name"],
+                "Epoch Len": f"{r['epoch_duration_sec']}s",
+                "Params": r["total_parameters"],
+                "Val Acc (%)": round(vm["accuracy"] * 100, 2),
+                "Val Bal Acc (%)": round(vm["balanced_accuracy"] * 100, 2),
+                "Val Macro F1": round(vm["macro_f1"], 4),
+                "Val Kappa": round(vm.get("cohens_kappa", 0.0), 4),
+                "Train Time (s)": r["train_time_sec"],
+            }
+        )
 
     df_summary = pd.DataFrame(summary_rows)
     df_summary.to_csv(OUT_DIR / "validation_results.csv", index=False)
@@ -646,16 +707,21 @@ def main() -> int:
     print("=" * 90 + "\n")
 
     winner = all_recs[0]
-    beats_ref = (winner["val_metrics"]["macro_f1"] > VAL_ENSEMBLE_REF_F1)
+    beats_ref = winner["val_metrics"]["macro_f1"] > VAL_ENSEMBLE_REF_F1
 
     # Generate Bar Chart Figure
     plt.figure(figsize=(10, 6))
     top10 = summary_rows[:10]
     names = [f"{r['Rank']}. {r['Model Name'][:28]}" for r in top10]
-    f1s   = [r["Val Macro F1"] for r in top10]
+    f1s = [r["Val Macro F1"] for r in top10]
     colors = ["#2ecc71" if r["Val Macro F1"] > VAL_ENSEMBLE_REF_F1 else "#3498db" for r in top10]
     plt.barh(names[::-1], f1s[::-1], color=colors[::-1])
-    plt.axvline(x=VAL_ENSEMBLE_REF_F1, color="red", linestyle="--", label=f"Val Ensemble Reference ({VAL_ENSEMBLE_REF_F1:.4f})")
+    plt.axvline(
+        x=VAL_ENSEMBLE_REF_F1,
+        color="red",
+        linestyle="--",
+        label=f"Val Ensemble Reference ({VAL_ENSEMBLE_REF_F1:.4f})",
+    )
     plt.xlabel("Validation Macro F1")
     plt.title("Paper Study Candidate Validation Models")
     plt.legend()
@@ -664,7 +730,7 @@ def main() -> int:
     plt.close()
 
     # Generate Markdown Ranking Table
-    md_ranking = f"""# Paper Study: Validation Model Rankings (S078–S093)
+    md_ranking = """# Paper Study: Validation Model Rankings (S078–S093)
 
 > **STRICT ZERO-LEAKAGE RULE**: Test subjects $S094-S109$ were **NEVER** loaded or evaluated.
 > Official final test score (**80.98%**, Commit `5d7458d`) remains permanently frozen.
@@ -686,7 +752,7 @@ def main() -> int:
 ## Executive Summary
 - **Reference Paper Result**: ~96.06% accuracy reported in literature using custom preprocessing, wavelet/riemannian features, and GAN augmentation.
 - **Our Official Frozen Benchmark**: **80.98% Test Accuracy** (Val-Weighted Ensemble of Tuned 1D-CNN + EEGNet) on unseen subjects $S094-S109$.
-- **Validation Winner in this Study**: **{winner['model_name']}** (Val Acc = **{winner['val_metrics']['accuracy']*100:.2f}%**, Val Macro F1 = **{winner['val_metrics']['macro_f1']:.4f}**).
+- **Validation Winner in this Study**: **{winner["model_name"]}** (Val Acc = **{winner["val_metrics"]["accuracy"] * 100:.2f}%**, Val Macro F1 = **{winner["val_metrics"]["macro_f1"]:.4f}**).
 - **Validation Outcome**: {"A new paper-inspired method improved validation performance over the reference ensemble!" if beats_ref else "The Val-Weighted Ensemble (Tuned CNN + EEGNet, 83.02% Val Acc) remains the top-performing model on validation."}
 
 ---
@@ -710,26 +776,26 @@ def main() -> int:
 
 1. **5.0-Second vs 3.0-Second Epoch Construction**:
    - 3.0-second pipeline: Val Acc = **83.02%**
-   - 5.0-second extended window pipeline: Val Acc = **{p2_recs[1]['val_metrics']['accuracy']*100:.2f}%**
+   - 5.0-second extended window pipeline: Val Acc = **{p2_recs[1]["val_metrics"]["accuracy"] * 100:.2f}%**
    - *Finding*: Extending window length via edge padding did not improve validation performance over the clean 3.0s trial window.
 
 2. **Wavelet Time-Frequency Features**:
-   - DWT `db4` + LDA: Val Acc = **{p4_recs[0]['val_metrics']['accuracy']*100:.2f}%**
-   - DWT `db4` + SVM: Val Acc = **{p4_recs[1]['val_metrics']['accuracy']*100:.2f}%**
+   - DWT `db4` + LDA: Val Acc = **{p4_recs[0]["val_metrics"]["accuracy"] * 100:.2f}%**
+   - DWT `db4` + SVM: Val Acc = **{p4_recs[1]["val_metrics"]["accuracy"] * 100:.2f}%**
    - *Finding*: Handcrafted wavelet features provide reasonable standalone accuracy but do not exceed deep spatial-temporal CNN feature representations.
 
 3. **Riemannian Geometry Covariance Features**:
-   - Log-Euclidean Tangent Space + LogReg: Val Acc = **{p5_recs[0]['val_metrics']['accuracy']*100:.2f}%**
-   - Log-Euclidean Tangent Space + LDA: Val Acc = **{p5_recs[1]['val_metrics']['accuracy']*100:.2f}%**
+   - Log-Euclidean Tangent Space + LogReg: Val Acc = **{p5_recs[0]["val_metrics"]["accuracy"] * 100:.2f}%**
+   - Log-Euclidean Tangent Space + LDA: Val Acc = **{p5_recs[1]["val_metrics"]["accuracy"] * 100:.2f}%**
    - *Finding*: Riemannian covariance mapping is highly efficient but sensitive to individual subject variance across disjoint subject splits.
 
 4. **True Temporal Sequence CNN-LSTM**:
-   - Sub-window temporal sequence modeling: Val Acc = **{p6_recs[0]['val_metrics']['accuracy']*100:.2f}%**
+   - Sub-window temporal sequence modeling: Val Acc = **{p6_recs[0]["val_metrics"]["accuracy"] * 100:.2f}%**
    - *Finding*: Over-parameterization of recurrent units leads to higher training fit without validation generalization gains on EEG trials.
 
 5. **WGAN-GP Synthetic Augmentation**:
-   - Real-Only SGD: Val Acc = **{p7_recs[0]['val_metrics']['accuracy']*100:.2f}%**
-   - Real + WGAN-GP Synthetic: Val Acc = **{p7_recs[1]['val_metrics']['accuracy']*100:.2f}%**
+   - Real-Only SGD: Val Acc = **{p7_recs[0]["val_metrics"]["accuracy"] * 100:.2f}%**
+   - Real + WGAN-GP Synthetic: Val Acc = **{p7_recs[1]["val_metrics"]["accuracy"] * 100:.2f}%**
    - *Finding*: Synthetic GAN trials help regularize simple classifiers, but safe real-signal batch augmentations (scaling, temporal shifts) perform superiorly without generator distribution drift.
 
 ---
@@ -742,7 +808,7 @@ Under strict subject-independent evaluation (zero subject overlap across partiti
 
     print(f"  ✓ Saved validation ranking → {OUT_DIR / 'validation_ranking.md'}")
     print(f"  ✓ Saved scientific report  → {OUT_DIR / 'paper_vs_our_protocol.md'}")
-    print(f"  ✓ CONFIRMED: 0 test set evaluations on S094-S109.")
+    print("  ✓ CONFIRMED: 0 test set evaluations on S094-S109.")
     print("=" * 90 + "\n")
     return 0
 

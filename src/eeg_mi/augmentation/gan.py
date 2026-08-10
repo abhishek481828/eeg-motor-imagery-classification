@@ -4,6 +4,9 @@ Trained strictly on training subjects to avoid data leakage.
 Includes synthetic sample validation (shape, amplitude, frequency comparison).
 """
 
+from collections.abc import Sized
+from typing import Any, cast
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -118,12 +121,13 @@ class ConditionalGANTrainer:
             loss_d_total += d_loss.item() * batch_size
             loss_g_total += g_loss.item() * batch_size
 
-        return loss_g_total / len(dataloader.dataset), loss_d_total / len(dataloader.dataset)
+        n_samples = len(cast(Sized, dataloader.dataset))
+        return loss_g_total / n_samples, loss_d_total / n_samples
 
 
 def validate_synthetic_samples(
     real_data: np.ndarray, synthetic_data: np.ndarray, sfreq: float = 160.0
-) -> dict[str, any]:
+) -> dict[str, Any]:
     """Validate synthetic EEG samples against real EEG samples.
 
     Checks shape consistency, peak-to-peak amplitude bounds,
