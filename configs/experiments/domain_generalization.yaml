@@ -1,0 +1,39 @@
+# Domain Generalization Experiment Configuration
+
+experiment_name: "domain_generalization_study"
+seeds: [42, 123, 2024]
+
+# Normalization Methods to Compare
+normalization_methods:
+  - "zscore"
+  - "robust"
+
+# Subject Invariance Loss Parameters
+domain_loss:
+  methods:
+    - "none"
+    - "coral"
+    - "mmd"
+  weights: [0.01, 0.05, 0.1]
+
+# Channel Selection Subsets to Compare
+channel_selection:
+  subsets:
+    - "all"
+    - "motor_cortex"
+    - "mutual_info"
+  k_channels: 32
+
+# Augmentations
+augmentation:
+  freq_mask_p: 0.2
+  time_mask_p: 0.2
+  channel_dropout_p: 0.1
+  scale_range: [0.9, 1.1]
+
+# Baseline Ensembles & Candidate Architectures
+models:
+  - "cnn"
+  - "eegnet"
+  - "multiscale_cnn"
+  - "temporal_attention"

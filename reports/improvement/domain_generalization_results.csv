@@ -1,0 +1,11 @@
+Rank,Model / Strategy,Val Acc Mean ± Sample Std (%),Val Macro F1 (Mean ± Sample Std),Cohen's Kappa,Listed Per-Seed Accuracies,Soft Voting Ensemble Acc (%),Soft Voting Ensemble Macro F1,Params,Seed Count
+1,Baseline Ensemble (45% CNN + 55% EEGNet),83.02% ± 0.00%,0.8302 ± 0.0000,0.6603,83.02%,83.02%,0.8302,191700,1
+2,Option E: Domain-Generalization Full Combo (Robust+CORAL+Aug),79.52% ± 0.32%,0.7946 ± 0.0034,0.5906,"79.21%, 79.52%, 79.84%",79.21%,0.7916,189090,3
+3,Option A: Per-Channel Z-Score Normalization,79.26% ± 0.80%,0.7926 ± 0.0080,0.5852,"80.00%, 78.41%, 79.37%",80.00%,0.8000,189090,3
+4,Option D: Mutual-Information Channel Subset (32ch),78.94% ± 0.24%,0.7894 ± 0.0024,0.5789,"79.21%, 78.89%, 78.73%",80.32%,0.8032,173730,3
+5,Option C: Frequency-Band & Time Masking Aug,78.99% ± 0.37%,0.7893 ± 0.0036,0.5799,"79.21%, 79.21%, 78.57%",81.11%,0.8111,189090,3
+6,Option B: CORAL Loss (weight=0.05),78.84% ± 0.72%,0.7877 ± 0.0079,0.5768,"78.89%, 78.10%, 79.52%",79.52%,0.7946,189090,3
+7,Base 1D-CNN (Raw 64ch),78.68% ± 0.48%,0.7863 ± 0.0051,0.5736,"78.57%, 79.21%, 78.25%",80.16%,0.8015,189090,3
+8,Option A: Subject-Robust IQR Scaler,78.62% ± 0.64%,0.7858 ± 0.0068,0.5725,"78.73%, 79.21%, 77.94%",79.37%,0.7936,189090,3
+9,Option B: MMD Loss (weight=0.05),78.15% ± 0.78%,0.7806 ± 0.0079,0.5629,"77.62%, 79.05%, 77.78%",79.37%,0.7936,189090,3
+10,Option D: Motor-Cortex Channel Subset (21ch),67.67% ± 0.24%,0.6750 ± 0.0042,0.3532,"67.46%, 67.62%, 67.94%",68.10%,0.6798,168450,3

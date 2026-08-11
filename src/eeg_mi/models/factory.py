@@ -65,6 +65,30 @@ def create_model(
             num_classes=num_classes,
             **kwargs,
         )
+    elif model_type_clean == "multiscale_cnn":
+        from eeg_mi.models.multiscale_cnn import MultiScaleCNN
+
+        model = MultiScaleCNN(
+            in_channels=num_channels,
+            num_classes=num_classes,
+            **kwargs,
+        )
+    elif model_type_clean == "temporal_attention":
+        from eeg_mi.models.temporal_attention import TemporalAttentionCNN
+
+        model = TemporalAttentionCNN(
+            in_channels=num_channels,
+            num_classes=num_classes,
+            **kwargs,
+        )
+    elif model_type_clean == "riemannian_fusion":
+        from eeg_mi.models.riemannian_fusion import CNNRiemannianFusionModel
+
+        model = CNNRiemannianFusionModel(
+            in_channels=num_channels,
+            num_classes=num_classes,
+            **kwargs,
+        )
     else:
         raise ValueError(f"Unknown model_type: {model_type}")
 

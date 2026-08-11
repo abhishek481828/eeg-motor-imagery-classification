@@ -9,8 +9,11 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+# Coverage
+coverage.xml
 .coverage
 htmlcov/
+scratch/
 .build/
 dist/
 build/

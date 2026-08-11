@@ -1,0 +1,608 @@
+[
+  {
+    "config_name": "Baseline Ensemble (45% CNN + 55% EEGNet)",
+    "norm_mode": "raw",
+    "channel_mode": "all",
+    "domain_loss_type": "none",
+    "domain_loss_weight": 0.0,
+    "use_augmentation": false,
+    "seeds": [
+      42
+    ],
+    "num_seeds": 1,
+    "params": 191700,
+    "val_acc_mean": 0.8302,
+    "val_acc_sample_std": 0.0,
+    "val_f1_mean": 0.8302,
+    "val_f1_sample_std": 0.0,
+    "kappa_mean": 0.6603,
+    "per_seed_accs": [
+      0.8302
+    ],
+    "per_seed_f1s": [
+      0.8302
+    ],
+    "seed_avg_metrics": {
+      "accuracy": 0.8301587301587302,
+      "macro_f1": 0.8301548787954376,
+      "cohens_kappa": 0.6603311531911034
+    },
+    "train_time_total": 0.2
+  },
+  {
+    "config_name": "Option E: Domain-Generalization Full Combo (Robust+CORAL+Aug)",
+    "norm_mode": "robust",
+    "channel_mode": "all",
+    "domain_loss_type": "coral",
+    "domain_loss_weight": 0.05,
+    "use_augmentation": true,
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "num_seeds": 3,
+    "params": 189090,
+    "val_acc_mean": 0.7952,
+    "val_acc_sample_std": 0.0032,
+    "val_f1_mean": 0.7946,
+    "val_f1_sample_std": 0.0034,
+    "kappa_mean": 0.5906,
+    "per_seed_accs": [
+      0.7921,
+      0.7952,
+      0.7984
+    ],
+    "per_seed_f1s": [
+      0.7913,
+      0.7944,
+      0.798
+    ],
+    "seed_avg_metrics": {
+      "accuracy": 0.792063492063492,
+      "balanced_accuracy": 0.7922276868499556,
+      "cohens_kappa": 0.5842610596733732,
+      "macro_precision": 0.795271942240914,
+      "macro_recall": 0.7922276868499556,
+      "macro_f1": 0.7915588007243539,
+      "weighted_precision": 0.7953722063089584,
+      "weighted_recall": 0.792063492063492,
+      "weighted_f1": 0.7915262399927966,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8268551236749117,
+          "recall": 0.740506329113924,
+          "f1_score": 0.7813021702838063
+        },
+        "Right Fist": {
+          "precision": 0.7636887608069164,
+          "recall": 0.8439490445859873,
+          "f1_score": 0.8018154311649016
+        }
+      },
+      "confusion_matrix": [
+        [
+          234,
+          82
+        ],
+        [
+          49,
+          265
+        ]
+      ]
+    },
+    "train_time_total": 1011.1
+  },
+  {
+    "config_name": "Option A: Per-Channel Z-Score Normalization",
+    "norm_mode": "zscore",
+    "channel_mode": "all",
+    "domain_loss_type": "none",
+    "domain_loss_weight": 0.0,
+    "use_augmentation": false,
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "num_seeds": 3,
+    "params": 189090,
+    "val_acc_mean": 0.7926,
+    "val_acc_sample_std": 0.008,
+    "val_f1_mean": 0.7926,
+    "val_f1_sample_std": 0.008,
+    "kappa_mean": 0.5852,
+    "per_seed_accs": [
+      0.8,
+      0.7841,
+      0.7937
+    ],
+    "per_seed_f1s": [
+      0.8,
+      0.7841,
+      0.7936
+    ],
+    "seed_avg_metrics": {
+      "accuracy": 0.8,
+      "balanced_accuracy": 0.8000382971861646,
+      "cohens_kappa": 0.600028216704289,
+      "macro_precision": 0.8001835121400338,
+      "macro_recall": 0.8000382971861646,
+      "macro_f1": 0.7999818577648767,
+      "weighted_precision": 0.8002097281600387,
+      "weighted_recall": 0.8,
+      "weighted_f1": 0.7999758103531689,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8084415584415584,
+          "recall": 0.7879746835443038,
+          "f1_score": 0.7980769230769231
+        },
+        "Right Fist": {
+          "precision": 0.7919254658385093,
+          "recall": 0.8121019108280255,
+          "f1_score": 0.8018867924528302
+        }
+      },
+      "confusion_matrix": [
+        [
+          249,
+          67
+        ],
+        [
+          59,
+          255
+        ]
+      ]
+    },
+    "train_time_total": 343.25
+  },
+  {
+    "config_name": "Option D: Mutual-Information Channel Subset (32ch)",
+    "norm_mode": "zscore",
+    "channel_mode": "mutual_info",
+    "domain_loss_type": "none",
+    "domain_loss_weight": 0.0,
+    "use_augmentation": false,
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "num_seeds": 3,
+    "params": 173730,
+    "val_acc_mean": 0.7894,
+    "val_acc_sample_std": 0.0024,
+    "val_f1_mean": 0.7894,
+    "val_f1_sample_std": 0.0024,
+    "kappa_mean": 0.5789,
+    "per_seed_accs": [
+      0.7921,
+      0.7889,
+      0.7873
+    ],
+    "per_seed_f1s": [
+      0.7919,
+      0.7889,
+      0.7873
+    ],
+    "seed_avg_metrics": {
+      "accuracy": 0.8031746031746032,
+      "balanced_accuracy": 0.8031927759413046,
+      "cohens_kappa": 0.6063611077518443,
+      "macro_precision": 0.8032172230285438,
+      "macro_recall": 0.8031927759413046,
+      "macro_f1": 0.8031726195275337,
+      "weighted_precision": 0.803231429646524,
+      "weighted_recall": 0.8031746031746032,
+      "weighted_f1": 0.8031706358804641,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8076923076923077,
+          "recall": 0.7974683544303798,
+          "f1_score": 0.802547770700637
+        },
+        "Right Fist": {
+          "precision": 0.7987421383647799,
+          "recall": 0.8089171974522293,
+          "f1_score": 0.8037974683544303
+        }
+      },
+      "confusion_matrix": [
+        [
+          252,
+          64
+        ],
+        [
+          60,
+          254
+        ]
+      ]
+    },
+    "train_time_total": 304.82
+  },
+  {
+    "config_name": "Option C: Frequency-Band & Time Masking Aug",
+    "norm_mode": "zscore",
+    "channel_mode": "all",
+    "domain_loss_type": "none",
+    "domain_loss_weight": 0.0,
+    "use_augmentation": true,
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "num_seeds": 3,
+    "params": 189090,
+    "val_acc_mean": 0.7899,
+    "val_acc_sample_std": 0.0037,
+    "val_f1_mean": 0.7893,
+    "val_f1_sample_std": 0.0036,
+    "kappa_mean": 0.5799,
+    "per_seed_accs": [
+      0.7921,
+      0.7921,
+      0.7857
+    ],
+    "per_seed_f1s": [
+      0.7907,
+      0.792,
+      0.7852
+    ],
+    "seed_avg_metrics": {
+      "accuracy": 0.8111111111111111,
+      "balanced_accuracy": 0.8111747157945659,
+      "cohens_kappa": 0.6222679041083468,
+      "macro_precision": 0.8116238229327519,
+      "macro_recall": 0.8111747157945659,
+      "macro_f1": 0.8110535083761994,
+      "weighted_precision": 0.8116665489178887,
+      "weighted_recall": 0.8111111111111111,
+      "weighted_f1": 0.81104303515167,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8250825082508251,
+          "recall": 0.7911392405063291,
+          "f1_score": 0.8077544426494345
+        },
+        "Right Fist": {
+          "precision": 0.7981651376146789,
+          "recall": 0.8312101910828026,
+          "f1_score": 0.8143525741029641
+        }
+      },
+      "confusion_matrix": [
+        [
+          250,
+          66
+        ],
+        [
+          53,
+          261
+        ]
+      ]
+    },
+    "train_time_total": 374.46
+  },
+  {
+    "config_name": "Option B: CORAL Loss (weight=0.05)",
+    "norm_mode": "zscore",
+    "channel_mode": "all",
+    "domain_loss_type": "coral",
+    "domain_loss_weight": 0.05,
+    "use_augmentation": false,
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "num_seeds": 3,
+    "params": 189090,
+    "val_acc_mean": 0.7884,
+    "val_acc_sample_std": 0.0072,
+    "val_f1_mean": 0.7877,
+    "val_f1_sample_std": 0.0079,
+    "kappa_mean": 0.5768,
+    "per_seed_accs": [
+      0.7889,
+      0.781,
+      0.7952
+    ],
+    "per_seed_f1s": [
+      0.7886,
+      0.7794,
+      0.7951
+    ],
+    "seed_avg_metrics": {
+      "accuracy": 0.7952380952380952,
+      "balanced_accuracy": 0.7954224784326374,
+      "cohens_kappa": 0.5906247166560885,
+      "macro_precision": 0.7993291057807187,
+      "macro_recall": 0.7954224784326374,
+      "macro_f1": 0.7946041574524547,
+      "weighted_precision": 0.7994427449624583,
+      "weighted_recall": 0.7952380952380952,
+      "weighted_f1": 0.7945679324361323,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8351254480286738,
+          "recall": 0.7373417721518988,
+          "f1_score": 0.7831932773109244
+        },
+        "Right Fist": {
+          "precision": 0.7635327635327636,
+          "recall": 0.8535031847133758,
+          "f1_score": 0.806015037593985
+        }
+      },
+      "confusion_matrix": [
+        [
+          233,
+          83
+        ],
+        [
+          46,
+          268
+        ]
+      ]
+    },
+    "train_time_total": 1041.85
+  },
+  {
+    "config_name": "Base 1D-CNN (Raw 64ch)",
+    "norm_mode": "none",
+    "channel_mode": "all",
+    "domain_loss_type": "none",
+    "domain_loss_weight": 0.0,
+    "use_augmentation": false,
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "num_seeds": 3,
+    "params": 189090,
+    "val_acc_mean": 0.7868,
+    "val_acc_sample_std": 0.0048,
+    "val_f1_mean": 0.7863,
+    "val_f1_sample_std": 0.0051,
+    "kappa_mean": 0.5736,
+    "per_seed_accs": [
+      0.7857,
+      0.7921,
+      0.7825
+    ],
+    "per_seed_f1s": [
+      0.7847,
+      0.792,
+      0.7823
+    ],
+    "seed_avg_metrics": {
+      "accuracy": 0.8015873015873016,
+      "balanced_accuracy": 0.8016407320809482,
+      "cohens_kappa": 0.6032145916259384,
+      "macro_precision": 0.8019419924337957,
+      "macro_recall": 0.8016407320809482,
+      "macro_f1": 0.8015468009344311,
+      "weighted_precision": 0.8019774615184451,
+      "weighted_recall": 0.8015873015873016,
+      "weighted_f1": 0.8015378007893487,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.8131147540983606,
+          "recall": 0.7848101265822784,
+          "f1_score": 0.7987117552334944
+        },
+        "Right Fist": {
+          "precision": 0.7907692307692308,
+          "recall": 0.8184713375796179,
+          "f1_score": 0.8043818466353677
+        }
+      },
+      "confusion_matrix": [
+        [
+          248,
+          68
+        ],
+        [
+          57,
+          257
+        ]
+      ]
+    },
+    "train_time_total": 337.27
+  },
+  {
+    "config_name": "Option A: Subject-Robust IQR Scaler",
+    "norm_mode": "robust",
+    "channel_mode": "all",
+    "domain_loss_type": "none",
+    "domain_loss_weight": 0.0,
+    "use_augmentation": false,
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "num_seeds": 3,
+    "params": 189090,
+    "val_acc_mean": 0.7862,
+    "val_acc_sample_std": 0.0064,
+    "val_f1_mean": 0.7858,
+    "val_f1_sample_std": 0.0068,
+    "kappa_mean": 0.5725,
+    "per_seed_accs": [
+      0.7873,
+      0.7921,
+      0.7794
+    ],
+    "per_seed_f1s": [
+      0.7867,
+      0.7921,
+      0.7785
+    ],
+    "seed_avg_metrics": {
+      "accuracy": 0.7936507936507936,
+      "balanced_accuracy": 0.7936487140208015,
+      "cohens_kappa": 0.5872974280416028,
+      "macro_precision": 0.7936487140208015,
+      "macro_recall": 0.7936487140208015,
+      "macro_f1": 0.7936487140208015,
+      "weighted_precision": 0.7936507936507936,
+      "weighted_recall": 0.7936507936507936,
+      "weighted_f1": 0.7936507936507936,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.7943037974683544,
+          "recall": 0.7943037974683544,
+          "f1_score": 0.7943037974683544
+        },
+        "Right Fist": {
+          "precision": 0.7929936305732485,
+          "recall": 0.7929936305732485,
+          "f1_score": 0.7929936305732485
+        }
+      },
+      "confusion_matrix": [
+        [
+          251,
+          65
+        ],
+        [
+          65,
+          249
+        ]
+      ]
+    },
+    "train_time_total": 337.88
+  },
+  {
+    "config_name": "Option B: MMD Loss (weight=0.05)",
+    "norm_mode": "zscore",
+    "channel_mode": "all",
+    "domain_loss_type": "mmd",
+    "domain_loss_weight": 0.05,
+    "use_augmentation": false,
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "num_seeds": 3,
+    "params": 189090,
+    "val_acc_mean": 0.7815,
+    "val_acc_sample_std": 0.0078,
+    "val_f1_mean": 0.7806,
+    "val_f1_sample_std": 0.0079,
+    "kappa_mean": 0.5629,
+    "per_seed_accs": [
+      0.7762,
+      0.7905,
+      0.7778
+    ],
+    "per_seed_f1s": [
+      0.7747,
+      0.7896,
+      0.7776
+    ],
+    "seed_avg_metrics": {
+      "accuracy": 0.7936507936507936,
+      "balanced_accuracy": 0.7936184794001451,
+      "cohens_kappa": 0.5872724707210385,
+      "macro_precision": 0.7937605872388481,
+      "macro_recall": 0.7936184794001451,
+      "macro_f1": 0.7936175145400115,
+      "weighted_precision": 0.7937449024405546,
+      "weighted_recall": 0.7936507936507936,
+      "weighted_f1": 0.7936258343177071,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.7888198757763976,
+          "recall": 0.8037974683544303,
+          "f1_score": 0.7962382445141066
+        },
+        "Right Fist": {
+          "precision": 0.7987012987012987,
+          "recall": 0.7834394904458599,
+          "f1_score": 0.7909967845659164
+        }
+      },
+      "confusion_matrix": [
+        [
+          254,
+          62
+        ],
+        [
+          68,
+          246
+        ]
+      ]
+    },
+    "train_time_total": 723.49
+  },
+  {
+    "config_name": "Option D: Motor-Cortex Channel Subset (21ch)",
+    "norm_mode": "zscore",
+    "channel_mode": "motor_cortex",
+    "domain_loss_type": "none",
+    "domain_loss_weight": 0.0,
+    "use_augmentation": false,
+    "seeds": [
+      42,
+      123,
+      2024
+    ],
+    "num_seeds": 3,
+    "params": 168450,
+    "val_acc_mean": 0.6767,
+    "val_acc_sample_std": 0.0024,
+    "val_f1_mean": 0.675,
+    "val_f1_sample_std": 0.0042,
+    "kappa_mean": 0.3532,
+    "per_seed_accs": [
+      0.6746,
+      0.6762,
+      0.6794
+    ],
+    "per_seed_f1s": [
+      0.6709,
+      0.6749,
+      0.6793
+    ],
+    "seed_avg_metrics": {
+      "accuracy": 0.680952380952381,
+      "balanced_accuracy": 0.6807727969039749,
+      "cohens_kappa": 0.3616731694038654,
+      "macro_precision": 0.6831633121955702,
+      "macro_recall": 0.6807727969039749,
+      "macro_f1": 0.6798481029299852,
+      "weighted_precision": 0.6831018974388149,
+      "weighted_recall": 0.680952380952381,
+      "weighted_f1": 0.6799077936338985,
+      "per_class": {
+        "Left Fist": {
+          "precision": 0.6638176638176638,
+          "recall": 0.7373417721518988,
+          "f1_score": 0.6986506746626686
+        },
+        "Right Fist": {
+          "precision": 0.7025089605734767,
+          "recall": 0.6242038216560509,
+          "f1_score": 0.6610455311973018
+        }
+      },
+      "confusion_matrix": [
+        [
+          233,
+          83
+        ],
+        [
+          118,
+          196
+        ]
+      ]
+    },
+    "train_time_total": 309.78
+  }
+]
