@@ -1,8 +1,8 @@
 # PhysioNet EEGMMIDB v1.0.0 — Annotation & Data-Quality Audit Report
 
-> **Generated:** 2026-08-20T06:48:20.173017+00:00  
+> **Generated:** 2026-08-20T07:16:38.297997+00:00  
 
-> **Audit runtime:** 12.9 seconds  
+> **Audit runtime:** 13.2 seconds  
 
 > **Status of official test result:** UNCHANGED — 80.98% test accuracy on S094–S109 is the frozen baseline.  This audit does NOT evaluate any model.
 

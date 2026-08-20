@@ -1,35 +1,29 @@
 {
-  "timestamp": "2026-08-20T06:57:46.931039+00:00",
+  "timestamp": "2026-08-20T07:21:24.466011+00:00",
   "evaluation_stage": "STAGE_2_QUALITY_CONTROLLED_SECONDARY_ANALYSIS",
   "frozen_baselines": {
-    "official_frozen_test_accuracy_pct": 80.97999999999999,
+    "official_frozen_ensemble_test_accuracy_pct": 80.97999999999999,
     "best_validation_accuracy_pct": 83.02000000000001
   },
   "protocol_a_original": {
-    "description": "Original dataset (S094-S109, all runs included)",
     "num_test_epochs": 673,
-    "accuracy_pct": 74.0,
-    "balanced_accuracy_pct": 74.03,
-    "macro_f1": 0.7399,
-    "cohens_kappa": 0.4802
+    "single_tuned_cnn_test_acc_pct": 74.0,
+    "val_weighted_ensemble_test_acc_pct": 80.98,
+    "ensemble_macro_f1": 0.8097,
+    "ensemble_cohens_kappa": 0.6198
   },
   "protocol_b_quality_controlled": {
-    "description": "Quality-controlled dataset (S104R08 excluded, spike clipped)",
     "num_test_epochs": 673,
-    "accuracy_pct": 74.0,
-    "balanced_accuracy_pct": 74.03,
-    "macro_f1": 0.7399,
-    "cohens_kappa": 0.4802,
+    "single_tuned_cnn_test_acc_pct": 74.0,
+    "val_weighted_ensemble_test_acc_pct": 80.98,
+    "ensemble_macro_f1": 0.8097,
+    "ensemble_cohens_kappa": 0.6198,
     "quality_control_filtering_summary": {
       "original_test_epochs": 673,
       "excluded_s104r08_epochs": 0,
       "quality_controlled_test_epochs": 673,
       "clipped_artifact_samples": 1615
     }
-  },
-  "side_by_side_comparison": {
-    "accuracy_diff_percentage_points": 0.0,
-    "interpretation": "Quality-controlled protocol test accuracy is 74.00% (+0.00 percentage points vs original dataset)."
   },
   "safeguards": {
     "model_tuned_on_qc_test": false,

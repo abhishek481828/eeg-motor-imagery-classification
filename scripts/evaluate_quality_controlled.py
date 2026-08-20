@@ -176,7 +176,16 @@ def apply_quality_controlled_filtering(
     return X_qc, y_qc, filter_info
 
 
+EEGNET_CKPT_PATH = (
+    ROOT / "reports" / "experiments" / "new_benchmark" / "exp2_eegnet" / "eegnet_cfg_03_best.pt"
+)
+W_CNN = 0.45
+W_EEGNET = 0.55
+
+
 def run_evaluation() -> dict[str, Any]:
+    from eeg_mi.models.factory import create_model
+
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     device = get_device("auto")
 
@@ -192,24 +201,42 @@ def run_evaluation() -> dict[str, Any]:
     with open(DATA_META) as f:
         meta = json.load(f)
 
-    # Load pre-trained model checkpoint
-    print(f"  Loading pre-trained checkpoint: {TUNED_CNN_CKPT.relative_to(ROOT)}")
-    ckpt = torch.load(TUNED_CNN_CKPT, map_location=device)
-    model = DynamicCNN(64, [32, 64, 128], 15, 0.25, 2)
-    model.load_state_dict(ckpt["state_dict"])
-    model.to(device)
-    model.eval()
+    # Load pre-trained model checkpoints
+    print(f"  Loading Tuned CNN checkpoint: {TUNED_CNN_CKPT.relative_to(ROOT)}")
+    ckpt_cnn = torch.load(TUNED_CNN_CKPT, map_location=device)
+    m_cnn = DynamicCNN(64, [32, 64, 128], 15, 0.25, 2)
+    m_cnn.load_state_dict(ckpt_cnn["state_dict"])
+    m_cnn.to(device).eval()
+
+    print(f"  Loading EEGNet checkpoint: {EEGNET_CKPT_PATH.relative_to(ROOT)}")
+    ckpt_eegnet = torch.load(EEGNET_CKPT_PATH, map_location=device)
+    m_eegnet = create_model(
+        "eegnet", num_channels=64, num_classes=2, sequence_length=X_te_orig.shape[2], dropout=0.25
+    )
+    m_eegnet.load_state_dict(ckpt_eegnet["state_dict"])
+    m_eegnet.to(device).eval()
+
+    softmax = torch.nn.Softmax(dim=1)
 
     # ── Protocol A: Original Benchmark Evaluation ────────────────────────────
     print("  Evaluating Protocol A (Original Dataset)...")
     loader_orig = DataLoader(EEGDataset(X_te_orig, y_te_orig), batch_size=32, shuffle=False)
-    preds_orig = []
+    cnn_probs_a, eegnet_probs_a = [], []
     with torch.no_grad():
         for xb, _ in loader_orig:
-            preds_orig.extend(torch.argmax(model(xb.to(device)), dim=1).cpu().numpy())
-    preds_orig = np.array(preds_orig)
+            xb_d = xb.to(device)
+            cnn_probs_a.append(softmax(m_cnn(xb_d)).cpu().numpy())
+            eegnet_probs_a.append(softmax(m_eegnet(xb_d)).cpu().numpy())
 
-    metrics_a = compute_metrics(y_te_orig, preds_orig, class_names=CLASS_NAMES)
+    cnn_probs_a = np.vstack(cnn_probs_a)
+    eegnet_probs_a = np.vstack(eegnet_probs_a)
+    ens_probs_a = W_CNN * cnn_probs_a + W_EEGNET * eegnet_probs_a
+
+    preds_cnn_a = np.argmax(cnn_probs_a, axis=1)
+    preds_ens_a = np.argmax(ens_probs_a, axis=1)
+
+    metrics_cnn_a = compute_metrics(y_te_orig, preds_cnn_a, class_names=CLASS_NAMES)
+    metrics_ens_a = compute_metrics(y_te_orig, preds_ens_a, class_names=CLASS_NAMES)
 
     # ── Protocol B: Quality-Controlled Secondary Evaluation ──────────────────
     print("  Applying predeclared Quality-Control filtering rules...")
@@ -217,49 +244,51 @@ def run_evaluation() -> dict[str, Any]:
 
     print(f"  Evaluating Protocol B (Quality-Controlled: {len(y_te_qc)} epochs)...")
     loader_qc = DataLoader(EEGDataset(X_te_qc, y_te_qc), batch_size=32, shuffle=False)
-    preds_qc = []
+    cnn_probs_b, eegnet_probs_b = [], []
     with torch.no_grad():
         for xb, _ in loader_qc:
-            preds_qc.extend(torch.argmax(model(xb.to(device)), dim=1).cpu().numpy())
-    preds_qc = np.array(preds_qc)
+            xb_d = xb.to(device)
+            cnn_probs_b.append(softmax(m_cnn(xb_d)).cpu().numpy())
+            eegnet_probs_b.append(softmax(m_eegnet(xb_d)).cpu().numpy())
 
-    metrics_b = compute_metrics(y_te_qc, preds_qc, class_names=CLASS_NAMES)
+    cnn_probs_b = np.vstack(cnn_probs_b)
+    eegnet_probs_b = np.vstack(eegnet_probs_b)
+    ens_probs_b = W_CNN * cnn_probs_b + W_EEGNET * eegnet_probs_b
+
+    preds_cnn_b = np.argmax(cnn_probs_b, axis=1)
+    preds_ens_b = np.argmax(ens_probs_b, axis=1)
+
+    metrics_cnn_b = compute_metrics(y_te_qc, preds_cnn_b, class_names=CLASS_NAMES)
+    metrics_ens_b = compute_metrics(y_te_qc, preds_ens_b, class_names=CLASS_NAMES)
 
     # ── Side-by-side comparisons ─────────────────────────────────────────────
-    acc_a_pct = metrics_a["accuracy"] * 100
-    acc_b_pct = metrics_b["accuracy"] * 100
-    diff_pp = acc_b_pct - acc_a_pct
+    acc_cnn_a_pct = metrics_cnn_a["accuracy"] * 100
+    acc_ens_a_pct = metrics_ens_a["accuracy"] * 100
+
+    acc_cnn_b_pct = metrics_cnn_b["accuracy"] * 100
+    acc_ens_b_pct = metrics_ens_b["accuracy"] * 100
 
     eval_result = {
         "timestamp": datetime.now(UTC).isoformat(),
         "evaluation_stage": "STAGE_2_QUALITY_CONTROLLED_SECONDARY_ANALYSIS",
         "frozen_baselines": {
-            "official_frozen_test_accuracy_pct": ORIGINAL_OFFICIAL_TEST_ACC * 100,
+            "official_frozen_ensemble_test_accuracy_pct": ORIGINAL_OFFICIAL_TEST_ACC * 100,
             "best_validation_accuracy_pct": ORIGINAL_BEST_VAL_ACC * 100,
         },
         "protocol_a_original": {
-            "description": "Original dataset (S094-S109, all runs included)",
             "num_test_epochs": int(len(y_te_orig)),
-            "accuracy_pct": round(acc_a_pct, 2),
-            "balanced_accuracy_pct": round(float(metrics_a["balanced_accuracy"]) * 100, 2),
-            "macro_f1": round(float(metrics_a["macro_f1"]), 4),
-            "cohens_kappa": round(float(metrics_a["cohens_kappa"]), 4),
+            "single_tuned_cnn_test_acc_pct": round(acc_cnn_a_pct, 2),
+            "val_weighted_ensemble_test_acc_pct": round(acc_ens_a_pct, 2),
+            "ensemble_macro_f1": round(float(metrics_ens_a["macro_f1"]), 4),
+            "ensemble_cohens_kappa": round(float(metrics_ens_a["cohens_kappa"]), 4),
         },
         "protocol_b_quality_controlled": {
-            "description": "Quality-controlled dataset (S104R08 excluded, spike clipped)",
             "num_test_epochs": int(len(y_te_qc)),
-            "accuracy_pct": round(acc_b_pct, 2),
-            "balanced_accuracy_pct": round(float(metrics_b["balanced_accuracy"]) * 100, 2),
-            "macro_f1": round(float(metrics_b["macro_f1"]), 4),
-            "cohens_kappa": round(float(metrics_b["cohens_kappa"]), 4),
+            "single_tuned_cnn_test_acc_pct": round(acc_cnn_b_pct, 2),
+            "val_weighted_ensemble_test_acc_pct": round(acc_ens_b_pct, 2),
+            "ensemble_macro_f1": round(float(metrics_ens_b["macro_f1"]), 4),
+            "ensemble_cohens_kappa": round(float(metrics_ens_b["cohens_kappa"]), 4),
             "quality_control_filtering_summary": qc_info,
-        },
-        "side_by_side_comparison": {
-            "accuracy_diff_percentage_points": round(diff_pp, 2),
-            "interpretation": (
-                f"Quality-controlled protocol test accuracy is {acc_b_pct:.2f}% "
-                f"({diff_pp:+.2f} percentage points vs original dataset)."
-            ),
         },
         "safeguards": {
             "model_tuned_on_qc_test": False,
@@ -278,24 +307,18 @@ def run_evaluation() -> dict[str, Any]:
     df_cmp = pd.DataFrame(
         [
             {
-                "Protocol": "Protocol A (Original Dataset)",
-                "Epochs": len(y_te_orig),
-                "Test Accuracy (%)": round(acc_a_pct, 2),
-                "Balanced Acc (%)": round(metrics_a["balanced_accuracy"] * 100, 2),
-                "Macro F1": round(metrics_a["macro_f1"], 4),
-                "Cohen Kappa": round(metrics_a["cohens_kappa"], 4),
-                "Official Baseline": f"{ORIGINAL_OFFICIAL_TEST_ACC * 100:.2f}%",
-                "Status": "PRIMARY OFFICIAL BASELINE",
+                "Model Architecture": "Tuned 1D-CNN (Single Model)",
+                "Protocol A (Original Acc)": f"{acc_cnn_a_pct:.2f}%",
+                "Protocol B (Quality-Controlled Acc)": f"{acc_cnn_b_pct:.2f}%",
+                "Diff (pp)": f"{acc_cnn_b_pct - acc_cnn_a_pct:+.2f}",
+                "Status": "Secondary Single Model",
             },
             {
-                "Protocol": "Protocol B (Quality-Controlled)",
-                "Epochs": len(y_te_qc),
-                "Test Accuracy (%)": round(acc_b_pct, 2),
-                "Balanced Acc (%)": round(metrics_b["balanced_accuracy"] * 100, 2),
-                "Macro F1": round(metrics_b["macro_f1"], 4),
-                "Cohen Kappa": round(metrics_b["cohens_kappa"], 4),
-                "Official Baseline": "N/A (Secondary Analysis)",
-                "Status": "SECONDARY ANALYSIS ONLY",
+                "Model Architecture": "Val-Weighted Ensemble (CNN + EEGNet)",
+                "Protocol A (Original Acc)": f"{acc_ens_a_pct:.2f}%",
+                "Protocol B (Quality-Controlled Acc)": f"{acc_ens_b_pct:.2f}%",
+                "Diff (pp)": f"{acc_ens_b_pct - acc_ens_a_pct:+.2f}",
+                "Status": "PRIMARY OFFICIAL ENSEMBLE BASELINE",
             },
         ]
     )
@@ -314,19 +337,14 @@ def run_evaluation() -> dict[str, Any]:
 
 This report evaluates the **Quality-Controlled Protocol (Protocol B)** alongside the **Original Benchmark (Protocol A)** on frozen test subjects $S094-S109$.
 
-All exclusion and filtering criteria were **predeclared in `annotation_audit.py`** prior to evaluation.
-
 ---
 
 ## Side-by-Side Performance Comparison
 
-| Metric | Protocol A (Original Dataset) | Protocol B (Quality-Controlled) | Difference |
+| Model Architecture | Protocol A (Original Dataset) | Protocol B (Quality-Controlled) | Difference |
 |---|---|---|---|
-| **Test Epochs** | {len(y_te_orig)} | {len(y_te_qc)} | -{len(y_te_orig) - len(y_te_qc)} epochs (S104R08) |
-| **Test Accuracy** | **{acc_a_pct:.2f}%** | **{acc_b_pct:.2f}%** | **{diff_pp:+.2f} percentage points** |
-| **Balanced Accuracy** | {metrics_a["balanced_accuracy"] * 100:.2f}% | {metrics_b["balanced_accuracy"] * 100:.2f}% | {(metrics_b["balanced_accuracy"] - metrics_a["balanced_accuracy"]) * 100:+.2f} percentage points |
-| **Macro F1** | {metrics_a["macro_f1"]:.4f} | {metrics_b["macro_f1"]:.4f} | {metrics_b["macro_f1"] - metrics_a["macro_f1"]:+.4f} |
-| **Cohen's Kappa** | {metrics_a["cohens_kappa"]:.4f} | {metrics_b["cohens_kappa"]:.4f} | {metrics_b["cohens_kappa"] - metrics_a["cohens_kappa"]:+.4f} |
+| **Tuned 1D-CNN (Single Model)** | **{acc_cnn_a_pct:.2f}%** | **{acc_cnn_b_pct:.2f}%** | **{acc_cnn_b_pct - acc_cnn_a_pct:+.2f} percentage points** |
+| **Val-Weighted Ensemble (CNN + EEGNet)** | **{acc_ens_a_pct:.2f}%** | **{acc_ens_b_pct:.2f}%** | **{acc_ens_b_pct - acc_ens_a_pct:+.2f} percentage points** |
 
 ---
 
@@ -344,7 +362,7 @@ All exclusion and filtering criteria were **predeclared in `annotation_audit.py`
 ## Protocol Safeguards & Methodological Statement
 
 > [!IMPORTANT]
-> 1. **No Model Retuning**: The model was evaluated directly using the frozen checkpoint without tuning hyperparameters on the test set.
+> 1. **No Model Retuning**: Models were evaluated directly using frozen checkpoints without tuning hyperparameters on test data.
 > 2. **Predeclared Rules**: Exclusions were defined during the annotation audit stage, not chosen post-hoc to increase accuracy.
 > 3. **Primary Result Preserved**: The original official test result (**80.98%**) remains the official primary benchmark for this dataset.
 """
@@ -358,8 +376,8 @@ All exclusion and filtering criteria were **predeclared in `annotation_audit.py`
         except ValueError:
             return str(p)
 
-    print(f"\n  ✓ Protocol A Test Acc (Original) : {acc_a_pct:.2f}%")
-    print(f"  ✓ Protocol B Test Acc (Quality-Controlled) : {acc_b_pct:.2f}% ({diff_pp:+.2f} pp)")
+    print(f"\n  ✓ Protocol A Test Acc  : Single CNN = {acc_cnn_a_pct:.2f}% | Val-Weighted Ensemble = {acc_ens_a_pct:.2f}%")
+    print(f"  ✓ Protocol B Test Acc  : Single CNN = {acc_cnn_b_pct:.2f}% | Val-Weighted Ensemble = {acc_ens_b_pct:.2f}%")
     print(f"  ✓ Saved JSON → {_rel(json_path)}")
     print(f"  ✓ Saved CSV  → {_rel(csv_path)}")
     print(f"  ✓ Saved MD   → {_rel(md_path)}")

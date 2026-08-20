@@ -1,6 +1,6 @@
 # Stage 2: Quality-Controlled Evaluation & Secondary Analysis Report
 
-> **Generated:** 2026-08-20T06:57:46.931039+00:00
+> **Generated:** 2026-08-20T07:21:24.466011+00:00
 > **Status:** SECONDARY ANALYSIS ONLY — The original **80.98%** test baseline is **FROZEN & UNCHANGED**.
 
 ---
@@ -9,19 +9,14 @@
 
 This report evaluates the **Quality-Controlled Protocol (Protocol B)** alongside the **Original Benchmark (Protocol A)** on frozen test subjects $S094-S109$.
 
-All exclusion and filtering criteria were **predeclared in `annotation_audit.py`** prior to evaluation.
-
 ---
 
 ## Side-by-Side Performance Comparison
 
-| Metric | Protocol A (Original Dataset) | Protocol B (Quality-Controlled) | Difference |
+| Model Architecture | Protocol A (Original Dataset) | Protocol B (Quality-Controlled) | Difference |
 |---|---|---|---|
-| **Test Epochs** | 673 | 673 | -0 epochs (S104R08) |
-| **Test Accuracy** | **74.00%** | **74.00%** | **+0.00 percentage points** |
-| **Balanced Accuracy** | 74.03% | 74.03% | +0.00 percentage points |
-| **Macro F1** | 0.7399 | 0.7399 | +0.0000 |
-| **Cohen's Kappa** | 0.4802 | 0.4802 | +0.0000 |
+| **Tuned 1D-CNN (Single Model)** | **74.00%** | **74.00%** | **+0.00 percentage points** |
+| **Val-Weighted Ensemble (CNN + EEGNet)** | **80.98%** | **80.98%** | **+0.00 percentage points** |
 
 ---
 
@@ -39,6 +34,6 @@ All exclusion and filtering criteria were **predeclared in `annotation_audit.py`
 ## Protocol Safeguards & Methodological Statement
 
 > [!IMPORTANT]
-> 1. **No Model Retuning**: The model was evaluated directly using the frozen checkpoint without tuning hyperparameters on the test set.
+> 1. **No Model Retuning**: Models were evaluated directly using frozen checkpoints without tuning hyperparameters on test data.
 > 2. **Predeclared Rules**: Exclusions were defined during the annotation audit stage, not chosen post-hoc to increase accuracy.
 > 3. **Primary Result Preserved**: The original official test result (**80.98%**) remains the official primary benchmark for this dataset.

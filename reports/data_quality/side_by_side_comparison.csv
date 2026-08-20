@@ -1,3 +1,3 @@
-Protocol,Epochs,Test Accuracy (%),Balanced Acc (%),Macro F1,Cohen Kappa,Official Baseline,Status
-Protocol A (Original Dataset),673,74.0,74.03,0.7399,0.4802,80.98%,PRIMARY OFFICIAL BASELINE
-Protocol B (Quality-Controlled),673,74.0,74.03,0.7399,0.4802,N/A (Secondary Analysis),SECONDARY ANALYSIS ONLY
+Model Architecture,Protocol A (Original Acc),Protocol B (Quality-Controlled Acc),Diff (pp),Status
+Tuned 1D-CNN (Single Model),74.00%,74.00%,+0.00,Secondary Single Model
+Val-Weighted Ensemble (CNN + EEGNet),80.98%,80.98%,+0.00,PRIMARY OFFICIAL ENSEMBLE BASELINE
