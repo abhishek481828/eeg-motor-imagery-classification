@@ -1,0 +1,3 @@
+Protocol,Epochs,Test Accuracy (%),Balanced Acc (%),Macro F1,Cohen Kappa,Official Baseline,Status
+Protocol A (Original Dataset),673,74.0,74.03,0.7399,0.4802,80.98%,PRIMARY OFFICIAL BASELINE
+Protocol B (Quality-Controlled),673,74.0,74.03,0.7399,0.4802,N/A (Secondary Analysis),SECONDARY ANALYSIS ONLY
