@@ -53,6 +53,9 @@ evaluate:
 audit:
 	nix-shell -p "python312.withPackages(ps: with ps; [mne numpy pandas torch scipy scikit-learn matplotlib seaborn pyyaml tqdm])" --run "python3 scripts/audit_eegmmidb_quality.py --data-dir data/raw/physionet --out-dir reports/data_quality && python3 scripts/evaluate_quality_controlled.py"
 
+demo:
+	nix-shell -p "python312.withPackages(ps: with ps; [mne numpy pandas torch scipy scikit-learn matplotlib seaborn pyyaml tqdm])" --run "python3 scripts/interactive_demo.py"
+
 clean:
 	rm -rf build/ dist/ *.egg-info .pytest_cache .coverage htmlcov .mypy_cache .ruff_cache
 	find . -type d -name "__pycache__" -exec rm -rf {} +
