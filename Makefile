@@ -1,4 +1,4 @@
-.PHONY: help install format lint test check inspect-data preprocess train evaluate clean
+.PHONY: help install format lint test check inspect-data preprocess train evaluate audit clean
 
 PYTHON ?= python3
 VENV ?= .venv
@@ -11,6 +11,7 @@ help:
 	@echo "make lint         : Run Ruff linter and MyPy type checker"
 	@echo "make test         : Run pytest test suite"
 	@echo "make check        : Run environment check script"
+	@echo "make audit        : Run complete Data Quality Audit & Stage 2 Evaluation"
 	@echo "make inspect-data : Run dataset inspection script"
 	@echo "make preprocess   : Run dataset preprocessing pipeline"
 	@echo "make train        : Run CNN-LSTM model training"
@@ -48,6 +49,9 @@ train:
 
 evaluate:
 	$(PYTHON) scripts/evaluate.py
+
+audit:
+	nix-shell -p "python312.withPackages(ps: with ps; [mne numpy pandas torch scipy scikit-learn matplotlib seaborn pyyaml tqdm])" --run "python3 scripts/audit_eegmmidb_quality.py --data-dir data/raw/physionet --out-dir reports/data_quality && python3 scripts/evaluate_quality_controlled.py"
 
 clean:
 	rm -rf build/ dist/ *.egg-info .pytest_cache .coverage htmlcov .mypy_cache .ruff_cache
