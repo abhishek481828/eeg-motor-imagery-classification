@@ -256,7 +256,39 @@ Outputs `metrics_summary.json`, `metrics_summary.csv`, and `confusion_matrix.png
 
 ---
 
-## 23. Testing Commands
+## 23. PhysioNet EEG Annotation & Data Quality Audit
+
+A comprehensive, zero-leakage data-quality audit of all 109 PhysioNet subjects ($S001$–$S109$) and 327 binary motor-imagery runs ($R04, R08, R12$) is available in `src/eeg_mi/data_quality/`.
+
+### Run Quality Audit (Stage 1)
+```bash
+python scripts/audit_eegmmidb_quality.py \
+    --data-dir data/raw/physionet \
+    --out-dir  reports/data_quality
+```
+Outputs in `reports/data_quality/`:
+- `eegmmidb_quality_report.md` — Full Markdown audit report
+- `eegmmidb_subject_run_audit.csv` & `.json` — Complete per-run audit database
+- `invalid_or_warning_runs.csv` — Filtered anomaly manifest
+- `trial_count_comparison.csv` — Expected vs usable trial counts
+
+### Run Quality-Controlled Evaluation (Stage 2 Secondary Analysis)
+```bash
+python scripts/evaluate_quality_controlled.py
+```
+Outputs in `reports/data_quality/`:
+- `side_by_side_comparison.csv` — Protocol A vs Protocol B comparison table
+- `quality_controlled_evaluation.md` — Quality-controlled evaluation report
+
+### Audit Summary
+- **109 subjects / 327 binary MI runs audited** directly from raw EDF annotations.
+- **0 corrupt files** and **0 missing annotation channels**.
+- **153 VALID runs**, **174 VALID_WITH_WARNINGS runs** (flagged for 128 Hz sfreq, truncated duration, or noise spikes).
+- **Zero data deleted:** Exclusions and resampling rules are applied cleanly via audit manifests.
+
+---
+
+## 24. Testing Commands
 Run unit and integration test suite:
 ```bash
 # Run tests with pytest
