@@ -1,4 +1,4 @@
-.PHONY: help install format lint test check inspect-data preprocess train evaluate audit clean
+.PHONY: help install format lint test check inspect-data preprocess train evaluate audit demo dashboard clean
 
 PYTHON ?= python3
 VENV ?= .venv
@@ -12,6 +12,8 @@ help:
 	@echo "make test         : Run pytest test suite"
 	@echo "make check        : Run environment check script"
 	@echo "make audit        : Run complete Data Quality Audit & Stage 2 Evaluation"
+	@echo "make demo         : Run interactive CLI demo"
+	@echo "make dashboard    : Launch interactive Streamlit showcase dashboard"
 	@echo "make inspect-data : Run dataset inspection script"
 	@echo "make preprocess   : Run dataset preprocessing pipeline"
 	@echo "make train        : Run CNN-LSTM model training"
@@ -55,6 +57,9 @@ audit:
 
 demo:
 	nix-shell -p "python312.withPackages(ps: with ps; [mne numpy pandas torch scipy scikit-learn matplotlib seaborn pyyaml tqdm])" --run "python3 scripts/interactive_demo.py"
+
+dashboard:
+	nix-shell -p "python312.withPackages(ps: with ps; [streamlit mne numpy pandas torch scipy scikit-learn matplotlib seaborn pyyaml tqdm])" --run "streamlit run app.py"
 
 clean:
 	rm -rf build/ dist/ *.egg-info .pytest_cache .coverage htmlcov .mypy_cache .ruff_cache

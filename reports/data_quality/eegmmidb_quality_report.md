@@ -1,8 +1,8 @@
 # PhysioNet EEGMMIDB v1.0.0 — Annotation & Data-Quality Audit Report
 
-> **Generated:** 2026-08-20T07:16:38.297997+00:00  
-
-> **Audit runtime:** 13.2 seconds  
+> **Generated:** 2026-08-20T07:22:56.916739+00:00
+> **Scope:** Binary Motor Imagery Runs (R04, R08, R12) across 109 PhysioNet subjects
+> **Audit runtime:** 12.6 seconds
 
 > **Status of official test result:** UNCHANGED — 80.98% test accuracy on S094–S109 is the frozen baseline.  This audit does NOT evaluate any model.
 

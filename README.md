@@ -272,19 +272,26 @@ Outputs in `reports/data_quality/`:
 - `invalid_or_warning_runs.csv` — Filtered anomaly manifest
 - `trial_count_comparison.csv` — Expected vs usable trial counts
 
-### Run Quality-Controlled Evaluation (Stage 2 Secondary Analysis)
+### Run Interactive Showcase Dashboard
 ```bash
-python scripts/evaluate_quality_controlled.py
+streamlit run app.py
+# Or:
+make dashboard
 ```
-Outputs in `reports/data_quality/`:
-- `side_by_side_comparison.csv` — Protocol A vs Protocol B comparison table
-- `quality_controlled_evaluation.md` — Quality-controlled evaluation report
+Provides an interactive 8-section presentation dashboard:
+1. **Project Overview:** High-level BCI concepts & visual architecture flowchart.
+2. **Dataset & Split:** PhysioNet 109-subject breakdown, subject-level split warning, and audit scan counts.
+3. **Model Architecture:** Ensemble configuration (45% 1D-CNN + 55% EEGNet) and complementary feature rationale.
+4. **Results:** **80.98% Official Unseen-Test Accuracy** and **83.02% Best Validation Accuracy** performance cards and per-subject charts.
+5. **Interactive EEG Trial Explorer:** Test trial selector (0–672), preset buttons, 64-channel waveform plots, MATCH/MISMATCH cards, and confidence scores.
+6. **Data-Quality Audit:** Summary of 109 subjects audited and status breakdown.
+7. **Limitations & Future Work:** Prototype notices and live streaming roadmap.
 
-### Audit Summary
-- **109 subjects / 327 binary MI runs audited** directly from raw EDF annotations.
-- **0 corrupt files** and **0 missing annotation channels**.
-- **153 VALID runs**, **174 VALID_WITH_WARNINGS runs** (flagged for 128 Hz sfreq, truncated duration, or noise spikes).
-- **Zero data deleted:** Exclusions and resampling rules are applied cleanly via audit manifests.
+### Run Interactive CLI Demo
+```bash
+make demo
+```
+Allows manual trial selection (0–672) or random trial generation directly in the terminal with live probability output.
 
 ---
 

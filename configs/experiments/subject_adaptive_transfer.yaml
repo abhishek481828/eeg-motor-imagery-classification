@@ -1,0 +1,21 @@
+# Subject-Adaptive Transfer & Self-Supervised Experiment Configuration
+
+experiment_name: "subject_adaptive_transfer_study"
+seeds: [42, 123, 2024]
+
+# Calibration Budgets (k labeled target-subject trials)
+calibration_budgets: [0, 5, 10, 20, 30]
+
+# Subject Adaptation Strategies
+adaptation_strategies:
+  - "A" # Classifier-head fine-tuning only
+  - "B" # BatchNorm adaptation only
+  - "D" # SubjectAdapter layer
+  - "E" # Prototype centroid calibration
+  - "F" # Temperature scaling
+
+# Self-Supervised Pretext Tasks
+pretext_tasks:
+  - "contrastive"
+  - "masked_temporal"
+  - "masked_channel"
